@@ -306,10 +306,16 @@ fn execute_only(make_job: fn() -> Box<dyn JobClass>, input: Vec<u8>, result: Vec
         .execute(env, PCP_GUEST_ELF)
         .expect("guest runs");
     let cycles: u64 = session.segments.iter().map(|s| u64::from(s.cycles)).sum();
+    // Each segment is proven at its padded size 2^po2 (user cycles plus
+    // paging and reserved cycles, rounded up): the total a prove reports.
+    let total: u64 = session.segments.iter().map(|s| 1u64 << s.po2).sum();
+    let po2s: Vec<String> = session.segments.iter().map(|s| s.po2.to_string()).collect();
     println!(
-        "execute-only: {} segment(s), {} user cycles, {:.3} s, journal {} bytes, peak RSS {:.0} MiB",
+        "execute-only: {} segment(s), {} user cycles, total {} (po2 {}), {:.3} s, journal {} bytes, peak RSS {:.0} MiB",
         session.segments.len(),
         cycles,
+        total,
+        po2s.join(","),
         t.elapsed().as_secs_f64(),
         session.journal.bytes.len(),
         peak_rss_mib()
