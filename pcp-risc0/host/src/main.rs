@@ -386,7 +386,7 @@ fn main() {
             let cfg = SellerConfig {
                 price_msat: price,
                 rail: RAIL_BOLT11.into(),
-                min_htlc_secs: 18 * 600,
+                min_htlc_secs: pcp::rail::lnd::LND_MIN_FINAL_CLTV * 600,
                 settle_margin_secs: 600,
                 ..SellerConfig::default()
             };

@@ -22,7 +22,7 @@ h_b64=$(printf '%s' "$h_hex" | xxd -r -p | base64 -w0)
 echo "k=$k_hex H=$h_hex"
 
 rest bob 8082 POST /v2/invoices/hodl \
-  "{\"hash\":\"$h_b64\",\"value_msat\":\"1000000\",\"expiry\":\"600\",\"cltv_expiry\":\"18\"}" \
+  "{\"hash\":\"$h_b64\",\"value_msat\":\"1000000\",\"expiry\":\"600\",\"cltv_expiry\":\"24\"}" \
   | tee "$OUT/rest/probe-1-hodl.json"; echo
 pr=$(jq -r .payment_request "$OUT/rest/probe-1-hodl.json")
 

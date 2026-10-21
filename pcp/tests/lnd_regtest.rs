@@ -16,7 +16,7 @@ use std::time::Duration;
 
 use pcp::encoding::sha256;
 use pcp::lightning::LedgerError;
-use pcp::rail::lnd::{LndConfig, LndRail};
+use pcp::rail::lnd::{LndConfig, LndRail, LND_MIN_FINAL_CLTV};
 use pcp::rail::{IncomingState, InvoiceRequest, PaymentStatus, Rail, RailError};
 use rand::RngCore;
 
@@ -38,7 +38,7 @@ fn request(seller: &LndRail, k: &[u8; 32], amount_msat: u64) -> InvoiceRequest {
         amount_msat,
         description_hash: sha256(b"pcp lnd_regtest"),
         expiry_secs: 600,
-        min_htlc_secs: 18 * 600,
+        min_htlc_secs: LND_MIN_FINAL_CLTV * 600,
     }
 }
 
@@ -65,7 +65,7 @@ fn the_hold_invoice_reads_back_with_the_requested_terms() {
     assert_eq!(inv.description_hash, req.description_hash);
     assert_eq!(inv.payee, seller.node_id());
     assert_eq!(inv.expiry_secs, 600);
-    assert_eq!(inv.min_htlc_secs, 18 * 600);
+    assert_eq!(inv.min_htlc_secs, LND_MIN_FINAL_CLTV * 600);
     assert!(inv.bolt11.as_deref().unwrap().starts_with("lnbcrt"));
     // Nothing paid yet: the payee sees no HTLC.
     assert_eq!(seller.lookup_invoice(&req.payment_hash), Ok(None));

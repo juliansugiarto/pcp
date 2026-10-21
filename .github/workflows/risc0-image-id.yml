@@ -17,9 +17,11 @@ on:
 permissions:
   contents: write
 
+# Never cancel a running build: the guest image id does not depend on the
+# std-only code most pushes to this branch change.
 concurrency:
   group: risc0-image-id-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   risc0-image-id:

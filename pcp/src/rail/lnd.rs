@@ -1,17 +1,17 @@
 //! LND REST rail (feature `lnd`, off by default): one LND node, hold
 //! invoices, `lightning-bolt11/0`.
 //!
-//! **Status: compiled, unit-tested on hand-written JSON only, never run
-//! against a node by this repository.** The JSON field names and shapes
-//! below follow LND's REST API documentation (grpc-gateway mapping of
-//! `lnrpc` / `invoicesrpc` / `routerrpc`) as the authors understand it; the
-//! first run on a real regtest node (see `RUN-ON-MAC.md`) is what checks
-//! them.
+//! **Status: run against real LND nodes on regtest** (LND v0.19.3-beta and
+//! v0.21.4-beta in Docker, `.github/workflows/lnd-regtest.yml`): a whole
+//! sale settles, and `tests/lnd_regtest.rs` checks a reused hash, a
+//! mismatching presented invoice and a cancelled hold invoice. The JSON
+//! field names and shapes below match what those nodes returned; the raw
+//! output is kept on the `ci-results-lnd` branch.
 //!
 //! | Rail method | LND REST call |
 //! |---|---|
 //! | `create_invoice` | `POST /v2/invoices/hodl` (AddHoldInvoice), then `GET /v1/payreq/{bolt11}` to read it back |
-//! | `pay_invoice` | `GET /v1/payreq/{bolt11}` (the payer's own node decodes), then `POST /v2/router/send` (SendPaymentV2, streaming; returns at the first `IN_FLIGHT`) |
+//! | `pay_invoice` | `GET /v1/payreq/{bolt11}` (the payer's own node decodes), then `POST /v2/router/send` (SendPaymentV2, streaming; returns once an HTLC attempt is `IN_FLIGHT`) |
 //! | `settle_invoice` | `POST /v2/invoices/settle` (SettleInvoice) |
 //! | `lookup_invoice` | `GET /v1/invoice/{hash_hex}` (LookupInvoice) and `GET /v1/getinfo` for the block height |
 //! | `lookup_payment` | `GET /v1/payments?include_incomplete=true` (ListPayments) |
@@ -23,9 +23,11 @@
 //!
 //! Units: BOLT11 timelocks are in blocks. This rail converts with
 //! `secs_per_block` (600 by default): `min_htlc_secs` = `cltv_expiry *
-//! secs_per_block`. LND does not accept a final CLTV delta below 18
-//! blocks, so on this rail a seller's `min_htlc_secs` is at least
-//! 18 * 600 = 10 800 s, and the buyer's `BuyerPolicy::htlc_secs` must be
+//! secs_per_block`. LND refuses a hold invoice whose final CLTV delta is
+//! below its minimum: 18 blocks up to v0.19, 24 blocks in v0.21 ("CLTV
+//! delta of 18 must be greater than minimum of 24"). This rail asks for at
+//! least 24, so on this rail a seller's `min_htlc_secs` is at least
+//! 24 * 600 = 14 400 s, and the buyer's `BuyerPolicy::htlc_secs` must be
 //! raised to match (RUN-ON-MAC.md uses 24 000).
 //!
 //! Authentication: the macaroon is sent as the `Grpc-Metadata-macaroon`
@@ -48,8 +50,9 @@ use super::{
 use crate::encoding::{sha256, Hash32};
 use crate::lightning::{Invoice, LedgerError};
 
-/// LND refuses final CLTV deltas below this many blocks.
-pub const LND_MIN_FINAL_CLTV: u64 = 18;
+/// LND refuses final CLTV deltas below this many blocks (24 in LND v0.21;
+/// v0.19 accepted 18).
+pub const LND_MIN_FINAL_CLTV: u64 = 24;
 
 /// How to reach one LND node.
 #[derive(Clone)]
@@ -312,8 +315,10 @@ impl Rail for LndRail {
         }
         // A stream of JSON objects, one per line. A hold invoice keeps the
         // payment IN_FLIGHT until the seller settles, so return at the first
-        // update that says the payment is out (or that it failed). Dropping
-        // the stream does not cancel the payment in LND (UNTESTED here).
+        // update that shows an HTLC out (or that the payment failed). LND
+        // reports the payment IN_FLIGHT before any HTLC is sent (first line,
+        // `htlcs: []`), so the status alone is not enough. Dropping the
+        // stream does not cancel the payment (checked on regtest).
         for line in BufReader::new(resp).lines() {
             let line = line.map_err(|e| RailError::Node(format!("{path}: {e}")))?;
             if line.trim().is_empty() {
@@ -517,7 +522,8 @@ enum SendUpdate {
 }
 
 /// One line of the SendPaymentV2 stream: `{"result": Payment}` or
-/// `{"error": {...}}`.
+/// `{"error": {...}}`. `Out` once an HTLC attempt is in flight (or the
+/// payment succeeded).
 fn send_update(line: &str) -> Result<SendUpdate, RailError> {
     let v: Value = serde_json::from_str(line)
         .map_err(|e| RailError::Node(format!("router/send: bad JSON: {e}")))?;
@@ -525,8 +531,13 @@ fn send_update(line: &str) -> Result<SendUpdate, RailError> {
         return Err(RailError::Node(format!("router/send: {err}")));
     }
     let p = v.get("result").unwrap_or(&v);
+    let htlc_out = p["htlcs"].as_array().is_some_and(|hs| {
+        hs.iter()
+            .any(|h| matches!(h["status"].as_str(), Some("IN_FLIGHT") | Some("SUCCEEDED")))
+    });
     Ok(match p["status"].as_str() {
-        Some("IN_FLIGHT") | Some("SUCCEEDED") => SendUpdate::Out,
+        Some("SUCCEEDED") => SendUpdate::Out,
+        Some("IN_FLIGHT") if htlc_out => SendUpdate::Out,
         Some("FAILED") => SendUpdate::Failed(
             p["failure_reason"]
                 .as_str()
@@ -668,14 +679,36 @@ mod tests {
     }
 
     #[test]
-    fn send_stream_returns_at_first_in_flight() {
+    fn send_stream_returns_at_first_htlc_in_flight() {
         assert!(matches!(
             send_update(r#"{"result":{"status":"INITIATED"}}"#),
             Ok(SendUpdate::Pending)
         ));
+        // LND v0.19.3, first two lines for a hold invoice (trimmed): the
+        // payment is IN_FLIGHT before any HTLC is out.
         assert!(matches!(
-            send_update(r#"{"result":{"status":"IN_FLIGHT"}}"#),
+            send_update(
+                r#"{"result":{"status":"IN_FLIGHT","htlcs":[],"failure_reason":"FAILURE_REASON_NONE"}}"#
+            ),
+            Ok(SendUpdate::Pending)
+        ));
+        assert!(matches!(
+            send_update(
+                r#"{"result":{"status":"IN_FLIGHT","htlcs":[{"attempt_id":"4","status":"IN_FLIGHT","route":{"total_time_lock":134},"resolve_time_ns":"0","failure":null}],"failure_reason":"FAILURE_REASON_NONE"}}"#
+            ),
             Ok(SendUpdate::Out)
+        ));
+        assert!(matches!(
+            send_update(r#"{"result":{"status":"IN_FLIGHT","htlcs":[{"status":"FAILED"}]}}"#),
+            Ok(SendUpdate::Pending)
+        ));
+        assert!(matches!(
+            send_update(r#"{"result":{"status":"SUCCEEDED","htlcs":[]}}"#),
+            Ok(SendUpdate::Out)
+        ));
+        assert!(matches!(
+            send_update(r#"{"result":{"status":"FAILED","htlcs":[],"failure_reason":"FAILURE_REASON_INSUFFICIENT_BALANCE"}}"#),
+            Ok(SendUpdate::Failed(r)) if r == "FAILURE_REASON_INSUFFICIENT_BALANCE"
         ));
         assert!(matches!(
             send_update(r#"{"result":{"status":"FAILED","failure_reason":"FAILURE_REASON_NO_ROUTE"}}"#),
