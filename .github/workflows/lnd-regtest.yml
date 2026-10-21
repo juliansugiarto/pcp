@@ -1,0 +1,161 @@
+# The LND rail against real LND nodes (regtest, Docker), and a reproducible
+# RISC Zero image id (guest built in Docker). Results go to the
+# `ci-results-lnd` branch and to workflow artifacts, never to main.
+#
+# Regtest sats only. The sale uses the INSECURE dev proof backend: it tests
+# the Lightning rail, not the proof.
+name: lnd-regtest
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ci-lnd]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lnd-regtest-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lnd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      # Tried in order; the first that pulls is used and recorded.
+      LND_CANDIDATES: "lightninglabs/lnd:v0.19.3-beta lightninglabs/lnd:v0.18.5-beta"
+      BTC_CANDIDATES: "polarlightning/bitcoind:28.0 bitcoin/bitcoin:28.1 lncm/bitcoind:v27.0 ruimarinho/bitcoin-core:24.0.1"
+      OUT: out
+      CREDS: creds
+    steps:
+      - uses: actions/checkout@v4
+      - name: Machine
+        run: |
+          mkdir -p out
+          { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; docker --version; rustc --version; } | tee out/machine.txt
+      - name: Pick images
+        run: |
+          for repo in lightninglabs/lnd polarlightning/bitcoind bitcoin/bitcoin lncm/bitcoind; do
+            echo "== $repo"
+            curl -fsS "https://hub.docker.com/v2/repositories/$repo/tags?page_size=40&ordering=last_updated" \
+              | jq -r '.results[] | "\(.name) \(.last_updated)"' || true
+          done > out/dockerhub-tags.txt 2>&1
+          pick() { for img in $1; do if docker pull -q "$img" >/dev/null 2>&1; then echo "$img"; return; fi; echo "pull failed: $img" >&2; done; }
+          lnd=$(pick "$LND_CANDIDATES"); btc=$(pick "$BTC_CANDIDATES")
+          echo "LND_IMAGE=$lnd" | tee -a "$GITHUB_ENV" out/images.txt
+          echo "BTC_IMAGE=$btc" | tee -a "$GITHUB_ENV" out/images.txt
+          test -n "$lnd" && test -n "$btc"
+      - name: Build lnd_sale and tests
+        run: |
+          cd pcp
+          cargo build --features lnd --bin lnd_sale 2>&1 | tail -n 5
+          cargo test --features lnd --no-run 2>&1 | tail -n 5
+          cargo test --features lnd 2>&1 | grep -E "^test |test result" | tee ../out/cargo-test-lnd.txt
+      - name: Start regtest network
+        run: bash .github/lnd-regtest/up.sh 2>&1 | tee out/setup.txt
+      - name: Sale over LND (lnd_sale)
+        id: sale
+        continue-on-error: true
+        run: |
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds/alice/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds/alice/admin.macaroon
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8082
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/bob/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
+          set -o pipefail
+          timeout 300 ./pcp/target/debug/lnd_sale 2>&1 | tee out/lnd-sale.txt
+      - name: Rail tests against the nodes (lnd_regtest, ignored tests)
+        id: railtests
+        continue-on-error: true
+        run: |
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds/alice/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds/alice/admin.macaroon
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8082
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/bob/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
+          set -o pipefail
+          cd pcp
+          timeout 600 cargo test --features lnd --test lnd_regtest -- --ignored --test-threads=1 2>&1 | tee ../out/lnd-regtest-tests.txt
+      - name: Dump node state
+        if: always()
+        run: bash .github/lnd-regtest/dump.sh > out/dump.txt 2>&1 || true
+      - name: Summary
+        if: always()
+        run: |
+          { echo "sale: ${{ steps.sale.outcome }}"; echo "rail tests: ${{ steps.railtests.outcome }}"; cat out/images.txt 2>/dev/null; } | tee out/summary.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lnd-regtest-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results-lnd
+        if: always()
+        run: |
+          git config user.name "somnus-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="lnd/$(date -u +%Y%m%dT%H%M%SZ)"
+          for i in 1 2 3; do
+            git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
+            git checkout -f -B ci-results-lnd origin/ci-results-lnd 2>/dev/null || git checkout -f --orphan ci-results-lnd
+            git rm -rq --cached . 2>/dev/null || true
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add lnd && git commit -qm "lnd regtest run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
+            sleep $((RANDOM % 20 + 5))
+          done
+      - name: Fail if the sale or the rail tests failed
+        if: steps.sale.outcome != 'success' || steps.railtests.outcome != 'success'
+        run: exit 1
+
+  risc0-image-id:
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [docker-1, docker-2, native]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install RISC Zero toolchain
+        run: |
+          mkdir -p out
+          curl -L https://risczero.com/install | bash
+          export PATH="$HOME/.risc0/bin:$PATH"
+          rzup install 2>&1 | tail -n 20
+          rzup show 2>&1 | tee out/rzup-show.txt
+          echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
+      - name: Build pcp-risc0 (${{ matrix.build }})
+        run: |
+          cd pcp-risc0
+          if [ "${{ matrix.build }}" != native ]; then export RISC0_USE_DOCKER=1; fi
+          echo "RISC0_USE_DOCKER=${RISC0_USE_DOCKER:-}" | tee ../out/build-mode.txt
+          set -o pipefail
+          cargo build --release 2>&1 | tail -n 60 | tee ../out/build.txt
+      - name: Image id and execute-only
+        run: |
+          cd pcp-risc0
+          set -o pipefail
+          ./target/release/pcp-risc0 --job sudoku9 --execute-only 2>&1 | tee ../out/execute-sudoku9.txt
+          find target -path '*riscv32im-risc0-zkvm-elf*' -type f \( -name 'pcp-guest' -o -name 'pcp-guest.bin' \) -exec sha256sum {} \; | tee ../out/guest-elf-sha256.txt
+          { echo "build: ${{ matrix.build }}"; echo "commit: $GITHUB_SHA"; grep "guest image id" ../out/execute-sudoku9.txt; } | tee ../out/image-id.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: risc0-image-id-${{ matrix.build }}-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results-lnd
+        if: always()
+        run: |
+          git config user.name "somnus-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="risc0-image-id/$(date -u +%Y%m%dT%H%M%SZ)-${{ matrix.build }}"
+          for i in 1 2 3 4 5; do
+            git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
+            git checkout -f -B ci-results-lnd origin/ci-results-lnd 2>/dev/null || git checkout -f --orphan ci-results-lnd
+            git rm -rq --cached . 2>/dev/null || true
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add risc0-image-id && git commit -qm "risc0 image id ${{ matrix.build }} run ${{ github.run_id }}" && git push origin ci-results-lnd && break
+            sleep $((RANDOM % 20 + 5))
+          done
