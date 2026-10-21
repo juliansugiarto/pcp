@@ -2,8 +2,9 @@
 name = "pcp-guest"
 version = "0.1.0"
 edition = "2021"
-# The Docker guest builder pinned by risc0-build 3.0.6 (risc0-guest-builder
-# r0.1.88.0) ships Rust 1.88: Cargo.lock is resolved for it.
+# Cargo.lock was resolved for Rust 1.88 (risc0-build 3.0.6's default guest
+# builder, r0.1.88.0). The guest is now built with the r0.1.97.0 builder
+# (Rust 1.97, see ../build.rs), which takes the same lock file unchanged.
 rust-version = "1.88"
 license = "MIT"
 publish = false

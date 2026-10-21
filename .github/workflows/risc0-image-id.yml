@@ -9,7 +9,7 @@ name: risc0-image-id
 on:
   workflow_dispatch:
   push:
-    branches: [main, ci-guest-2p17]
+    branches: [main]
     paths:
       - "pcp-risc0/**"
       - "pcp/src/**"

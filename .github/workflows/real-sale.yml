@@ -13,7 +13,7 @@ name: real-sale
 on:
   workflow_dispatch:
   push:
-    branches: [main, ci-guest-2p17]
+    branches: [main]
     paths:
       - "pcp/src/**"
       - "pcp-risc0/**/*.rs"
