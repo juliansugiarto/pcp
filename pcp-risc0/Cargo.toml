@@ -1,0 +1,14 @@
+# RISC Zero backend for PCP/0. NOT a member of the `pcp` crate build and not
+# built in CI in the authoring environment (see README.md). Layout follows
+# the `cargo risczero new` template of risc0 3.0.6 (crates.io, 2026-07-17).
+[workspace]
+resolver = "2"
+members = ["host", "methods"]
+
+# Always optimize; building and running the guest takes much longer without optimization.
+[profile.dev]
+opt-level = 3
+
+[profile.release]
+debug = 1
+lto = true

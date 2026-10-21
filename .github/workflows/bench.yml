@@ -1,0 +1,114 @@
+# Runs what the authoring container cannot: the RISC Zero toolchain (rzup), real zkVM
+# proofs for the cost table, and the pcp-zk verifying-key fingerprint on macOS (Apple
+# Silicon). Results go to the `ci-results` branch as plain text, never to main.
+#
+# Proving here is a benchmark on public example inputs only. A real sale proves on
+# the seller's own machine (SPEC: proving must be local), never on a CI runner.
+name: bench
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bench
+  cancel-in-progress: false
+
+jobs:
+  risc0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Machine
+        run: |
+          mkdir -p out
+          { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; nproc; free -m; } | tee out/machine.txt
+      - name: pcp tests
+        run: |
+          cd pcp
+          cargo test 2>&1 | tail -n 30 | tee ../out/pcp-test.txt
+          cargo test --features lnd 2>&1 | tail -n 15 | tee ../out/pcp-test-lnd.txt
+          cargo run --bin demo 2>&1 | tail -n 5 | tee ../out/pcp-demo.txt
+      - name: Install RISC Zero toolchain
+        run: |
+          curl -L https://risczero.com/install | bash
+          export PATH="$HOME/.risc0/bin:$PATH"
+          rzup install 2>&1 | tail -n 20
+          rzup show 2>&1 | tee out/rzup-show.txt
+          echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
+      - name: Build pcp-risc0
+        run: |
+          cd pcp-risc0
+          cargo build --release 2>&1 | tail -n 40 | tee ../out/risc0-build.txt
+      - name: Execute only (cycle counts)
+        continue-on-error: true
+        run: |
+          cd pcp-risc0
+          for job in sudoku4 sudoku9 testsuite; do
+            echo "== $job" | tee -a ../out/risc0-execute.txt
+            ./target/release/pcp-risc0 --job "$job" --execute-only 2>&1 | tail -n 5 | tee -a ../out/risc0-execute.txt
+          done
+      - name: Prove (cost table rows)
+        continue-on-error: true
+        run: |
+          cd pcp-risc0
+          for job in sudoku4 sudoku9 testsuite; do
+            echo "== $job" | tee -a ../out/risc0-prove.txt
+            /usr/bin/time -v ./target/release/pcp-risc0 --job "$job" 2>&1 \
+              | grep -E "cost-row|SETTLED|refused|error|panicked|Maximum resident|Elapsed" | tee -a ../out/risc0-prove.txt
+          done
+      - name: Publish results to ci-results
+        if: always()
+        run: |
+          git config user.name "somnus-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="bench/risc0-$(date -u +%Y%m%dT%H%M%SZ)"
+          for i in 1 2 3; do
+            git fetch origin ci-results || true
+            git checkout -B ci-results "origin/ci-results" 2>/dev/null || git checkout --orphan ci-results
+            git rm -rq --cached . 2>/dev/null || true
+            mkdir -p "$dest" && cp out/* "$dest"/
+            git add bench && git commit -qm "risc0 bench $GITHUB_SHA" && git push origin ci-results && break
+            sleep $((RANDOM % 20 + 5))
+          done
+
+  fingerprint:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and fingerprint
+        run: |
+          mkdir -p out
+          cd pcp-zk
+          cargo build --release --bin pcp-zk
+          { echo "os: ${{ matrix.os }} $(uname -sm)"; echo "commit: $GITHUB_SHA";
+            echo "vk_fingerprint: $(./target/release/pcp-zk vk-fingerprint)"; } | tee ../out/fingerprint-${{ matrix.os }}.txt
+      - name: CLI end to end
+        continue-on-error: true
+        run: |
+          cd pcp-zk
+          scripts/cli-e2e.sh "$RUNNER_TEMP/e2e" 2>&1 | grep -E "^(ok|WRONG)|all cases|\[pcp-zk\] (prove|verify):" | tee ../out/e2e-${{ matrix.os }}.txt
+      - name: Publish results to ci-results
+        if: always()
+        run: |
+          git config user.name "somnus-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="bench/pcp-zk-${{ matrix.os }}-$(date -u +%Y%m%dT%H%M%SZ)"
+          for i in 1 2 3; do
+            git fetch origin ci-results || true
+            git checkout -B ci-results "origin/ci-results" 2>/dev/null || git checkout --orphan ci-results
+            git rm -rq --cached . 2>/dev/null || true
+            mkdir -p "$dest" && cp out/* "$dest"/
+            git add bench && git commit -qm "pcp-zk ${{ matrix.os }} $GITHUB_SHA" && git push origin ci-results && break
+            sleep $((RANDOM % 20 + 5))
+          done

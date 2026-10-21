@@ -1,0 +1,1819 @@
+//! Protocol and threat tests. These live inside the crate so they can model a
+//! malicious seller who has read the dev backend's source (crate-private
+//! `prove_unchecked`, `unseal`). Tests that use only the public API are in
+//! `tests/public_api.rs`.
+
+use rand::rngs::OsRng;
+
+use crate::crypto;
+use crate::encoding::{Hash32, VERSION};
+use crate::job::{input_commitment, JobClass, SudokuJob, TestSuiteJob};
+use crate::lightning::{HtlcState, Ledger, LedgerError};
+use crate::mandate::{
+    adoption_count, Agent, LogEntry, Mandate, MandateError, MandateTerms, PrincipalLog, PublicKey,
+    Role, SecretKey,
+};
+use crate::proof::{
+    build_statement, InsecureDevTransparentBackend, ProofBackend, ProofBundle, ProveError,
+    VerifyError, Witness,
+};
+use crate::protocol::*;
+use crate::registry::JobRegistry;
+
+const PRICE: u64 = 1_000_000;
+const BUYER_FUNDS: u64 = 10_000_000;
+
+fn puzzle9() -> Vec<u8> {
+    SudokuJob::nine()
+        .parse_grid("53..7.... 6..195... .98....6. 8...6...3 4..8.3..1 7...2...6 .6....28. ...419..5 ....8..79")
+        .unwrap()
+}
+
+fn clamp_suite() -> Vec<u8> {
+    TestSuiteJob::encode_suite(&[
+        (-5, 0),
+        (0, 0),
+        (42, 42),
+        (100, 100),
+        (101, 100),
+        (i64::MAX, 100),
+    ])
+}
+
+const CLAMP_OK: &str = "if(x < 0, 0, if(x > 100, 100, x))";
+const CLAMP_BAD: &str = "if(x < 0, 0, x)";
+
+fn dev_policy() -> BuyerPolicy {
+    BuyerPolicy {
+        allow_insecure_dev_backend: true,
+        ..BuyerPolicy::default()
+    }
+}
+
+/// A principal and the agent it signed a mandate for.
+pub(crate) struct Party {
+    pub principal: SecretKey,
+    pub agent: Agent,
+}
+
+impl Party {
+    pub fn principal_key(&self) -> PublicKey {
+        self.principal.public_key()
+    }
+}
+
+/// Every reference job class, for mandate scopes.
+fn all_specs() -> Vec<Hash32> {
+    JobRegistry::reference()
+        .entries()
+        .map(|e| e.spec_hash)
+        .collect()
+}
+
+fn terms(role: Role, node: &str) -> MandateTerms {
+    MandateTerms {
+        role,
+        scope: all_specs(),
+        cap_msat: 10 * PRICE,
+        per_deal_max_msat: 2 * PRICE,
+        payout_node: node.to_string(),
+        expires_at: 1_000_000,
+    }
+}
+
+fn party_with(principal: SecretKey, t: MandateTerms) -> Party {
+    let agent_key = SecretKey::generate(&mut OsRng);
+    let m = Mandate::sign(&principal, agent_key.public_key(), t, &mut OsRng);
+    let agent = Agent::new(agent_key, m).unwrap();
+    Party { principal, agent }
+}
+
+fn party(t: MandateTerms) -> Party {
+    party_with(SecretKey::generate(&mut OsRng), t)
+}
+
+/// Re-sign an offer as `agent` (models a seller, or a modified seller
+/// client, that skips its own checks).
+fn resign_offer(agent: &Agent, mut o: Offer) -> Offer {
+    o.mandate = Some(agent.mandate().clone());
+    o.agent_sig = Some(agent.sign(&o.auth_message(&agent.mandate_id())));
+    o
+}
+
+/// Re-sign a request as `agent`.
+fn resign_request(agent: &Agent, mut r: Request) -> Request {
+    r.mandate = Some(agent.mandate().clone());
+    r.agent_sig = Some(agent.sign(&r.auth_message(&agent.mandate_id())));
+    r
+}
+
+/// An offer built by hand for `req`, signed by `agent`, bypassing every
+/// seller-side check.
+fn manual_offer(agent: &Agent, req: &Request, price: u64, seller_node: &str) -> Offer {
+    resign_offer(
+        agent,
+        Offer {
+            version: VERSION.to_string(),
+            job_id: req.job_id.clone(),
+            spec_hash: req.spec_hash,
+            input_commitment: req.input_commitment,
+            buyer_nonce: req.buyer_nonce,
+            price_msat: price,
+            offer_expires_at: 600,
+            seller_node: seller_node.to_string(),
+            backend_id: crate::proof::INSECURE_DEV_BACKEND_ID.to_string(),
+            enc_scheme: crypto::ENC_SCHEME.to_string(),
+            rail: RAIL_SIM.to_string(),
+            mandate: None,
+            agent_sig: None,
+        },
+    )
+}
+
+struct Fx {
+    ledger: Ledger,
+    buyer: Buyer,
+    seller: Seller,
+    req: Request,
+    offer: Offer,
+    bp: Party,
+    sp: Party,
+}
+
+fn fixture_named<J: JobClass + Clone + 'static>(
+    job: J,
+    input: Vec<u8>,
+    buyer: &str,
+    ledger: Option<Ledger>,
+) -> Fx {
+    let sp = party(terms(Role::Seller, "seller"));
+    let bp = party(terms(Role::Buyer, buyer));
+    let mut ledger = ledger.unwrap_or_else(|| {
+        let mut l = Ledger::new();
+        l.open_principal_node("seller", sp.principal_key(), 0);
+        l
+    });
+    ledger.open_principal_node(buyer, bp.principal_key(), BUYER_FUNDS);
+    let (mut b, req) = Buyer::new(
+        &bp.agent,
+        Box::new(job.clone()),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        input,
+        2 * PRICE,
+        ledger.now(),
+        &mut OsRng,
+    )
+    .unwrap();
+    let seller = Seller::new(
+        &sp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        SellerConfig {
+            price_msat: PRICE,
+            ..SellerConfig::default()
+        },
+    );
+    let offer = seller.make_offer(&req, ledger.now()).unwrap();
+    b.accept_offer(&offer, ledger.now()).unwrap();
+    Fx {
+        ledger,
+        buyer: b,
+        seller,
+        req,
+        offer,
+        bp,
+        sp,
+    }
+}
+
+fn fixture<J: JobClass + Clone + 'static>(job: J, input: Vec<u8>) -> Fx {
+    fixture_named(job, input, "buyer", None)
+}
+
+/// The atomicity invariant: the buyer has paid iff the buyer has `k`.
+fn assert_atomic(fx: &Fx, buyer: &str) {
+    let paid = fx.ledger.balance(buyer) < BUYER_FUNDS;
+    let delivered = fx.buyer.result().is_ok();
+    // A payment locked but neither settled nor refunded is "in flight":
+    // funds are out of the balance but not with the seller either.
+    let in_flight = matches!(fx.buyer.state(), BuyerState::Paid { .. });
+    if !in_flight {
+        assert_eq!(
+            paid, delivered,
+            "atomicity violated: paid={paid} delivered={delivered}"
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Happy paths
+
+fn run_happy(mut fx: Fx, result: Vec<u8>) -> Fx {
+    let (bundle, binding) = fx
+        .seller
+        .fulfil(&fx.req, &fx.offer, result, &mut fx.ledger, &mut OsRng)
+        .unwrap();
+    fx.buyer.verify_bundle(&bundle).unwrap();
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    assert_eq!(fx.buyer.result(), Err(PcpError::NotPaid));
+    fx.buyer.pay(&mut fx.ledger).unwrap();
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Ok(BuyerProgress::Waiting));
+    fx.ledger.advance(5);
+    let outcomes = fx.seller.settle_paid(&mut fx.ledger);
+    assert!(matches!(
+        outcomes.as_slice(),
+        [SaleOutcome::Settled {
+            amount_msat: PRICE,
+            ..
+        }]
+    ));
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Ok(BuyerProgress::Delivered));
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS - PRICE);
+    assert_eq!(fx.ledger.balance("seller"), PRICE);
+    // Payouts land on the seller's principal, payments leave the buyer's.
+    assert_eq!(fx.ledger.principal_balance(&fx.sp.principal_key()), PRICE);
+    assert_eq!(
+        fx.ledger.principal_balance(&fx.bp.principal_key()),
+        BUYER_FUNDS - PRICE
+    );
+    assert_atomic(&fx, "buyer");
+    fx
+}
+
+#[test]
+fn happy_path_sudoku() {
+    let job = SudokuJob::nine();
+    let input = puzzle9();
+    let solution = job.solve(&input).unwrap();
+    let fx = run_happy(fixture(job, input.clone()), solution.clone());
+    assert_eq!(fx.buyer.result().unwrap(), solution.as_slice());
+
+    // The receipt lets a third party re-verify the sale offline.
+    let receipt = fx.buyer.receipt().unwrap().clone();
+    let BuyerState::Delivered { bundle, .. } = fx.buyer.state() else {
+        panic!()
+    };
+    assert_eq!(receipt.verify(&job, &input, bundle).unwrap(), solution);
+    let mut forged = receipt.clone();
+    forged.preimage = [0u8; 32];
+    assert_eq!(
+        forged.verify(&job, &input, bundle),
+        Err(PcpError::PreimageMismatch)
+    );
+}
+
+#[test]
+fn happy_path_four_by_four() {
+    let job = SudokuJob::four();
+    let input = job.parse_grid("1..4 ..1. .1.. 4..1").unwrap();
+    let solution = job.solve(&input).unwrap();
+    run_happy(fixture(job, input), solution);
+}
+
+#[test]
+fn happy_path_patch_passes_tests() {
+    let fx = run_happy(
+        fixture(TestSuiteJob, clamp_suite()),
+        CLAMP_OK.as_bytes().to_vec(),
+    );
+    assert_eq!(fx.buyer.result().unwrap(), CLAMP_OK.as_bytes());
+}
+
+// ---------------------------------------------------------------------------
+// Threat: the seller sends a ciphertext of a wrong result
+
+#[test]
+fn honest_seller_and_backend_refuse_wrong_result() {
+    let mut fx = fixture(TestSuiteJob, clamp_suite());
+    let r = fx.seller.fulfil(
+        &fx.req,
+        &fx.offer,
+        CLAMP_BAD.as_bytes().to_vec(),
+        &mut fx.ledger,
+        &mut OsRng,
+    );
+    assert_eq!(r.err(), Some(PcpError::SellerResultInvalid));
+
+    // Even called directly, the backend will not prove a false statement.
+    let k = crypto::fresh_key(&mut OsRng);
+    let offer_id = fx.offer.offer_id();
+    let c = crypto::encrypt(&k, &offer_id, CLAMP_BAD.as_bytes());
+    let st = build_statement(
+        &TestSuiteJob,
+        input_commitment(&fx.req.input),
+        offer_id,
+        fx.req.buyer_nonce,
+        &c,
+        crypto::payment_hash(&k),
+    );
+    let w = Witness {
+        input: fx.req.input.clone(),
+        result: CLAMP_BAD.as_bytes().to_vec(),
+        key: k,
+    };
+    assert_eq!(
+        InsecureDevTransparentBackend
+            .prove(&TestSuiteJob, &st, &c, &w)
+            .err(),
+        Some(ProveError::Unsatisfied(VerifyError::JobCheckFailed))
+    );
+}
+
+/// A malicious seller who bypasses its own checks: forge a bundle whose
+/// witness carries a wrong result.
+fn forged_bundle(fx: &Fx, result: &[u8], encrypted: &[u8]) -> (ProofBundle, [u8; 32]) {
+    let k = crypto::fresh_key(&mut OsRng);
+    let offer_id = fx.offer.offer_id();
+    let c = crypto::encrypt(&k, &offer_id, encrypted);
+    let st = build_statement(
+        &TestSuiteJob,
+        input_commitment(&fx.req.input),
+        offer_id,
+        fx.req.buyer_nonce,
+        &c,
+        crypto::payment_hash(&k),
+    );
+    let w = Witness {
+        input: fx.req.input.clone(),
+        result: result.to_vec(),
+        key: k,
+    };
+    (
+        InsecureDevTransparentBackend::prove_unchecked(&st, &c, &w),
+        k,
+    )
+}
+
+#[test]
+fn wrong_result_fails_verification_and_nothing_is_paid() {
+    let mut fx = fixture(TestSuiteJob, clamp_suite());
+    let (bundle, _) = forged_bundle(&fx, CLAMP_BAD.as_bytes(), CLAMP_BAD.as_bytes());
+    assert_eq!(
+        fx.buyer.verify_bundle(&bundle),
+        Err(PcpError::ProofInvalid(VerifyError::JobCheckFailed))
+    );
+    assert!(matches!(fx.buyer.state(), BuyerState::Aborted(_)));
+    assert!(matches!(
+        fx.buyer.pay(&mut fx.ledger),
+        Err(PcpError::WrongState(_))
+    ));
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+    assert_atomic(&fx, "buyer");
+}
+
+#[test]
+fn ciphertext_of_other_result_than_proven_fails() {
+    // Witness says CLAMP_OK (passes) but C encrypts CLAMP_BAD.
+    let mut fx = fixture(TestSuiteJob, clamp_suite());
+    let (bundle, _) = forged_bundle(&fx, CLAMP_OK.as_bytes(), CLAMP_BAD.as_bytes());
+    assert_eq!(
+        fx.buyer.verify_bundle(&bundle),
+        Err(PcpError::ProofInvalid(VerifyError::CiphertextMismatch))
+    );
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+}
+
+#[test]
+fn swapped_ciphertext_after_proving_fails() {
+    // Swap C only: the statement's ciphertext_hash no longer matches.
+    let mut fx = fixture(TestSuiteJob, clamp_suite());
+    let (bundle, _) = fx
+        .seller
+        .fulfil(
+            &fx.req,
+            &fx.offer,
+            CLAMP_OK.as_bytes().to_vec(),
+            &mut fx.ledger,
+            &mut OsRng,
+        )
+        .unwrap();
+    let mut b1 = bundle.clone();
+    b1.ciphertext = crypto::encrypt(&[9u8; 32], &fx.offer.offer_id(), b"0");
+    assert_eq!(
+        fx.buyer.verify_bundle(&b1),
+        Err(PcpError::CiphertextHashMismatch)
+    );
+
+    // Swap C and patch the statement to match: the proof is bound to the
+    // original statement and no longer opens.
+    let mut fx = fixture(TestSuiteJob, clamp_suite());
+    let (bundle, _) = fx
+        .seller
+        .fulfil(
+            &fx.req,
+            &fx.offer,
+            CLAMP_OK.as_bytes().to_vec(),
+            &mut fx.ledger,
+            &mut OsRng,
+        )
+        .unwrap();
+    let mut b2 = bundle.clone();
+    b2.ciphertext = crypto::encrypt(&[9u8; 32], &fx.offer.offer_id(), b"0");
+    b2.statement.ciphertext_hash = crypto::ciphertext_hash(&b2.ciphertext);
+    assert_eq!(
+        fx.buyer.verify_bundle(&b2),
+        Err(PcpError::ProofInvalid(VerifyError::ProofMalformed))
+    );
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+}
+
+// ---------------------------------------------------------------------------
+// Threat: invoice does not match the proof
+
+fn verified(job_input: (TestSuiteJob, Vec<u8>)) -> (Fx, ProofBundle, InvoiceBinding) {
+    let mut fx = fixture(job_input.0, job_input.1);
+    let (bundle, binding) = fx
+        .seller
+        .fulfil(
+            &fx.req,
+            &fx.offer,
+            CLAMP_OK.as_bytes().to_vec(),
+            &mut fx.ledger,
+            &mut OsRng,
+        )
+        .unwrap();
+    fx.buyer.verify_bundle(&bundle).unwrap();
+    (fx, bundle, binding)
+}
+
+#[test]
+fn invoice_payment_hash_mismatch_is_refused() {
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    // Seller issues an invoice to a hash whose preimage is NOT the k that
+    // decrypts C. Paying it would hand the seller money with no delivery.
+    let other_k = [5u8; 32];
+    let inv = fx
+        .ledger
+        .create_invoice(
+            "seller",
+            crypto::payment_hash(&other_k),
+            PRICE,
+            600,
+            600,
+            binding.statement_hash,
+        )
+        .unwrap();
+    let bad = InvoiceBinding {
+        invoice: inv,
+        ..binding.clone()
+    };
+    assert_eq!(
+        fx.buyer.check_invoice(&bad, fx.ledger.now()),
+        Err(PcpError::InvoiceHashMismatch)
+    );
+    assert!(matches!(
+        fx.buyer.pay(&mut fx.ledger),
+        Err(PcpError::WrongState(_))
+    ));
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+}
+
+#[test]
+fn invoice_amount_payee_description_and_timing_are_checked() {
+    type Case = (Box<dyn Fn(&mut InvoiceBinding)>, fn(&PcpError) -> bool);
+    let cases: Vec<Case> = vec![
+        (Box::new(|b| b.invoice.amount_msat += 1), |e| {
+            matches!(e, PcpError::InvoiceAmountMismatch { .. })
+        }),
+        (Box::new(|b| b.invoice.payee = "mallory".into()), |e| {
+            *e == PcpError::InvoicePayeeMismatch
+        }),
+        (Box::new(|b| b.invoice.description_hash = [1u8; 32]), |e| {
+            *e == PcpError::InvoiceDescriptionMismatch
+        }),
+        (Box::new(|b| b.statement_hash = [1u8; 32]), |e| {
+            *e == PcpError::InvoiceBindingMismatch
+        }),
+        (Box::new(|b| b.invoice.expiry_secs = 30), |e| {
+            *e == PcpError::InvoiceExpiresTooSoon
+        }),
+        (
+            Box::new(|b| b.invoice.min_htlc_secs = 30 * 24 * 3600),
+            |e| matches!(e, PcpError::HtlcLockTooLong { .. }),
+        ),
+    ];
+    for (mutate, expect) in cases {
+        let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+        let mut b = binding.clone();
+        mutate(&mut b);
+        let err = fx.buyer.check_invoice(&b, fx.ledger.now()).unwrap_err();
+        assert!(expect(&err), "unexpected {err:?}");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Threat: wrong preimage; buyer refuses to pay; expiry
+
+#[test]
+fn wrong_preimage_cannot_settle_and_buyer_is_refunded() {
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    let htlc = fx.buyer.pay(&mut fx.ledger).unwrap();
+    assert_eq!(
+        fx.ledger.settle("seller", htlc, [7u8; 32]),
+        Err(LedgerError::PreimageMismatch)
+    );
+    assert_eq!(fx.ledger.balance("seller"), 0);
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Ok(BuyerProgress::Waiting));
+    assert_eq!(fx.buyer.result(), Err(PcpError::NotPaid));
+    // Seller goes silent; the HTLC times out.
+    fx.ledger.advance(BuyerPolicy::default().htlc_secs);
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Err(PcpError::Refunded));
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+    assert_eq!(fx.buyer.result(), Err(PcpError::Refunded));
+    assert_atomic(&fx, "buyer");
+}
+
+#[test]
+fn expiry_refunds_and_seller_does_not_reveal_late() {
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    let htlc = fx.buyer.pay(&mut fx.ledger).unwrap();
+    // Seller comes back too close to the timeout: it withholds k.
+    fx.ledger.advance(BuyerPolicy::default().htlc_secs - 60);
+    let out = fx.seller.settle_paid(&mut fx.ledger);
+    assert!(matches!(
+        out.as_slice(),
+        [SaleOutcome::Withheld {
+            reason: PcpError::SettleMarginTooShort,
+            ..
+        }]
+    ));
+    assert_eq!(fx.ledger.htlc(htlc).unwrap().state, HtlcState::Locked);
+    fx.ledger.advance(60);
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Err(PcpError::Refunded));
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+    // After the refund the seller finds nothing to settle; k stays secret.
+    assert!(matches!(
+        fx.seller.settle_paid(&mut fx.ledger).as_slice(),
+        [SaleOutcome::NotPaid { .. }]
+    ));
+    assert_atomic(&fx, "buyer");
+}
+
+#[test]
+fn unpaid_invoice_expires() {
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    fx.ledger.advance(binding.invoice.expiry_secs);
+    assert_eq!(
+        fx.buyer.pay(&mut fx.ledger),
+        Err(PcpError::Ledger(LedgerError::InvoiceExpired))
+    );
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+}
+
+#[test]
+fn buyer_who_never_pays_never_gets_k() {
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    // The buyer walks away. The seller has nothing to settle and reveals nothing.
+    assert!(matches!(
+        fx.seller.settle_paid(&mut fx.ledger).as_slice(),
+        [SaleOutcome::NotPaid { .. }]
+    ));
+    assert_eq!(fx.buyer.result(), Err(PcpError::NotPaid));
+    assert_eq!(fx.ledger.balance("seller"), 0);
+    assert_atomic(&fx, "buyer");
+}
+
+// ---------------------------------------------------------------------------
+// Threat: the buyer learns R without paying
+
+#[test]
+fn buyer_cannot_learn_result_before_paying() {
+    let (fx, bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    let secret_src = CLAMP_OK;
+    let wire = serde_json::to_string(&bundle).unwrap() + &serde_json::to_string(&binding).unwrap();
+    let debug = format!("{bundle:?}{binding:?}");
+    for haystack in [&wire, &debug] {
+        assert!(!haystack.contains(secret_src), "plaintext R on the wire");
+        assert!(
+            !haystack.contains(&hex::encode(secret_src)),
+            "hex R on the wire"
+        );
+        assert!(!haystack.contains("x > 100"), "fragment of R on the wire");
+    }
+    assert!(!bundle
+        .ciphertext
+        .windows(secret_src.len())
+        .any(|w| w == secret_src.as_bytes()));
+    assert!(!bundle
+        .proof
+        .windows(secret_src.len())
+        .any(|w| w == secret_src.as_bytes()));
+    // The only public key material is H, and H does not decrypt C.
+    assert!(crypto::decrypt(
+        &bundle.statement.payment_hash,
+        &bundle.statement.offer_id,
+        &bundle.ciphertext
+    )
+    .is_none());
+    // The state machine withholds the result.
+    assert_eq!(fx.buyer.result(), Err(PcpError::NotPaid));
+    assert_eq!(fx.buyer.receipt().err(), Some(PcpError::NotPaid));
+
+    // Sanity check that the seal really contains the witness (so the
+    // assertions above are testing something): crate-internal unseal opens it.
+    let w = InsecureDevTransparentBackend::unseal(&bundle.statement, &bundle.proof).unwrap();
+    assert_eq!(w.result, secret_src.as_bytes());
+    assert!(
+        !format!("{w:?}").contains(secret_src),
+        "Witness Debug is redacted"
+    );
+    // And k is not on the wire either.
+    assert!(!wire.contains(&hex::encode(w.key)));
+}
+
+#[test]
+fn buyer_refuses_insecure_backend_by_default() {
+    let job = SudokuJob::four();
+    let input = job.parse_grid("1..4 ..1. .1.. 4..1").unwrap();
+    let bp = party(terms(Role::Buyer, "buyer"));
+    let sp = party(terms(Role::Seller, "seller"));
+    let (mut b, req) = Buyer::new(
+        &bp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        BuyerPolicy::default(),
+        input,
+        PRICE,
+        0,
+        &mut OsRng,
+    )
+    .unwrap();
+    let s = Seller::new(
+        &sp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        SellerConfig {
+            price_msat: PRICE,
+            ..Default::default()
+        },
+    );
+    let offer = s.make_offer(&req, 0).unwrap();
+    assert_eq!(
+        b.accept_offer(&offer, 0),
+        Err(PcpError::InsecureBackendRefused)
+    );
+}
+
+#[test]
+fn offer_checks() {
+    let job = SudokuJob::four();
+    let input = job.parse_grid("1..4 ..1. .1.. 4..1").unwrap();
+    let bp = party(terms(Role::Buyer, "buyer"));
+    let sp = party(terms(Role::Seller, "seller"));
+    let mk = || {
+        Buyer::new(
+            &bp.agent,
+            Box::new(job),
+            Box::new(InsecureDevTransparentBackend),
+            dev_policy(),
+            input.clone(),
+            PRICE,
+            0,
+            &mut OsRng,
+        )
+        .unwrap()
+    };
+    let s = Seller::new(
+        &sp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        SellerConfig {
+            price_msat: PRICE,
+            ..Default::default()
+        },
+    );
+    let (_, req) = mk();
+    let good = s.make_offer(&req, 0).unwrap();
+
+    let (mut b, _) = mk();
+    assert_eq!(
+        b.accept_offer(&good, 0),
+        Err(PcpError::ReplayedOrMisdirected),
+        "offer for another nonce"
+    );
+
+    let (mut b, req) = mk();
+    let mut o = s.make_offer(&req, 0).unwrap();
+    o.price_msat = PRICE + 1;
+    assert!(matches!(
+        b.accept_offer(&o, 0),
+        Err(PcpError::PriceTooHigh { .. })
+    ));
+
+    let (mut b, req) = mk();
+    let o = s.make_offer(&req, 0).unwrap();
+    assert_eq!(
+        b.accept_offer(&o, o.offer_expires_at),
+        Err(PcpError::OfferExpired)
+    );
+
+    let (mut b, req) = mk();
+    let mut o = s.make_offer(&req, 0).unwrap();
+    o.spec_hash = SudokuJob::nine().spec_hash();
+    assert_eq!(b.accept_offer(&o, 0), Err(PcpError::JobMismatch));
+}
+
+// ---------------------------------------------------------------------------
+// Threat: replay of a proof to another buyer
+
+#[test]
+fn proof_replayed_to_another_buyer_fails() {
+    let job = SudokuJob::nine();
+    let input = puzzle9();
+    let solution = job.solve(&input).unwrap();
+
+    // Alice buys the solution.
+    let mut alice = fixture_named(job, input.clone(), "alice", None);
+    let (bundle_a, binding_a) = alice
+        .seller
+        .fulfil(
+            &alice.req,
+            &alice.offer,
+            solution.clone(),
+            &mut alice.ledger,
+            &mut OsRng,
+        )
+        .unwrap();
+
+    // Bob asks for the same puzzle, on the same network.
+    let ledger = std::mem::take(&mut alice.ledger);
+    let mut bob = fixture_named(job, input.clone(), "bob", Some(ledger));
+
+    // 1. Alice's bundle forwarded unchanged to Bob: wrong nonce.
+    assert_eq!(
+        bob.buyer.verify_bundle(&bundle_a),
+        Err(PcpError::ReplayedOrMisdirected)
+    );
+
+    // 2. Rewrite the public fields to Bob's offer and nonce: the proof is
+    //    bound to Alice's statement and no longer opens.
+    let mut bob = fixture_named(
+        job,
+        input.clone(),
+        "bob2",
+        Some(std::mem::take(&mut bob.ledger)),
+    );
+    let mut rewritten = bundle_a.clone();
+    rewritten.statement.buyer_nonce = bob.req.buyer_nonce;
+    rewritten.statement.offer_id = bob.offer.offer_id();
+    assert_eq!(
+        bob.buyer.verify_bundle(&rewritten),
+        Err(PcpError::ProofInvalid(VerifyError::ProofMalformed))
+    );
+
+    // 3. Alice's invoice offered to a Bob who has a valid bundle of his own:
+    //    the binding names another offer and statement.
+    let mut bob = fixture_named(
+        job,
+        input.clone(),
+        "bob3",
+        Some(std::mem::take(&mut bob.ledger)),
+    );
+    let (bundle_b, _binding_b) = bob
+        .seller
+        .fulfil(
+            &bob.req,
+            &bob.offer,
+            solution.clone(),
+            &mut bob.ledger,
+            &mut OsRng,
+        )
+        .unwrap();
+    bob.buyer.verify_bundle(&bundle_b).unwrap();
+    assert_eq!(
+        bob.buyer.check_invoice(&binding_a, bob.ledger.now()),
+        Err(PcpError::InvoiceBindingMismatch)
+    );
+    // Fresh k per sale: Alice's and Bob's payment hashes differ.
+    assert_ne!(
+        bundle_a.statement.payment_hash,
+        bundle_b.statement.payment_hash
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Wire format
+
+#[test]
+fn messages_roundtrip_through_json() {
+    let (mut fx, bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    let j = serde_json::to_string(&bundle).unwrap();
+    let back: ProofBundle = serde_json::from_str(&j).unwrap();
+    assert_eq!(back, bundle);
+    assert_eq!(back.bundle_id(), bundle.bundle_id());
+    let back: InvoiceBinding =
+        serde_json::from_str(&serde_json::to_string(&binding).unwrap()).unwrap();
+    assert_eq!(back, binding);
+    let back: Offer = serde_json::from_str(&serde_json::to_string(&fx.offer).unwrap()).unwrap();
+    assert_eq!(back.offer_id(), fx.offer.offer_id());
+    let back: Request = serde_json::from_str(&serde_json::to_string(&fx.req).unwrap()).unwrap();
+    assert_eq!(back, fx.req);
+
+    fx.buyer.check_invoice(&binding, 0).unwrap();
+    fx.buyer.pay(&mut fx.ledger).unwrap();
+    fx.seller.settle_paid(&mut fx.ledger);
+    fx.buyer.poll(&mut fx.ledger).unwrap();
+    let receipt = fx.buyer.receipt().unwrap();
+    let back: Receipt = serde_json::from_str(&serde_json::to_string(receipt).unwrap()).unwrap();
+    assert_eq!(&back, receipt);
+
+    // Uppercase hex is not canonical and is rejected.
+    let upper = j.replacen(
+        &hex::encode(bundle.statement.payment_hash),
+        &hex::encode_upper(bundle.statement.payment_hash),
+        1,
+    );
+    assert!(serde_json::from_str::<ProofBundle>(&upper).is_err());
+}
+
+// ---------------------------------------------------------------------------
+// Conformance vectors (SPEC.md appendix A). A second implementation must
+// reproduce these bytes exactly.
+
+#[test]
+fn conformance_vectors() {
+    use crate::encoding::{tagged_hash, u64_be};
+    let k = [0x11u8; 32];
+    let offer_id = [0x22u8; 32];
+    assert_eq!(
+        hex::encode(tagged_hash("test", &[b"", b"abc", &u64_be(1)])),
+        VECTORS[0]
+    );
+    assert_eq!(hex::encode(crypto::payment_hash(&k)), VECTORS[1]);
+    assert_eq!(
+        hex::encode(crypto::encrypt(&k, &offer_id, b"PCP")),
+        VECTORS[2]
+    );
+    assert_eq!(hex::encode(SudokuJob::four().spec_hash()), VECTORS[3]);
+    assert_eq!(hex::encode(SudokuJob::nine().spec_hash()), VECTORS[4]);
+    assert_eq!(hex::encode(TestSuiteJob.spec_hash()), VECTORS[5]);
+    assert_eq!(
+        hex::encode(input_commitment(&TestSuiteJob::encode_suite(&[(-1, 1)]))),
+        VECTORS[6]
+    );
+    let st = build_statement(
+        &SudokuJob::four(),
+        [0x33; 32],
+        offer_id,
+        [0x44; 32],
+        b"C",
+        crypto::payment_hash(&k),
+    );
+    assert_eq!(hex::encode(st.hash()), VECTORS[7]);
+    let offer = Offer {
+        version: "PCP/0".into(),
+        job_id: "pcp/sudoku/v0".into(),
+        spec_hash: SudokuJob::four().spec_hash(),
+        input_commitment: [0x33; 32],
+        buyer_nonce: [0x44; 32],
+        price_msat: 1_000_000,
+        offer_expires_at: 600,
+        seller_node: "seller".into(),
+        backend_id: crate::proof::INSECURE_DEV_BACKEND_ID.into(),
+        enc_scheme: crypto::ENC_SCHEME.into(),
+        rail: RAIL_SIM.into(),
+        mandate: None,
+        agent_sig: None,
+    };
+    assert_eq!(hex::encode(offer.offer_id()), VECTORS[8]);
+
+    // Mandate (SPEC 2.1). Ed25519 is deterministic, so the signature is a
+    // vector too.
+    let principal = SecretKey::from_seed([0x55; 32]);
+    let agent = SecretKey::from_seed([0x66; 32]);
+    let mut m = Mandate {
+        version: "PCP/0".into(),
+        principal_key: principal.public_key(),
+        agent_key: agent.public_key(),
+        role: Role::Buyer,
+        scope: vec![SudokuJob::four().spec_hash()],
+        cap_msat: 5_000_000,
+        per_deal_max_msat: 2_000_000,
+        payout_node: "principal-node".into(),
+        expires_at: 86_400,
+        nonce: [0x77; 32],
+        principal_sig: crate::mandate::Sig([0; 64]),
+    };
+    assert_eq!(hex::encode(m.principal_key), VECTORS[9]);
+    assert_eq!(hex::encode(m.agent_key), VECTORS[10]);
+    assert_eq!(hex::encode(m.mandate_id()), VECTORS[11]);
+    m.principal_sig = principal.sign(&m.mandate_id());
+    assert_eq!(hex::encode(m.principal_sig.0), VECTORS[12]);
+    assert_eq!(m.verify_signature(), Ok(()));
+}
+
+/// Computed independently by a Python implementation (hashlib +
+/// `cryptography`'s ChaCha20Poly1305) before being pasted here.
+const VECTORS: [&str; 13] = [
+    "69b1f5ad126e00c4f741eab035dc593a23728edb32ee92d98dfd442272842463",
+    "02d449a31fbb267c8f352e9968a79e3e5fc95c1bbeaa502fd6454ebde5a4bedc",
+    "1b7e1354b4a7b7f40ad290a740585505a2001a",
+    "977fe68aefda363451d6526e3598975c18f39fa3399a792e16650319448f36be",
+    "0a3c3833260ed33c76cd735d4b005686f15f14b38f1aaa0422ac95e17797f5a0",
+    "9aa91b2878399b36576180833e32dcd2b7f793b9c89dc24300cd4f1e35dcf3ea",
+    "9e2497098d49db24713ed622b7220e02fa38b646b7e11925614d73ecfc746242",
+    "48b2ecc5eccf1ec9f13e74019ff6a45aa7aae444a3cae5f4338f28aff28e39b8",
+    "0e5dd77c4975f961abf06701b79ec912900f3ce5fc0cacb08856b92a5e8fc105",
+    "c6822637c7d310ec57627be00ba259d253749f4aaf644470cffbe53a35f73242",
+    "34b4d9043156cb6dcf0beb0a2949b7559c940d2bcb6dbe8c53a9b30278e3a746",
+    "768febe650b08741e15fb538587b359df87bd48a6e78f7b93cfa7f7a5424c772",
+    "60e9f0b666227078f8c10dadadd1862b9ba54be3d14ac6014a743cc5540d76f20d2a3ae5cf030a8d20975bf99248aef53e787ee8b9473853b04d6edc5bf09a0e",
+];
+
+#[test]
+fn unknown_json_fields_are_rejected() {
+    let (fx, _bundle, _binding) = verified((TestSuiteJob, clamp_suite()));
+    let mut v: serde_json::Value = serde_json::to_value(&fx.offer).unwrap();
+    v["extra"] = serde_json::json!(1);
+    assert!(serde_json::from_value::<Offer>(v).is_err());
+}
+
+// ---------------------------------------------------------------------------
+// Mandates (SPEC 2.1), payout rule (SPEC 8.3), receipts and refusals to the
+// principal (SPEC 5.4), job-class registry (SPEC 6.4), metrics (SPEC 14)
+
+fn sudoku4() -> (SudokuJob, Vec<u8>, Vec<u8>) {
+    let job = SudokuJob::four();
+    let input = job.parse_grid("1..4 ..1. .1.. 4..1").unwrap();
+    let sol = job.solve(&input).unwrap();
+    (job, input, sol)
+}
+
+fn open(ledger: &mut Ledger, p: &Party, funds: u64) {
+    ledger.open_principal_node(&p.agent.mandate().payout_node, p.principal_key(), funds);
+}
+
+fn sell_cfg(price: u64) -> SellerConfig {
+    SellerConfig {
+        price_msat: price,
+        ..SellerConfig::default()
+    }
+}
+
+fn new_buyer(agent: &Agent, max: u64, now: u64) -> Result<(Buyer, Request), PcpError> {
+    let (job, input, _) = sudoku4();
+    Buyer::new(
+        agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        input,
+        max,
+        now,
+        &mut OsRng,
+    )
+}
+
+fn new_seller(agent: &Agent, price: u64) -> Seller {
+    Seller::new(
+        agent,
+        Box::new(SudokuJob::four()),
+        Box::new(InsecureDevTransparentBackend),
+        sell_cfg(price),
+    )
+}
+
+/// One sudoku-4 deal between two agents on a shared ledger. A seller
+/// refusal is reported to the buyer (and logged on both sides) and returned.
+fn deal(ledger: &mut Ledger, buyer: &Agent, seller: &Agent, price: u64) -> Result<(), PcpError> {
+    let (_, _, sol) = sudoku4();
+    let (mut b, req) = new_buyer(buyer, 5 * PRICE, ledger.now())?;
+    let mut s = new_seller(seller, price);
+    let offer = match s.make_offer(&req, ledger.now()) {
+        Ok(o) => o,
+        Err(e) => {
+            b.refused_by_seller(&e);
+            return Err(e);
+        }
+    };
+    b.accept_offer(&offer, ledger.now())?;
+    let (bundle, binding) = s.fulfil(&req, &offer, sol, ledger, &mut OsRng)?;
+    b.verify_bundle(&bundle)?;
+    b.check_invoice(&binding, ledger.now())?;
+    b.pay(ledger)?;
+    s.settle_paid(ledger);
+    assert_eq!(b.poll(ledger)?, BuyerProgress::Delivered);
+    Ok(())
+}
+
+fn last_reason(agent: &Agent) -> String {
+    agent
+        .log()
+        .refusals()
+        .last()
+        .expect("a refusal")
+        .reason
+        .clone()
+}
+
+#[test]
+fn missing_mandate_is_refused_by_both_sides() {
+    let bp = party(terms(Role::Buyer, "b"));
+    let sp = party(terms(Role::Seller, "s"));
+    let s = new_seller(&sp.agent, PRICE);
+
+    // Seller side: a request with no mandate, or no agent signature.
+    let (_, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    for strip in [
+        (|r: &mut Request| r.mandate = None) as fn(&mut Request),
+        |r| r.agent_sig = None,
+    ] {
+        let mut bare = req.clone();
+        strip(&mut bare);
+        assert_eq!(
+            s.make_offer(&bare, 0),
+            Err(PcpError::CounterpartyMandate(MandateError::Missing))
+        );
+        assert_eq!(last_reason(&sp.agent), "counterparty_mandate.missing");
+    }
+    // A mandate-free request also survives the wire as mandate-free.
+    let mut bare = req.clone();
+    bare.mandate = None;
+    bare.agent_sig = None;
+    let json = serde_json::to_string(&bare).unwrap();
+    assert!(!json.contains("mandate\""));
+    let back: Request = serde_json::from_str(&json).unwrap();
+    assert_eq!(back.mandate, None);
+
+    // Buyer side: an offer with no mandate, or no agent signature.
+    for strip in [(|o: &mut Offer| o.mandate = None) as fn(&mut Offer), |o| {
+        o.agent_sig = None
+    }] {
+        let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+        let mut offer = s.make_offer(&req, 0).unwrap();
+        strip(&mut offer);
+        assert_eq!(
+            b.accept_offer(&offer, 0),
+            Err(PcpError::CounterpartyMandate(MandateError::Missing))
+        );
+        assert_eq!(last_reason(&bp.agent), "counterparty_mandate.missing");
+    }
+}
+
+#[test]
+fn wrong_signatures_are_refused() {
+    let bp = party(terms(Role::Buyer, "b"));
+    let sp = party(terms(Role::Seller, "s"));
+    let s = new_seller(&sp.agent, PRICE);
+    let (_, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+
+    // The agent raises its own cap after the principal signed.
+    let mut r = req.clone();
+    r.mandate.as_mut().unwrap().cap_msat = u64::MAX;
+    assert_eq!(
+        s.make_offer(&r, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::SignatureInvalid
+        ))
+    );
+    // The mandate names a different principal than the one who signed.
+    let mut r = req.clone();
+    r.mandate.as_mut().unwrap().principal_key = SecretKey::generate(&mut OsRng).public_key();
+    assert_eq!(
+        s.make_offer(&r, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::SignatureInvalid
+        ))
+    );
+    // A valid mandate presented by someone without its agent key: the
+    // request is signed by another agent.
+    let other = party(terms(Role::Buyer, "x"));
+    let mut r = resign_request(&other.agent, req.clone());
+    r.mandate = req.mandate.clone();
+    assert_eq!(
+        s.make_offer(&r, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::AgentSignatureInvalid
+        ))
+    );
+    // The request terms changed after the agent signed.
+    let mut r = req.clone();
+    r.mandate_spent_msat = 0;
+    r.max_price_msat += 1;
+    assert_eq!(
+        s.make_offer(&r, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::AgentSignatureInvalid
+        ))
+    );
+
+    // Buyer side: a stolen seller mandate on an offer signed by another agent.
+    let thief = party(terms(Role::Seller, "s"));
+    let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let mut o = manual_offer(&thief.agent, &req, PRICE, "s");
+    o.mandate = Some(sp.agent.mandate().clone());
+    assert_eq!(
+        b.accept_offer(&o, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::AgentSignatureInvalid
+        ))
+    );
+
+    // An agent key that is not the mandate's.
+    let m = sp.agent.mandate().clone();
+    assert_eq!(
+        Agent::new(SecretKey::generate(&mut OsRng), m).err(),
+        Some(PcpError::OwnMandate(MandateError::AgentKeyMismatch))
+    );
+}
+
+#[test]
+fn agent_may_not_be_its_own_principal() {
+    // A principal that authorises its own key: refused when building the
+    // agent, and refused by counterparties.
+    let p = SecretKey::from_seed([9u8; 32]);
+    let m = Mandate::sign(&p, p.public_key(), terms(Role::Buyer, "p"), &mut OsRng);
+    assert_eq!(m.verify_signature(), Err(MandateError::SelfOwned));
+    assert_eq!(
+        Agent::new(SecretKey::from_seed([9u8; 32]), m.clone()).err(),
+        Some(PcpError::OwnMandate(MandateError::SelfOwned))
+    );
+
+    let bp = party(terms(Role::Buyer, "b"));
+    let sp = party(terms(Role::Seller, "s"));
+    let (_, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let mut r = req.clone();
+    r.agent_sig = Some(p.sign(&r.auth_message(&m.mandate_id())));
+    r.mandate = Some(m);
+    assert_eq!(
+        new_seller(&sp.agent, PRICE).make_offer(&r, 0),
+        Err(PcpError::CounterpartyMandate(MandateError::SelfOwned))
+    );
+}
+
+#[test]
+fn expired_mandates_are_refused() {
+    let short = |role, node: &str| MandateTerms {
+        expires_at: 100,
+        ..terms(role, node)
+    };
+    // Own mandate expired: the buyer does not even send the request.
+    let bp = party(short(Role::Buyer, "b"));
+    assert_eq!(
+        new_buyer(&bp.agent, PRICE, 100).err(),
+        Some(PcpError::OwnMandate(MandateError::Expired))
+    );
+    assert_eq!(last_reason(&bp.agent), "own_mandate.expired");
+
+    // Buyer's mandate expired by the time the seller sees the request.
+    let sp = party(terms(Role::Seller, "s"));
+    let (_, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    assert_eq!(
+        new_seller(&sp.agent, PRICE).make_offer(&req, 100),
+        Err(PcpError::CounterpartyMandate(MandateError::Expired))
+    );
+
+    // Seller's mandate expired by the time the buyer sees the offer.
+    let sp = party(short(Role::Seller, "s"));
+    let bp = party(terms(Role::Buyer, "b"));
+    let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let offer = new_seller(&sp.agent, PRICE).make_offer(&req, 0).unwrap();
+    assert_eq!(
+        b.accept_offer(&offer, 100),
+        Err(PcpError::CounterpartyMandate(MandateError::Expired))
+    );
+
+    // Own mandate expires between accepting and paying: no payment.
+    let bp = party(short(Role::Buyer, "b"));
+    let sp = party(terms(Role::Seller, "s"));
+    let mut ledger = Ledger::new();
+    open(&mut ledger, &bp, BUYER_FUNDS);
+    open(&mut ledger, &sp, 0);
+    let (_, _, sol) = sudoku4();
+    let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let mut s = new_seller(&sp.agent, PRICE);
+    let offer = s.make_offer(&req, 0).unwrap();
+    b.accept_offer(&offer, 0).unwrap();
+    let (bundle, binding) = s
+        .fulfil(&req, &offer, sol, &mut ledger, &mut OsRng)
+        .unwrap();
+    b.verify_bundle(&bundle).unwrap();
+    b.check_invoice(&binding, 0).unwrap();
+    ledger.advance(100);
+    assert_eq!(
+        b.pay(&mut ledger),
+        Err(PcpError::OwnMandate(MandateError::Expired))
+    );
+    assert_eq!(ledger.balance("b"), BUYER_FUNDS);
+    assert_eq!(bp.agent.committed_msat(), 0);
+}
+
+#[test]
+fn scope_mismatch_is_refused() {
+    let only9 = |role, node: &str| MandateTerms {
+        scope: vec![SudokuJob::nine().spec_hash()],
+        ..terms(role, node)
+    };
+    // Buyer's own scope does not cover sudoku 4x4.
+    let narrow_b = party(only9(Role::Buyer, "b"));
+    assert_eq!(
+        new_buyer(&narrow_b.agent, PRICE, 0).err(),
+        Some(PcpError::OwnMandate(MandateError::ScopeMismatch))
+    );
+    // The seller sees a buyer mandate that does not cover the job.
+    let bp = party(terms(Role::Buyer, "b"));
+    let sp = party(terms(Role::Seller, "s"));
+    let (_, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let r = resign_request(&narrow_b.agent, req.clone());
+    assert_eq!(
+        new_seller(&sp.agent, PRICE).make_offer(&r, 0),
+        Err(PcpError::CounterpartyMandate(MandateError::ScopeMismatch))
+    );
+    // The seller's own scope does not cover the job.
+    let narrow_s = party(only9(Role::Seller, "s"));
+    assert_eq!(
+        new_seller(&narrow_s.agent, PRICE).make_offer(&req, 0),
+        Err(PcpError::OwnMandate(MandateError::ScopeMismatch))
+    );
+    // The buyer sees a seller mandate that does not cover the job.
+    let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let o = manual_offer(&narrow_s.agent, &req, PRICE, "s");
+    assert_eq!(
+        b.accept_offer(&o, 0),
+        Err(PcpError::CounterpartyMandate(MandateError::ScopeMismatch))
+    );
+    // A mandate for the wrong role.
+    let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let o = manual_offer(&bp.agent, &req, PRICE, "b");
+    assert_eq!(
+        b.accept_offer(&o, 0),
+        Err(PcpError::CounterpartyMandate(MandateError::WrongRole))
+    );
+}
+
+#[test]
+fn cap_is_enforced_across_deals() {
+    let mut ledger = Ledger::new();
+    let sp = party(terms(Role::Seller, "s"));
+    open(&mut ledger, &sp, 0);
+
+    // Cap of exactly two deals: the third is refused by the buyer's own
+    // client before any request leaves.
+    let bp = party(MandateTerms {
+        cap_msat: 2 * PRICE,
+        ..terms(Role::Buyer, "b")
+    });
+    open(&mut ledger, &bp, BUYER_FUNDS);
+    deal(&mut ledger, &bp.agent, &sp.agent, PRICE).unwrap();
+    deal(&mut ledger, &bp.agent, &sp.agent, PRICE).unwrap();
+    assert_eq!(bp.agent.remaining_msat(), 0);
+    assert_eq!(
+        deal(&mut ledger, &bp.agent, &sp.agent, PRICE),
+        Err(PcpError::OwnMandate(MandateError::CapExceeded {
+            cap: 2 * PRICE,
+            committed: 2 * PRICE,
+            price: 5 * PRICE
+        }))
+    );
+    assert_eq!(ledger.balance("b"), BUYER_FUNDS - 2 * PRICE);
+
+    // Cap of 2.5 deals: the third request goes out, and the seller refuses
+    // it from the buyer's declared spend.
+    let bp = party(MandateTerms {
+        cap_msat: 5 * PRICE / 2,
+        ..terms(Role::Buyer, "b2")
+    });
+    open(&mut ledger, &bp, BUYER_FUNDS);
+    deal(&mut ledger, &bp.agent, &sp.agent, PRICE).unwrap();
+    deal(&mut ledger, &bp.agent, &sp.agent, PRICE).unwrap();
+    let cap_err = MandateError::CapExceeded {
+        cap: 5 * PRICE / 2,
+        committed: 2 * PRICE,
+        price: PRICE,
+    };
+    assert_eq!(
+        deal(&mut ledger, &bp.agent, &sp.agent, PRICE),
+        Err(PcpError::CounterpartyMandate(cap_err.clone()))
+    );
+    assert_eq!(last_reason(&sp.agent), "counterparty_mandate.cap_exceeded");
+    assert_eq!(
+        last_reason(&bp.agent),
+        "refused_by_counterparty.counterparty_mandate.cap_exceeded"
+    );
+    // A seller that skips its checks gets refused by the buyer's own client.
+    let (mut b, req) = new_buyer(&bp.agent, 5 * PRICE, 0).unwrap();
+    let o = manual_offer(&sp.agent, &req, PRICE, "s");
+    assert_eq!(b.accept_offer(&o, 0), Err(PcpError::OwnMandate(cap_err)));
+    assert_eq!(ledger.balance("b2"), BUYER_FUNDS - 2 * PRICE);
+
+    // Two purchases in flight at once share one cap: the second payment is
+    // refused even though both offers were accepted.
+    let bp = party(MandateTerms {
+        cap_msat: 3 * PRICE / 2,
+        ..terms(Role::Buyer, "b3")
+    });
+    open(&mut ledger, &bp, BUYER_FUNDS);
+    let (_, _, sol) = sudoku4();
+    let mut s = new_seller(&sp.agent, PRICE);
+    let mut legs = Vec::new();
+    for _ in 0..2 {
+        let (mut b, req) = new_buyer(&bp.agent, PRICE, ledger.now()).unwrap();
+        let offer = s.make_offer(&req, ledger.now()).unwrap();
+        b.accept_offer(&offer, ledger.now()).unwrap();
+        let (bundle, binding) = s
+            .fulfil(&req, &offer, sol.clone(), &mut ledger, &mut OsRng)
+            .unwrap();
+        b.verify_bundle(&bundle).unwrap();
+        b.check_invoice(&binding, ledger.now()).unwrap();
+        legs.push(b);
+    }
+    legs[0].pay(&mut ledger).unwrap();
+    assert!(matches!(
+        legs[1].pay(&mut ledger),
+        Err(PcpError::OwnMandate(MandateError::CapExceeded { .. }))
+    ));
+    assert_eq!(ledger.balance("b3"), BUYER_FUNDS - PRICE);
+}
+
+#[test]
+fn refund_returns_the_reservation() {
+    let mut ledger = Ledger::new();
+    let sp = party(terms(Role::Seller, "s"));
+    let bp = party(MandateTerms {
+        cap_msat: PRICE,
+        ..terms(Role::Buyer, "b")
+    });
+    open(&mut ledger, &sp, 0);
+    open(&mut ledger, &bp, BUYER_FUNDS);
+    let (_, _, sol) = sudoku4();
+    let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let mut s = new_seller(&sp.agent, PRICE);
+    let offer = s.make_offer(&req, 0).unwrap();
+    b.accept_offer(&offer, 0).unwrap();
+    let (bundle, binding) = s
+        .fulfil(&req, &offer, sol, &mut ledger, &mut OsRng)
+        .unwrap();
+    b.verify_bundle(&bundle).unwrap();
+    b.check_invoice(&binding, 0).unwrap();
+    b.pay(&mut ledger).unwrap();
+    assert_eq!(bp.agent.remaining_msat(), 0);
+    ledger.advance(BuyerPolicy::default().htlc_secs);
+    assert_eq!(b.poll(&mut ledger), Err(PcpError::Refunded));
+    assert_eq!(bp.agent.remaining_msat(), PRICE);
+    assert_eq!(last_reason(&bp.agent), "refunded");
+    // The cap is usable again.
+    deal(&mut ledger, &bp.agent, &sp.agent, PRICE).unwrap();
+}
+
+#[test]
+fn per_deal_max_is_enforced() {
+    let half = |role, node: &str| MandateTerms {
+        per_deal_max_msat: PRICE / 2,
+        ..terms(role, node)
+    };
+    let bp = party(terms(Role::Buyer, "b"));
+    let sp = party(terms(Role::Seller, "s"));
+    let small_b = party(half(Role::Buyer, "b"));
+    let small_s = party(half(Role::Seller, "s"));
+    let pd = MandateError::PerDealMaxExceeded {
+        max: PRICE / 2,
+        price: PRICE,
+    };
+
+    // Buyer's per-deal max: the seller refuses; and the buyer's own client
+    // refuses an offer a modified seller sends anyway.
+    let (mut b, req) = new_buyer(&small_b.agent, 5 * PRICE, 0).unwrap();
+    assert_eq!(
+        new_seller(&sp.agent, PRICE).make_offer(&req, 0),
+        Err(PcpError::CounterpartyMandate(pd.clone()))
+    );
+    let o = manual_offer(&sp.agent, &req, PRICE, "s");
+    assert_eq!(b.accept_offer(&o, 0), Err(PcpError::OwnMandate(pd.clone())));
+
+    // Seller's per-deal max: the seller refuses its own offer; and the buyer
+    // refuses one a modified seller sends anyway.
+    let (mut b, req) = new_buyer(&bp.agent, 5 * PRICE, 0).unwrap();
+    assert_eq!(
+        new_seller(&small_s.agent, PRICE).make_offer(&req, 0),
+        Err(PcpError::OwnMandate(pd.clone()))
+    );
+    let o = manual_offer(&small_s.agent, &req, PRICE, "s");
+    assert_eq!(
+        b.accept_offer(&o, 0),
+        Err(PcpError::CounterpartyMandate(pd))
+    );
+}
+
+#[test]
+fn default_buyer_policy_has_a_per_deal_value_ceiling() {
+    assert_eq!(BuyerPolicy::default().max_deal_msat, DEFAULT_MAX_DEAL_MSAT);
+    let big = |role, node: &str| MandateTerms {
+        cap_msat: 100 * DEFAULT_MAX_DEAL_MSAT,
+        per_deal_max_msat: 10 * DEFAULT_MAX_DEAL_MSAT,
+        ..terms(role, node)
+    };
+    let bp = party(big(Role::Buyer, "b"));
+    let sp = party(big(Role::Seller, "s"));
+    let price = DEFAULT_MAX_DEAL_MSAT + 1;
+    let (_, input, _) = sudoku4();
+    let mk = |policy: BuyerPolicy| {
+        Buyer::new(
+            &bp.agent,
+            Box::new(SudokuJob::four()),
+            Box::new(InsecureDevTransparentBackend),
+            policy,
+            input.clone(),
+            2 * price,
+            0,
+            &mut OsRng,
+        )
+        .unwrap()
+    };
+    // The mandate would allow it; the default policy does not.
+    let (mut b, req) = mk(dev_policy());
+    let offer = new_seller(&sp.agent, price).make_offer(&req, 0).unwrap();
+    assert_eq!(
+        b.accept_offer(&offer, 0),
+        Err(PcpError::DealAboveCeiling {
+            price,
+            ceiling: DEFAULT_MAX_DEAL_MSAT
+        })
+    );
+    // At the ceiling, and with the ceiling raised explicitly, it passes.
+    let (mut b, req) = mk(dev_policy());
+    let offer = new_seller(&sp.agent, DEFAULT_MAX_DEAL_MSAT)
+        .make_offer(&req, 0)
+        .unwrap();
+    b.accept_offer(&offer, 0).unwrap();
+    let (mut b, req) = mk(BuyerPolicy {
+        max_deal_msat: price,
+        ..dev_policy()
+    });
+    let offer = new_seller(&sp.agent, price).make_offer(&req, 0).unwrap();
+    b.accept_offer(&offer, 0).unwrap();
+}
+
+#[test]
+fn payee_must_be_the_seller_principals_payout_node() {
+    // The seller agent names its own node in the offer instead of its
+    // principal's: refused before anything is paid.
+    let bp = party(terms(Role::Buyer, "b"));
+    let sp = party(terms(Role::Seller, "s-principal"));
+    let (mut b, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
+    let o = manual_offer(&sp.agent, &req, PRICE, "s-agent-own-node");
+    assert_eq!(
+        b.accept_offer(&o, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::PayoutNodeMismatch
+        ))
+    );
+
+    // The invoice pays a node other than the payout node.
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    assert_eq!(binding.invoice.payee, fx.sp.agent.mandate().payout_node);
+    let mut bad = binding.clone();
+    bad.invoice.payee = "seller-agent-own-node".into();
+    assert_eq!(
+        fx.buyer.check_invoice(&bad, fx.ledger.now()),
+        Err(PcpError::InvoicePayeeMismatch)
+    );
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+    assert_eq!(last_reason(&fx.bp.agent), "invoice_payee_mismatch");
+}
+
+#[test]
+fn principals_can_verify_every_deal_and_refusal() {
+    let mut ledger = Ledger::new();
+    let sp = party(terms(Role::Seller, "s"));
+    let bp = party(MandateTerms {
+        cap_msat: 5 * PRICE / 2,
+        ..terms(Role::Buyer, "b")
+    });
+    open(&mut ledger, &sp, 0);
+    open(&mut ledger, &bp, BUYER_FUNDS);
+    deal(&mut ledger, &bp.agent, &sp.agent, PRICE).unwrap();
+    ledger.advance(10);
+    deal(&mut ledger, &bp.agent, &sp.agent, PRICE).unwrap();
+    assert!(deal(&mut ledger, &bp.agent, &sp.agent, PRICE).is_err());
+    let jobs: [&dyn JobClass; 1] = [&SudokuJob::four()];
+
+    for (p, deals, refusals) in [(&bp, 2, 1), (&sp, 2, 1)] {
+        let log = p.agent.log();
+        // Exported as JSON lines and read back by the principal.
+        let text = log.to_jsonl();
+        assert_eq!(text.lines().count(), deals + refusals);
+        let back = PrincipalLog::from_jsonl(&text).unwrap();
+        assert_eq!(back, log);
+        let sum = back.verify(p.agent.mandate(), &jobs).unwrap();
+        assert_eq!(
+            (sum.deals, sum.refusals, sum.total_msat),
+            (deals, refusals, 2 * PRICE)
+        );
+        assert_eq!(sum.reasons.values().sum::<usize>(), refusals);
+    }
+
+    // Both receipts of one sale name each other's mandates and principals.
+    let br = bp.agent.log().receipts().next().unwrap().clone();
+    let sr = sp.agent.log().receipts().next().unwrap().clone();
+    assert_eq!(br.role, Role::Buyer);
+    assert_eq!(sr.role, Role::Seller);
+    assert_eq!(br.offer_id, sr.offer_id);
+    assert_eq!(br.counterparty_mandate_id, sp.agent.mandate_id());
+    assert_eq!(sr.counterparty_mandate_id, bp.agent.mandate_id());
+    assert_eq!(br.counterparty_principal_key, sp.principal_key());
+    assert!(!br.is_self_payment());
+
+    // Tampering with any line is caught.
+    let text = bp.agent.log().to_jsonl();
+    let edited = text.replacen(
+        &format!("\"amount_msat\":{PRICE}"),
+        &format!("\"amount_msat\":{}", PRICE - 1),
+        1,
+    );
+    assert_ne!(edited, text);
+    let err = PrincipalLog::from_jsonl(&edited)
+        .unwrap()
+        .verify(bp.agent.mandate(), &jobs)
+        .unwrap_err();
+    assert_eq!(err.index, 0);
+    assert_eq!(err.error, PcpError::RecordSignatureInvalid);
+    let edited = text.replacen("refused_by_counterparty", "refused_by_xounterparty", 1);
+    let err = PrincipalLog::from_jsonl(&edited)
+        .unwrap()
+        .verify(bp.agent.mandate(), &jobs)
+        .unwrap_err();
+    assert_eq!(
+        (err.index, err.error),
+        (2, PcpError::RecordSignatureInvalid)
+    );
+
+    // Another principal's mandate does not claim this log.
+    let other = party(terms(Role::Buyer, "b"));
+    assert_eq!(
+        bp.agent
+            .log()
+            .verify(other.agent.mandate(), &jobs)
+            .unwrap_err()
+            .error,
+        PcpError::RecordNotBound
+    );
+
+    // A forged deal (wrong preimage, re-signed by the agent itself) fails
+    // the offline re-verification.
+    let mut forged = bp.agent.log();
+    let LogEntry::Deal { receipt, .. } = &mut forged.entries_mut()[0] else {
+        panic!()
+    };
+    receipt.preimage = [0u8; 32];
+    receipt.agent_sig = bp.agent.sign(&receipt.receipt_id());
+    assert_eq!(
+        forged.verify(bp.agent.mandate(), &jobs).unwrap_err().error,
+        PcpError::PreimageMismatch
+    );
+}
+
+/// A job class that is not in the reference registry.
+#[derive(Clone, Copy)]
+struct ReverseJob;
+
+impl JobClass for ReverseJob {
+    fn job_id(&self) -> &'static str {
+        "test/reverse/v0"
+    }
+    fn params(&self) -> Vec<u8> {
+        Vec::new()
+    }
+    fn check(&self, input: &[u8], result: &[u8]) -> bool {
+        input.iter().rev().eq(result.iter())
+    }
+}
+
+#[test]
+fn unregistered_job_class_is_refused_by_default() {
+    assert!(!JobRegistry::reference().contains(&ReverseJob.spec_hash()));
+    let scope = |role, node: &str| MandateTerms {
+        scope: vec![ReverseJob.spec_hash()],
+        ..terms(role, node)
+    };
+    let bp = party(scope(Role::Buyer, "b"));
+    let sp = party(scope(Role::Seller, "s"));
+    let mk = |dev: bool| {
+        Buyer::new(
+            &bp.agent,
+            Box::new(ReverseJob),
+            Box::new(InsecureDevTransparentBackend),
+            BuyerPolicy {
+                allow_unregistered_job_classes: dev,
+                ..dev_policy()
+            },
+            b"abc".to_vec(),
+            PRICE,
+            0,
+            &mut OsRng,
+        )
+    };
+    let seller = |dev: bool| {
+        Seller::new(
+            &sp.agent,
+            Box::new(ReverseJob),
+            Box::new(InsecureDevTransparentBackend),
+            SellerConfig {
+                price_msat: PRICE,
+                allow_unregistered_job_classes: dev,
+                ..SellerConfig::default()
+            },
+        )
+    };
+    assert_eq!(mk(false).err(), Some(PcpError::JobClassNotRegistered));
+    assert_eq!(last_reason(&bp.agent), "job_class_not_registered");
+    let (mut b, req) = mk(true).unwrap();
+    assert_eq!(
+        seller(false).make_offer(&req, 0),
+        Err(PcpError::JobClassNotRegistered)
+    );
+
+    // With the development flag on both sides, the deal goes through.
+    let mut ledger = Ledger::new();
+    open(&mut ledger, &bp, BUYER_FUNDS);
+    open(&mut ledger, &sp, 0);
+    let mut s = seller(true);
+    let offer = s.make_offer(&req, 0).unwrap();
+    b.accept_offer(&offer, 0).unwrap();
+    let (bundle, binding) = s
+        .fulfil(&req, &offer, b"cba".to_vec(), &mut ledger, &mut OsRng)
+        .unwrap();
+    b.verify_bundle(&bundle).unwrap();
+    b.check_invoice(&binding, 0).unwrap();
+    b.pay(&mut ledger).unwrap();
+    s.settle_paid(&mut ledger);
+    assert_eq!(b.poll(&mut ledger), Ok(BuyerProgress::Delivered));
+    assert_eq!(b.result().unwrap(), b"cba");
+}
+
+#[test]
+fn self_payments_are_flagged_and_excluded_from_metrics() {
+    let mut ledger = Ledger::new();
+    // One principal, two agents, trading with itself.
+    let seed = crypto::fresh_key(&mut OsRng);
+    let b1 = party_with(SecretKey::from_seed(seed), terms(Role::Buyer, "p"));
+    let s1 = party_with(SecretKey::from_seed(seed), terms(Role::Seller, "p"));
+    let pk = b1.principal_key();
+    assert_eq!(s1.principal_key(), pk);
+    ledger.open_principal_node("p", pk, BUYER_FUNDS);
+    deal(&mut ledger, &b1.agent, &s1.agent, PRICE).unwrap();
+
+    // And one sale between strangers.
+    let b2 = party(terms(Role::Buyer, "b"));
+    let s2 = party(terms(Role::Seller, "s"));
+    open(&mut ledger, &b2, BUYER_FUNDS);
+    open(&mut ledger, &s2, 0);
+    deal(&mut ledger, &b2.agent, &s2.agent, PRICE).unwrap();
+
+    let logs = [
+        b1.agent.log(),
+        s1.agent.log(),
+        b2.agent.log(),
+        s2.agent.log(),
+    ];
+    let receipts: Vec<_> = logs.iter().flat_map(|l| l.receipts().cloned()).collect();
+    assert_eq!(receipts.len(), 4);
+    assert!(receipts[0].is_self_payment() && receipts[1].is_self_payment());
+    assert!(!receipts[2].is_self_payment());
+    let c = adoption_count(&receipts);
+    assert_eq!((c.counted, c.self_payments), (1, 1));
+}
+
+// ---------------------------------------------------------------------------
+// One source of truth for the relation, and rails
+
+#[test]
+fn dev_backend_proves_exactly_the_statement_core_journal() {
+    use crate::statement::{evaluate, JournalMismatch};
+    let job = SudokuJob::nine();
+    let input = puzzle9();
+    let result = job.solve(&input).unwrap();
+    let k = crypto::fresh_key(&mut OsRng);
+    let (offer_id, nonce) = ([5u8; 32], [6u8; 32]);
+    let c = crypto::encrypt(&k, &offer_id, &result);
+    let st = build_statement(
+        &job,
+        input_commitment(&input),
+        offer_id,
+        nonce,
+        &c,
+        crypto::payment_hash(&k),
+    );
+    let w = Witness {
+        input,
+        result,
+        key: k,
+    };
+    // The journal a zkVM guest would commit is the statement, and its bytes
+    // are the statement_hash pre-image.
+    let journal = evaluate(&w.statement_input(&st, &c)).unwrap();
+    assert_eq!(journal, st.journal());
+    assert_eq!(crate::encoding::sha256(&journal.to_bytes()), st.hash());
+    assert_eq!(crate::proof::Statement::from(journal), st);
+    let bundle = InsecureDevTransparentBackend
+        .prove(&job, &st, &c, &w)
+        .unwrap();
+    assert_eq!(
+        InsecureDevTransparentBackend.verify(&job, &st, &bundle),
+        Ok(())
+    );
+
+    // A statement naming another H: the relation holds for k, the journal
+    // differs, and the backend refuses with the core's verdict.
+    let mut other = st.clone();
+    other.payment_hash = crypto::payment_hash(&[9u8; 32]);
+    assert_eq!(
+        evaluate(&w.statement_input(&other, &c))
+            .unwrap()
+            .check_expected(&other.journal()),
+        Err(JournalMismatch::PaymentHash)
+    );
+    assert_eq!(
+        InsecureDevTransparentBackend
+            .prove(&job, &other, &c, &w)
+            .err(),
+        Some(ProveError::Unsatisfied(VerifyError::PaymentHashMismatch))
+    );
+}
+
+#[test]
+fn rail_must_match_the_offer() {
+    // A buyer on the simulated rail refuses an offer for real Lightning.
+    let sp = party(terms(Role::Seller, "seller"));
+    let bp = party(terms(Role::Buyer, "buyer"));
+    let (mut b, req) = Buyer::new(
+        &bp.agent,
+        Box::new(SudokuJob::nine()),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        puzzle9(),
+        2 * PRICE,
+        0,
+        &mut OsRng,
+    )
+    .unwrap();
+    let mut o = manual_offer(&sp.agent, &req, PRICE, "seller");
+    o.rail = RAIL_BOLT11.to_string();
+    let o = resign_offer(&sp.agent, o);
+    assert_eq!(b.accept_offer(&o, 0), Err(PcpError::RailNotSupported));
+
+    // A seller configured for real Lightning does not invoice on the
+    // simulation.
+    let mut fx = fixture(SudokuJob::nine(), puzzle9());
+    let mut seller = Seller::new(
+        &fx.sp.agent,
+        Box::new(SudokuJob::nine()),
+        Box::new(InsecureDevTransparentBackend),
+        SellerConfig {
+            price_msat: PRICE,
+            rail: RAIL_BOLT11.to_string(),
+            ..SellerConfig::default()
+        },
+    );
+    let offer = seller.make_offer(&fx.req, 0).unwrap();
+    assert_eq!(offer.rail, RAIL_BOLT11);
+    let sol = SudokuJob::nine().solve(&fx.req.input).unwrap();
+    assert_eq!(
+        seller
+            .fulfil(&fx.req, &offer, sol, &mut fx.ledger, &mut OsRng)
+            .err(),
+        Some(PcpError::RailNotSupported)
+    );
+}
+
+#[test]
+fn run_sale_drives_a_whole_sale_over_a_rail() {
+    use crate::sale::{run_sale, SaleParams};
+    let sp = party(terms(Role::Seller, "seller"));
+    let bp = party(terms(Role::Buyer, "buyer"));
+    let mut ledger = Ledger::new();
+    ledger.open_principal_node("seller", sp.principal_key(), 0);
+    ledger.open_principal_node("buyer", bp.principal_key(), BUYER_FUNDS);
+    let job = SudokuJob::nine();
+    let input = puzzle9();
+    let solution = job.solve(&input).unwrap();
+    let mut lines = Vec::new();
+    let report = run_sale(
+        &bp.agent,
+        &sp.agent,
+        &|| Box::new(SudokuJob::nine()),
+        &|| Box::new(InsecureDevTransparentBackend),
+        input,
+        solution.clone(),
+        SaleParams {
+            max_price_msat: 2 * PRICE,
+            buyer_policy: dev_policy(),
+            seller_config: SellerConfig {
+                price_msat: PRICE,
+                ..SellerConfig::default()
+            },
+            max_waits: 5,
+        },
+        &mut ledger,
+        &mut |l| lines.push(l.to_string()),
+    )
+    .unwrap();
+    assert_eq!(report.result, solution);
+    assert_eq!(report.receipt.amount_msat, PRICE);
+    assert_eq!(ledger.principal_balance(&sp.principal_key()), PRICE);
+    assert!(lines.iter().any(|l| l.starts_with("8 buyer has k")));
+}

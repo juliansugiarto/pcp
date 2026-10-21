@@ -1,0 +1,54 @@
+[package]
+name = "pcp"
+version = "0.0.1"
+edition = "2021"
+description = "PCP/0: proof-contingent payment. v0 reference implementation with an INSECURE dev proof backend, a simulated Lightning HTLC ledger, and an optional LND REST rail."
+publish = false
+license = "MIT"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "demo"
+path = "src/bin/demo.rs"
+required-features = ["std"]
+
+[[bin]]
+name = "lnd_sale"
+path = "src/bin/lnd_sale.rs"
+required-features = ["lnd"]
+
+[[test]]
+name = "public_api"
+path = "tests/public_api.rs"
+required-features = ["std"]
+
+[features]
+default = ["std"]
+# Everything except the statement core: mandates, protocol state machines,
+# the simulated ledger, the dev proof backend, JSON transport.
+# Without it (`default-features = false`) the crate is `no_std + alloc` and
+# exposes only `encoding`, `crypto`, `job` and `statement`: the part a zkVM
+# guest compiles (see ../pcp-risc0/).
+std = [
+    "dep:rand",
+    "dep:serde",
+    "dep:serde_json",
+    "dep:hex",
+    "dep:ed25519-dalek",
+    "sha2/std",
+]
+# LND REST settlement rail (hold invoices). Off by default; no network in tests.
+lnd = ["std", "dep:reqwest", "dep:base64"]
+
+[dependencies]
+sha2 = { version = "0.10", default-features = false }
+chacha20poly1305 = { version = "0.10", default-features = false, features = ["alloc"] }
+rand = { version = "0.8", optional = true }
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", optional = true }
+hex = { version = "0.4", optional = true }
+ed25519-dalek = { version = "2", optional = true }
+reqwest = { version = "0.13", optional = true, default-features = false, features = ["blocking", "json", "native-tls"] }
+base64 = { version = "0.22", optional = true }
