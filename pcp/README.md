@@ -61,7 +61,7 @@ An imitation version with stablecoins can be built, but that version always carr
 
 ## What v0 does not do yet
 
-- **Zero knowledge has never been run.** The RISC Zero backend is in [`../pcp-risc0/`](../pcp-risc0/), outside this crate's build, and has never been compiled with a real guest. The only tested backend, `InsecureDevTransparentBackend`, puts the witness (result and key) inside a seal whose key is written in the source code. Its verification still checks the full relation, so the protocol flow is tested. But anyone who reads the code can open that seal and get the result without paying. The buyer refuses this backend unless it is explicitly allowed for testing.
+- **Zero knowledge runs outside this crate.** The RISC Zero backend is in [`../pcp-risc0/`](../pcp-risc0/), outside this crate's build. It was first run in CI on 21 October 2026 (64.6 s to prove a 9x9 sudoku on 4 vCPU, receipt 224 KB; see `../pcp-risc0/COSTS.md`). Inside this crate's own tests, the only backend, `InsecureDevTransparentBackend`, puts the witness (result and key) inside a seal whose key is written in the source code. Its verification still checks the full relation, so the protocol flow is tested. But anyone who reads the code can open that seal and get the result without paying. The buyer refuses this backend unless it is explicitly allowed for testing.
 - **Real Lightning has never been run.** The LND rail exists behind the `lnd` feature, but the tests do not use the network, and nobody has run it against a node yet.
 - There is no "data matches schema" job class yet, although its shape is the same as the two existing classes.
 

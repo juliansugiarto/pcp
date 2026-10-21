@@ -94,7 +94,7 @@ If you test a circuit with tampered witnesses, recompute everything downstream o
 
 The review is `pcp-zk/review/2026-10-21-newchip-review.md`. The tests are `pcp-zk/src/review_tests.rs` (compensated forgeries, layout and ownership) and `pcp-zk/src/adversarial.rs` (the original 19 tampers).
 
-It has not been audited by anyone outside this project. We do not consider one project's own review enough for a hash circuit that guards money. For that reason this chip is published as a target to break, not as the backend anyone should pay through. The backend meant for payments is a zkVM (RISC Zero): there SHA-256 is part of circuits maintained by a team that does this full time, and our guest code is plain Rust calling `sha2`. That backend has been written but not yet run; its cost table will come from CI. The halo2 chip is labelled "reviewed and tested by us, not audited". A buyer has to allow it explicitly.
+It has not been audited by anyone outside this project. We do not consider one project's own review enough for a hash circuit that guards money. For that reason this chip is published as a target to break, not as the backend anyone should pay through. The backend meant for payments is a zkVM (RISC Zero): there SHA-256 is part of circuits maintained by a team that does this full time, and our guest code is plain Rust calling `sha2`. That backend now runs: its first real proofs came from CI on 21 October 2026 (`pcp-risc0/COSTS.md`). The halo2 chip is labelled "reviewed and tested by us, not audited". A buyer has to allow it explicitly.
 
 ## Two bounties
 
