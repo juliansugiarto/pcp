@@ -1,7 +1,0 @@
-seller node 03c7d0c266f02af5bf95e222e3e80f639d498eec0a099ce1053543b8143e5327c0
-buyer node  03b6915007725f2b13e8112fd2258c629cb9fdf6af008b4bfda7cc29f8247c4e4d
-WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
-         This run tests the Lightning rail only. Regtest sats only.
-  [1 request sent]
-  [2 offer accepted: 1000000 msat, backend INSECURE-dev-transparent/0, rail lightning-bolt11/0]
-FAILED: Rail(Node("/v2/invoices/hodl: HTTP 500 Internal Server Error: {\"code\":2,\"message\":\"CLTV delta of 18 must be greater than minimum of 24\",\"details\":[]}")) (rail)
