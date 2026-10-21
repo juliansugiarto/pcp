@@ -98,9 +98,9 @@ It has not been audited by anyone outside this project. We do not consider one p
 
 ## Two bounties
 
-No reward is funded yet. Both bounties are open now as challenges, and the results will be credited publicly. Funding, donation addresses and full terms come with the break-this bundle. Claims: open an issue in this repository, or ask there for a private channel. Timestamp your claim first (for example with OpenTimestamps), because the first timestamp wins.
+No reward is funded yet. Both bounties are open now as challenges, and the results will be credited publicly. The break-this bundle is in `pcp-zk/bundle-v1/`; funding, donation addresses and full terms will be added there. Claims: open an issue in this repository, or ask there for a private channel. Timestamp your claim first (for example with OpenTimestamps), because the first timestamp wins.
 
-1. **Privacy** (needs the bundle, which is not published yet): produce the grid `R` committed to in the bundle (a salted SHA-256 commitment is published) from `(givens, C, H, π)` alone. The bounty instance uses an **empty grid** as the givens, so `R` is one of about 6.7 x 10^21 valid grids and cannot be computed from the puzzle. On a well-posed sudoku this bounty would be meaningless: a solver gets `R` from the givens in milliseconds. Our own first draft of this bounty made exactly that mistake.
+1. **Privacy:** produce the grid `R` committed to in the bundle (`pcp-zk/bundle-v1/`) (a salted SHA-256 commitment is published) from `(givens, C, H, π)` alone. The bounty instance uses an **empty grid** as the givens, so `R` is one of about 6.7 x 10^21 valid grids and cannot be computed from the puzzle. On a well-posed sudoku this bounty would be meaningless: a solver gets `R` from the givens in milliseconds. Our own first draft of this bounty made exactly that mistake.
 2. **Soundness:** produce a proof that verifies against the published verifying key for any `(givens, C, H, binding)` where `H != SHA256(k)` for the `k` that decrypts `C`, or where the decryption of `C` is not a valid solution.
 
 The second bounty is the lesson of this report. Our first plan offered only the first.

@@ -43,7 +43,7 @@ The whole story is in `pcp-zk/review/2026-10-21-failure-report.md`: how it was f
 Two challenges are open. There's no money behind them yet, but anyone who succeeds gets credited publicly.
 
 1. **Soundness:** make `pcp-zk verify` accept a proof for any (givens, C, H, binding) where H is not the SHA-256 of a key that decrypts C to a valid grid consistent with the givens.
-2. **Privacy:** recover the hidden grid of the break-this bundle (coming later, built on an empty puzzle) from its public data alone.
+2. **Privacy:** recover the hidden grid of the break-this bundle in `pcp-zk/bundle-v1/` (an empty puzzle, so the answer cannot be solved for) from its public data alone. Its `BUNDLE.md` has the exact claim and the values; `./verify.sh` checks the proof.
 
 Found something? Open an issue, or ask there for a private channel. Please timestamp your finding first.
 
