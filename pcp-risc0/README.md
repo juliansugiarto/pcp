@@ -1,6 +1,6 @@
 # pcp-risc0: RISC Zero proof backend for PCP/0
 
-> **This folder is not built by the `pcp` crate and is not built in CI.** The environment where this code was written cannot download the RISC Zero toolchain (GitHub releases and risczero.com are blocked). The guest has never been compiled. The host has only been type-checked (see below). Real proving has never been run. For the steps to run it, see [`../pcp/RUN-ON-MAC.md`](../pcp/RUN-ON-MAC.md) (Indonesian; an English version is not yet written).
+> **This folder is not built by the `pcp` crate.** It is built and run by the `bench` CI workflow. On 21 October 2026 the guest was compiled and run for the first time, and all three jobs completed a full sale with real STARK proofs over the simulated rail. Measured costs are in [`COSTS.md`](COSTS.md). The image id is not yet reproducible (no Docker build), and the LND rail has not been run with real nodes. For the steps to run it, see [`../pcp/RUN-ON-MAC.md`](../pcp/RUN-ON-MAC.md) (Indonesian; an English version is not yet written).
 
 ## Contents
 
@@ -36,9 +36,9 @@ The guest input contains the result `R` and the key `k`. A remote proving servic
 | Part | Status |
 |---|---|
 | `pcp::statement` (relation, encoding, vectors) | Tested in the `pcp` crate, including the `--no-default-features` (no_std) build. |
-| Guest (`methods/guest`) | **Not yet compiled.** Needs the `riscv32im-risc0-zkvm-elf` target from `rzup`. |
-| `methods/build.rs` | **Not yet run** with a real guest. |
-| Host (`host/src/main.rs`) | **Passes type checking** (`cargo check` and `cargo clippy`, no warnings, with and without `--features lnd`) against risc0-zkvm 3.0.6 from crates.io, with the guest skipped. **Never linked or run.** |
+| Guest (`methods/guest`) | **Compiled and run in CI** (rzup, risc0 3.0.6), 21 October 2026. Image id `6dc846c4…e8ea`, not yet from a reproducible Docker build. |
+| `methods/build.rs` | **Run in CI** with the real guest. |
+| Host (`host/src/main.rs`) | **Passes type checking** (`cargo check` and `cargo clippy`, no warnings, with and without `--features lnd`) against risc0-zkvm 3.0.6 from crates.io. **Linked and run in CI:** sudoku n=4, sudoku n=9 and the test-suite job each ended `SETTLED`. |
 | Accelerated SHA-256 patch | Only a comment in `methods/guest/Cargo.toml`. Not yet tried. |
 
 ### Type checking

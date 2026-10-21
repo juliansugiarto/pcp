@@ -19,7 +19,7 @@ What I'm adding:
 |---|---|---|
 | `pcp/` | The protocol (`pcp/SPEC.md`) and a Rust implementation: mandates, offers, statements, and a Lightning rail (simulated, plus LND behind `--features lnd`) | Tests pass. Not yet run against a real LND node |
 | `pcp-zk/` | A transparent zero-knowledge proof (halo2, IPA over Pasta) for selling a sudoku solution, with a SHA-256 chip I wrote myself | Works, and was reviewed inside the project. **Not audited.** Treat it as something to break, not something to pay through |
-| `pcp-risc0/` | The same statement as a RISC Zero zkVM program. This is the backend meant for real payments | Written but not yet run. CI will produce its cost table |
+| `pcp-risc0/` | The same statement as a RISC Zero zkVM program. This is the backend meant for real payments | Runs: first real proofs in CI (9x9 sudoku proved in 65 s on 4 vCPU, receipt 224 KB, verify 0.012 s). See `pcp-risc0/COSTS.md` |
 | `spec/`, `verifier/`, `tests/` | witnessed-record, an earlier design for publicly recountable signed records that I've put on hold | Parked |
 
 ## Try it
