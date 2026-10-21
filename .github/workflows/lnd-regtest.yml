@@ -98,8 +98,10 @@ jobs:
           dest="lnd/$(date -u +%Y%m%dT%H%M%SZ)-${{ matrix.lnd }}"
           for i in 1 2 3 4 5; do
             git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
-            git checkout -f -B ci-results-lnd origin/ci-results-lnd 2>/dev/null || git checkout -f --orphan ci-results-lnd
-            git rm -rq --cached . 2>/dev/null || true
+            # Keep what the branch already has (lnd/ and risc0-image-id/); on a
+            # fresh orphan branch, drop the source tree from the index.
+            git checkout -f -B ci-results-lnd origin/ci-results-lnd 2>/dev/null \
+              || { git checkout -f --orphan ci-results-lnd && git rm -rq --cached .; }
             mkdir -p "$dest" && cp -r out/* "$dest"/
             git add lnd && git commit -qm "lnd regtest ${{ matrix.lnd }} run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
             sleep $((RANDOM % 20 + 5))
