@@ -82,6 +82,20 @@ done
 wait_synced alice
 wait_synced bob
 log "channel active; height $(btc getblockcount)"
+
+# A channel can be listed active a moment before its link forwards: the
+# first run's sale payment, sent within a second, failed with
+# FAILURE_REASON_INSUFFICIENT_BALANCE and no HTLC. So pay one ordinary 1-sat
+# invoice first and wait until it settles.
+ready=""
+for _ in $(seq 30); do
+  inv=$(lnc bob addinvoice --amt 1 --memo warmup)
+  lnc alice payinvoice --force --pay_req="$(jq -r .payment_request <<<"$inv")" --timeout 20s >/dev/null 2>&1 || true
+  if [ "$(lnc bob lookupinvoice "$(jq -r .r_hash <<<"$inv")" | jq -r .state)" = "SETTLED" ]; then ready=1; break; fi
+  sleep 1
+done
+[ -n "$ready" ] || { echo "warm-up payment never settled"; exit 1; }
+log "warm-up payment settled"
 lnc alice channelbalance | jq -c '{local_balance, remote_balance}'
 
 for n in alice bob; do
