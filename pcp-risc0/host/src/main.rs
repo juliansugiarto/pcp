@@ -20,7 +20,7 @@
 //! STATUS: built and run in CI against risc0-zkvm 3.0.6, 21 October 2026.
 //! Over the simulated rail, sudoku n=4, sudoku n=9 and the test-suite job
 //! each settled with a real proof. With the guest built reproducibly in
-//! Docker (`RISC0_USE_DOCKER=1`, image id `abe2df21…d941`), a sudoku sale
+//! Docker (`RISC0_USE_DOCKER=1`, builder r0.1.97.0, image id `cc6e7b82…e328`), a sudoku sale
 //! and a test-suite sale settled over two LND v0.21.4 nodes on regtest
 //! (`real-sale` workflow). Not audited. See ../README.md and ../COSTS.md.
 //!
@@ -308,10 +308,16 @@ fn execute_only(make_job: fn() -> Box<dyn JobClass>, input: Vec<u8>, result: Vec
         .execute(env, PCP_GUEST_ELF)
         .expect("guest runs");
     let cycles: u64 = session.segments.iter().map(|s| u64::from(s.cycles)).sum();
+    // Each segment is proven at its padded size 2^po2 (user cycles plus
+    // paging and reserved cycles, rounded up): the total a prove reports.
+    let total: u64 = session.segments.iter().map(|s| 1u64 << s.po2).sum();
+    let po2s: Vec<String> = session.segments.iter().map(|s| s.po2.to_string()).collect();
     println!(
-        "execute-only: {} segment(s), {} user cycles, {:.3} s, journal {} bytes, peak RSS {:.0} MiB",
+        "execute-only: {} segment(s), {} user cycles, total {} (po2 {}), {:.3} s, journal {} bytes, peak RSS {:.0} MiB",
         session.segments.len(),
         cycles,
+        total,
+        po2s.join(","),
         t.elapsed().as_secs_f64(),
         session.journal.bytes.len(),
         peak_rss_mib()

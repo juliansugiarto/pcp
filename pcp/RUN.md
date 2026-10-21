@@ -57,10 +57,10 @@ cargo build --release -p pcp-risc0-host --features lnd   # --features lnd only f
 The first line of the last command must be:
 
 ```text
-guest image id abe2df2125017d6785cab6fe7103c0ecf3fc130e34d9f7efa0359c8ffe06d941
+guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
 ```
 
-Two separate CI builds (`risc0-image-id` workflow) and the `real-sale` workflow got this value. With `RISC0_USE_DOCKER=1`, `methods/build.rs` builds the guest in the Docker image that risc0-build 3.0.6 pins, `risczero/risc0-guest-builder:r0.1.88.0`, with the repository root as the build context and `methods/guest/Cargo.lock` locked. Keep the variable exported for every cargo command in this folder: `build.rs` rebuilds the guest when it changes, and a build without it is native, with an image id that depends on your local toolchain.
+Two separate CI builds (`risc0-image-id` workflow) and the `real-sale` workflow got this value. With `RISC0_USE_DOCKER=1`, `methods/build.rs` builds the guest in the Docker image `risczero/risc0-guest-builder:r0.1.97.0` (set in `build.rs`; risc0-build 3.0.6's own default, `r0.1.88.0`, gives a different image id and a guest that pads to 2^18 cycles), with the repository root as the build context and `methods/guest/Cargo.lock` locked. Keep the variable exported for every cargo command in this folder: `build.rs` rebuilds the guest when it changes, and a build without it is native, with an image id that depends on your local toolchain.
 
 A sale with a real proof over the simulated Lightning rail:
 
@@ -68,7 +68,7 @@ A sale with a real proof over the simulated Lightning rail:
 ./target/release/pcp-risc0 --job sudoku9      # or sudoku4, testsuite
 ```
 
-A successful run prints `SETTLED.`, the result, and a last line starting with `cost-row,`. With the reproducible guest, proving the 9x9 sudoku took 150.6 s and 2.36 GB on a 4-vCPU CI runner (`pcp-risc0/COSTS.md`). In CI the simulated-rail sales ran with a native build of the guest (`bench` workflow); the reproducible guest ran the LND sales of section 4 (`real-sale` workflow).
+A successful run prints `SETTLED.`, the result, and a last line starting with `cost-row,`. With the reproducible guest, proving the 9x9 sudoku took 62 to 102 s and about 1.4 GiB of memory on 4-vCPU CI runners (`pcp-risc0/COSTS.md`). In CI the simulated-rail sales ran with a native build of the guest (`bench` workflow); the reproducible guest ran the LND sales of section 4 (`real-sale` workflow).
 
 ## 4. Two LND nodes on regtest
 
@@ -124,7 +124,7 @@ After section 3 (built with `--features lnd`, `RISC0_USE_DOCKER=1`):
 ./pcp-risc0/target/release/pcp-risc0 --job testsuite --rail lnd
 ```
 
-Each run prints `offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/abe2df21…, rail lightning-bolt11/0`, then `SETTLED.` and a `cost-row,` line. The seller's channel balance rises by 1,000 sat per sale:
+Each run prints `offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/cc6e7b82…, rail lightning-bolt11/0`, then `SETTLED.` and a `cost-row,` line. The seller's channel balance rises by 1,000 sat per sale:
 
 ```bash
 docker exec bob lncli --network=regtest channelbalance

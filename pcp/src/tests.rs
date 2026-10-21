@@ -489,8 +489,9 @@ fn lightning_presets_fit_lnd() {
     // final CLTV, so a fresh HTLC can be settled.
     assert!(s.settle_margin_secs > LN_HOLD_EXPIRY_DELTA_BLOCKS * SECS_PER_BLOCK);
     assert!(s.settle_margin_secs < s.min_htlc_secs);
-    // The offer outlives three proofs of the reproducible guest (151 s).
-    assert!(s.offer_ttl_secs >= 3 * 151);
+    // The offer outlives three of the slowest proofs measured for the
+    // reproducible guest (159 s, the 2^18 test-suite job on a slow runner).
+    assert!(s.offer_ttl_secs >= 3 * 159);
 }
 
 #[test]

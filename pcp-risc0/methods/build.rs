@@ -19,6 +19,16 @@ use std::collections::HashMap;
 
 use risc0_build::{DockerOptionsBuilder, GuestOptionsBuilder};
 
+/// The guest builder image (`risczero/risc0-guest-builder:<tag>`). risc0-build
+/// 3.0.6 defaults to `r0.1.88.0` (Rust 1.88), whose guest needs 98,941 user
+/// cycles for sudoku9 and so pads to 2^18; `rzup install` ships Rust 1.97 and
+/// the same guest fits 2^17 (88,606 user cycles), proving about 1.55x faster
+/// on the same runner with 0.6x the memory (COSTS.md). `r0.1.97.0` is the
+/// builder with that toolchain. Changing this tag changes
+/// the image id. (The RISC0_DOCKER_CONTAINER_TAG environment variable still
+/// overrides it, as in risc0-build.)
+const GUEST_BUILDER_TAG: &str = "r0.1.97.0";
+
 fn main() {
     println!("cargo:rerun-if-env-changed=RISC0_USE_DOCKER");
     let use_docker = std::env::var("RISC0_USE_DOCKER")
@@ -30,6 +40,7 @@ fn main() {
     }
     let docker = DockerOptionsBuilder::default()
         .root_dir("../..")
+        .docker_container_tag(GUEST_BUILDER_TAG)
         .build()
         .expect("docker options");
     let guest = GuestOptionsBuilder::default()

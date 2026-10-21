@@ -29,14 +29,14 @@ The guest input contains the result `R` and the key `k`. A remote proving servic
 
 ## `backend_id` and image id
 
-`backend_id` has the form `risc0-zkvm-3-succinct/<image id hex>`. `offer_id` commits to `backend_id`, so an offer names the exact guest binary. The buyer checks the receipt against the image id they built themselves. So that a seller and a buyer on different machines get the same image id, build the guest with Docker: `RISC0_USE_DOCKER=1 cargo build --release` (`methods/build.rs` maps the variable to risc0-build's Docker option, using the builder image `risczero/risc0-guest-builder:r0.1.88.0`). Two separate CI jobs built it this way on 21 October 2026 and got the same image id, `abe2df2125017d6785cab6fe7103c0ecf3fc130e34d9f7efa0359c8ffe06d941`. Without Docker, the image id depends on the local toolchain.
+`backend_id` has the form `risc0-zkvm-3-succinct/<image id hex>`. `offer_id` commits to `backend_id`, so an offer names the exact guest binary. The buyer checks the receipt against the image id they built themselves. So that a seller and a buyer on different machines get the same image id, build the guest with Docker: `RISC0_USE_DOCKER=1 cargo build --release` (`methods/build.rs` maps the variable to risc0-build's Docker option, using the builder image `risczero/risc0-guest-builder:r0.1.97.0`, pinned in `methods/build.rs` because risc0-build's default `r0.1.88.0` adds about 10,300 cycles and pushes the 9x9 sudoku from 2^17 to 2^18). Two separate CI jobs built it this way on 21 October 2026 and got the same image id, `cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328`. The earlier reproducible id `abe2df21…d941` came from the `r0.1.88.0` builder. Without Docker, the image id depends on the local toolchain.
 
 ## What has and has not been checked
 
 | Part | Status |
 |---|---|
 | `pcp::statement` (relation, encoding, vectors) | Tested in the `pcp` crate, including the `--no-default-features` (no_std) build. |
-| Guest (`methods/guest`) | **Compiled and run in CI** (rzup, risc0 3.0.6), 21 October 2026. Reproducible image id from the Docker build: `abe2df21…d941` (two separate CI builds agree). The native build in the cost table had `6dc846c4…e8ea`. |
+| Guest (`methods/guest`) | **Compiled and run in CI** (rzup, risc0 3.0.6), 21 October 2026. Reproducible image id from the Docker build: `cc6e7b82…e328` with builder `r0.1.97.0` (two separate CI builds agree; `abe2df21…d941` before, with `r0.1.88.0`). The native build in the cost table had `6dc846c4…e8ea`. |
 | `methods/build.rs` | **Run in CI** with the real guest. |
 | Host (`host/src/main.rs`) | **Passes type checking** (`cargo check` and `cargo clippy`, no warnings, with and without `--features lnd`) against risc0-zkvm 3.0.6 from crates.io. **Linked and run in CI:** sudoku n=4, sudoku n=9 and the test-suite job each ended `SETTLED`. |
 | Sale over LND with real proofs | **Run in CI** (`real-sale`, run 39627526488, 21 October 2026): with the Docker-built guest, a 9x9 sudoku sale and a test-suite sale settled over two LND v0.21.4 nodes on regtest. |

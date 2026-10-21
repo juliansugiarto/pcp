@@ -21,7 +21,7 @@ The design is written up in the whitepaper: [`WHITEPAPER.md`](WHITEPAPER.md) ([P
 |---|---|---|
 | `pcp/` | The protocol (`pcp/SPEC.md`) and a Rust implementation: mandates, offers, statements, and a Lightning rail (simulated, plus LND behind `--features lnd`) | Tests pass. A full sale has settled between two real LND nodes on regtest in CI |
 | `pcp-zk/` | A transparent zero-knowledge proof (halo2, IPA over Pasta) for selling a sudoku solution, with a SHA-256 chip I wrote myself | Works. Reviewed inside the project by a separate AI reviewer that did not write the code; **not audited** by any outside party. Treat it as something to break, not something to pay through |
-| `pcp-risc0/` | The same statement as a RISC Zero zkVM program. This is the backend meant for real payments | Runs: a sale with a real proof has settled over real LND nodes on regtest. Proving the 9x9 sudoku with the reproducible guest takes 151 s on 4 vCPU; the receipt is 224 KB and verifies in 0.018 s. See `pcp-risc0/COSTS.md` |
+| `pcp-risc0/` | The same statement as a RISC Zero zkVM program. This is the backend meant for real payments | Runs: a sale with a real proof has settled over real LND nodes on regtest. Proving the 9x9 sudoku with the reproducible guest takes 62 to 102 s on a 4-vCPU CI runner; the receipt is 224 KB and verifies in about 0.02 s. See `pcp-risc0/COSTS.md` |
 | `spec/`, `verifier/`, `tests/` | witnessed-record, an earlier design for publicly recountable signed records that I've put on hold | Parked |
 
 ## Try it

@@ -1130,8 +1130,8 @@ impl SellerConfig {
     /// is LND's minimum (24 blocks). The settle margin is two blocks more than
     /// LND's own hold-expiry cancel, so the seller never tries to settle an
     /// HTLC its node is about to cancel. The offer lives 15 minutes: at least
-    /// three times the measured proving time of the reproducible RISC Zero
-    /// guest on 4 vCPU (151 s).
+    /// three times the slowest proving time measured for the reproducible
+    /// RISC Zero guest on a 4-vCPU CI runner (159 s, the 2^18 test-suite job).
     pub fn lightning(price_msat: u64) -> Self {
         SellerConfig {
             price_msat,

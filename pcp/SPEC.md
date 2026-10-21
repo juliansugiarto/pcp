@@ -290,7 +290,7 @@ The relation of 7.1 item 5 is one pure function, `statement::evaluate` (`no_std 
 
 The verifier rejects fake (dev-mode) receipts, verifies the receipt against the pinned image id (section 6), parses the journal and compares it field by field with the statement it built from its own state (section 9, V4). Proving MUST be local: the guest input contains `R` and `k`, so a remote proving service would learn the goods. The buyer verifies the STARK receipt directly; PCP/0 has no on-chain verifier and therefore no reason to wrap the proof in Groth16.
 
-The reference guest is built reproducibly in Docker; two separate CI builds gave the same image id, `abe2df2125017d6785cab6fe7103c0ecf3fc130e34d9f7efa0359c8ffe06d941`. Measured costs, and the sale that settled over two LND nodes on regtest with this guest, are in `../pcp-risc0/COSTS.md`.
+The reference guest is built reproducibly in Docker; two separate CI builds gave the same image id, `cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328` (builder `risczero/risc0-guest-builder:r0.1.97.0`). Measured costs, and the sale that settled over two LND nodes on regtest with this guest, are in `../pcp-risc0/COSTS.md`.
 
 ### 7.3 `InsecureDevTransparentBackend` (v0): INSECURE
 
