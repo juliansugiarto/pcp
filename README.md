@@ -47,4 +47,14 @@ Two challenges are open. There's no money behind them yet, but anyone who succee
 
 Found something? Open an issue, or ask there for a private channel. Please timestamp your finding first.
 
+## Fund the bounties
+
+Donations go to the bounty fund for the two challenges above. Lightning, as a reusable BOLT12 offer (pay it from a wallet that supports BOLT12, for example Phoenix):
+
+```
+lno1zrxq8pjw7qjlm68mtp7e3yvxee4y5xrgjhhyf2fxhlphpckrvevh50u0q2jc9vhm8vl7me3zyzc5k0slwlv8msva9prweneujggq52w8vs99gqszscfw45da9ka0fcevnalar09mtyljd9ht6geglszsq0xugxhpuzqqqvlln9nv4qhm266r9nga8jqf7jcpkfl4jzp9dwlsk93k58t5j2m3dxv4wxnfmgwf8nswkaqyenng5prdjv7eqdlsmv8x2l5xnnkyya34967sl4scm7ysjx3702tgjxfekmzcf5gjgqqsqq79ml8ejgkdpr4y0xs2d67euc
+```
+
+On-chain addresses will be added here.
+
 MIT license. Written by Julian Sugiarto, with help from contributors.
