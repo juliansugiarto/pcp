@@ -40,6 +40,16 @@ fi
 chmod 700 "$SECRETS"
 
 cd "$CRATE"
+# Find Rust: a fresh rustup install is in ~/.cargo/bin but not on PATH until a new shell.
+if ! command -v cargo >/dev/null 2>&1 && [ -x "$HOME/.cargo/bin/cargo" ]; then
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+if ! command -v cargo >/dev/null 2>&1; then
+  echo "Rust is not installed. Install it with this one command, then run this script again:" >&2
+  echo "  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y" >&2
+  exit 1
+fi
+echo "building pcp-zk (the first build takes several minutes)..."
 cargo build --release --quiet --bin pcp-zk
 B="$CRATE/target/release/pcp-zk"
 
