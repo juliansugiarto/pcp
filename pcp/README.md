@@ -2,7 +2,7 @@
 
 > Verified exchange: pay only if it is proven, under a mandate you sign, settled where nobody can freeze it.
 
-**Status: v0, a prototype for learning and discussion. Not audited. The RISC Zero backend has produced real proofs in CI, and the LND rail has settled a full sale between two real LND nodes on regtest (LND v0.19.3 and v0.21.4), both on 21 October 2026. The two have not yet run together in one sale: the LND sale used the insecure dev proof backend. Do not use with real money.** For how to run the first real instance, see [`RUN-ON-MAC.md`](RUN-ON-MAC.md) (Indonesian; an English version is not yet written).
+**Status: v0, a prototype for learning and discussion. Not audited. The RISC Zero backend has produced real proofs in CI, and the LND rail has settled a full sale between two real LND nodes on regtest (LND v0.19.3 and v0.21.4), both on 21 October 2026. On the same day the two ran together: a sale with a real RISC Zero proof settled over real LND nodes on regtest. Do not use with real money.** For how to run the first real instance, see [`RUN-ON-MAC.md`](RUN-ON-MAC.md) (Indonesian; an English version is not yet written).
 
 ## What PCP is
 
@@ -62,7 +62,7 @@ An imitation version with stablecoins can be built, but that version always carr
 ## What v0 does not do yet
 
 - **Zero knowledge runs outside this crate.** The RISC Zero backend is in [`../pcp-risc0/`](../pcp-risc0/), outside this crate's build. It was first run in CI on 21 October 2026 (64.6 s to prove a 9x9 sudoku on 4 vCPU, receipt 224 KB; see `../pcp-risc0/COSTS.md`). Inside this crate's own tests, the only backend, `InsecureDevTransparentBackend`, puts the witness (result and key) inside a seal whose key is written in the source code. Its verification still checks the full relation, so the protocol flow is tested. But anyone who reads the code can open that seal and get the result without paying. The buyer refuses this backend unless it is explicitly allowed for testing.
-- **Real Lightning only on regtest.** The LND rail has settled sales between two real regtest nodes in CI, but never on signet or mainnet, and never together with a real (non-dev) proof.
+- **Real Lightning only on regtest.** The LND rail has settled sales between two real regtest nodes in CI, including a sale with a real RISC Zero proof (21 October 2026, see `../pcp-risc0/COSTS.md`). It has never run on signet or mainnet.
 - There is no "data matches schema" job class yet, although its shape is the same as the two existing classes.
 
 ## Running

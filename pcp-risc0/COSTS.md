@@ -18,6 +18,19 @@ All three runs ended with `SETTLED`.
 
 Execute-only runs, which count cycles without proving, took about 0.02 s per job.
 
+## A real sale: real proof, real Lightning (21 October 2026)
+
+The `real-sale` workflow (run 39627526488) used the reproducible Docker-built guest, image id `abe2df2125017d6785cab6fe7103c0ecf3fc130e34d9f7efa0359c8ffe06d941`. It ran two sales over two LND v0.21.4 nodes on regtest, with the backend `risc0-zkvm-3-succinct/abe2df21…d941` and the rail `lightning-bolt11/0`. Both ended `SETTLED`. The seller's balance rose by exactly 1,000 sat per sale, and SHA-256 of the revealed preimage equals the invoice's payment hash.
+
+| Job | User cycles | Total cycles | Prove (s) | Verify (s) | Receipt (bytes) | Peak memory | Buyer has `k` after paying |
+|---|---|---|---|---|---|---|---|
+| `pcp/sudoku/v0` n=9 | 98,941 | 262,144 | 150.6 | 0.018 | 223,748 | 2.36 GB | 0.53 s |
+| `pcp/testsuite-toyexpr/v0` | 114,019 | 262,144 | 149.7 | 0.018 | 223,770 | 2.36 GB | 1.03 s |
+
+**Correction.** An earlier version of this file said the Docker-built guest would stay inside one 2^17 segment, "so the proving cost should not change much". That was wrong. The Docker guest's 9x9 sudoku pads to 2^18 total cycles, and proving takes about 2.3 times as long (150.6 s against 64.6 s) with 1.7 times the memory. The reproducible guest is the one a stranger can check, so these are the numbers that count for real sales. Bringing the guest back under 2^17 cycles would roughly halve them.
+
+The timelocks held with room to spare. The seller proves before it invoices, so proving time does not eat into the invoice or the HTLC. It does count against the 600-second offer lifetime: 151 s used, 449 s left. Since 21 October the seller refuses to invoice on an expired offer, and the buyer refuses to pay on one.
+
 ## Reading the numbers
 
 - **Proving time follows the padded cycle count, not the job.** Sudoku n=4 and n=9 both pad to 2^17 cycles, so they cost the same. The test-suite job crosses into 2^18 and costs about 1.6 times as much. The 9x9 sudoku uses only 68% of its 2^17 segment, so there is headroom before the next step up.
@@ -28,5 +41,3 @@ Execute-only runs, which count cycles without proving, took about 0.02 s per job
 ## Not yet measured
 
 - Apple Silicon with the Metal GPU prover. It is expected to be much faster than this CPU-only runner, but that has not been measured.
-- Costs with the reproducible guest. This table used a native build (image id `6dc846c4…e8ea`). The Docker build, whose image id `abe2df21…d941` two CI jobs reproduced, executes the 9x9 sudoku in 98,941 user cycles instead of 88,629, still inside one 2^17 segment, so the proving cost should not change much. That is not yet measured.
-- A real proof and the real LND rail in the same sale (`--rail lnd`). The LND rail has settled sales on regtest in CI, but only with the dev proof backend.

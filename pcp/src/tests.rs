@@ -438,6 +438,37 @@ fn verified(job_input: (TestSuiteJob, Vec<u8>)) -> (Fx, ProofBundle, InvoiceBind
 }
 
 #[test]
+fn seller_refuses_to_fulfil_an_expired_offer() {
+    let mut fx = fixture(TestSuiteJob, clamp_suite());
+    let wait = fx.offer.offer_expires_at - fx.ledger.now();
+    fx.ledger.advance(wait);
+    assert!(matches!(
+        fx.seller.fulfil(
+            &fx.req,
+            &fx.offer,
+            CLAMP_OK.as_bytes().to_vec(),
+            &mut fx.ledger,
+            &mut OsRng,
+        ),
+        Err(PcpError::OfferExpired)
+    ));
+}
+
+#[test]
+fn buyer_refuses_an_invoice_after_the_offer_expired() {
+    // The seller invoiced in time, but the buyer only checks the invoice
+    // after the offer is void: the offer no longer binds anyone, so no payment.
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    let wait = fx.offer.offer_expires_at - fx.ledger.now();
+    fx.ledger.advance(wait);
+    assert_eq!(
+        fx.buyer.check_invoice(&binding, fx.ledger.now()),
+        Err(PcpError::OfferExpired)
+    );
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+}
+
+#[test]
 fn invoice_payment_hash_mismatch_is_refused() {
     let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
     // Seller issues an invoice to a hash whose preimage is NOT the k that

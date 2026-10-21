@@ -856,6 +856,9 @@ impl Buyer {
             Some(PcpError::Version)
         } else if binding.offer_id != offer.offer_id() || binding.statement_hash != st_hash {
             Some(PcpError::InvoiceBindingMismatch)
+        } else if now >= offer.offer_expires_at {
+            // SPEC: the offer is void after offer_expires_at; never pay on it.
+            Some(PcpError::OfferExpired)
         } else if inv.payment_hash != statement.payment_hash {
             Some(PcpError::InvoiceHashMismatch)
         } else if inv.amount_msat != offer.price_msat {
@@ -1275,6 +1278,11 @@ impl Seller {
         let Some(buyer_mandate) = req.mandate.clone() else {
             return Err(PcpError::CounterpartyMandate(MandateError::Missing));
         };
+        // SPEC: the offer is void after offer_expires_at. Do not start (and,
+        // below, do not invoice) on a void offer.
+        if rail.now() >= offer.offer_expires_at {
+            return Err(PcpError::OfferExpired);
+        }
         if !self.job.check(&req.input, &result) {
             return Err(PcpError::SellerResultInvalid);
         }
@@ -1299,6 +1307,10 @@ impl Seller {
             .backend
             .prove(self.job.as_ref(), &statement, &ciphertext, &witness)
             .map_err(PcpError::ProveFailed)?;
+        // Proving can take minutes: the offer may have lapsed meanwhile.
+        if rail.now() >= offer.offer_expires_at {
+            return Err(PcpError::OfferExpired);
+        }
         let invoice = rail.create_invoice(&InvoiceRequest {
             payee: self.node.clone(),
             payment_hash: h,
