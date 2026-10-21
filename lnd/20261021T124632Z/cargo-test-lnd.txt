@@ -1,0 +1,78 @@
+test encoding::tests::length_prefix_prevents_concatenation_ambiguity ... ok
+test job::sudoku::tests::four_by_four ... ok
+test job::sudoku::tests::givens_must_be_preserved ... ok
+test job::testsuite::tests::suite_checks ... ok
+test job::testsuite::tests::language_basics ... ok
+test crypto::tests::roundtrip_and_binding ... ok
+test lightning::tests::happy_settle_is_atomic ... ok
+test lightning::tests::balances_accrue_to_principals ... ok
+test lightning::tests::invoice_rules ... ok
+test lightning::tests::timeout_refunds_and_blocks_late_preimage ... ok
+test lightning::tests::wrong_preimage_changes_nothing ... ok
+test rail::lnd::tests::config_debug_hides_the_macaroon ... ok
+test rail::lnd::tests::held_invoice_is_an_incoming_htlc_with_a_timeout ... ok
+test rail::lnd::tests::a_bolt11_that_decodes_to_other_terms_is_refused ... ok
+test rail::lnd::tests::payreq_decodes_to_the_protocol_invoice ... ok
+test rail::lnd::tests::payments_list_gives_the_preimage ... ok
+test rail::lnd::tests::send_stream_returns_at_first_in_flight ... ok
+test rail::lnd::tests::timelocks_round_up_to_blocks ... ok
+test rail::tests::ledger_is_a_rail ... ok
+test rail::tests::ledger_rail_refunds_on_lookup_after_timeout ... ok
+test statement::tests::encodings_roundtrip_strictly ... ok
+test statement::tests::honest_input_gives_the_expected_journal ... ok
+test statement::tests::journal_mismatches_name_the_first_field ... ok
+test statement::tests::known_classes_are_the_reference_registry ... ok
+test statement::tests::statement_core_conformance_vectors ... ok
+test statement::tests::every_relation_is_checked ... ok
+test job::sudoku::tests::nine_by_nine ... ok
+test tests::buyer_refuses_insecure_backend_by_default ... ok
+test tests::agent_may_not_be_its_own_principal ... ok
+test tests::buyer_cannot_learn_result_before_paying ... ok
+test tests::buyer_who_never_pays_never_gets_k ... ok
+test tests::conformance_vectors ... ok
+test tests::dev_backend_proves_exactly_the_statement_core_journal ... ok
+test tests::ciphertext_of_other_result_than_proven_fails ... ok
+test tests::expiry_refunds_and_seller_does_not_reveal_late ... ok
+test tests::default_buyer_policy_has_a_per_deal_value_ceiling ... ok
+test tests::expired_mandates_are_refused ... ok
+test tests::happy_path_four_by_four ... ok
+test tests::happy_path_patch_passes_tests ... ok
+test tests::honest_seller_and_backend_refuse_wrong_result ... ok
+test tests::happy_path_sudoku ... ok
+test tests::invoice_payment_hash_mismatch_is_refused ... ok
+test tests::messages_roundtrip_through_json ... ok
+test tests::cap_is_enforced_across_deals ... ok
+test tests::missing_mandate_is_refused_by_both_sides ... ok
+test tests::offer_checks ... ok
+test tests::payee_must_be_the_seller_principals_payout_node ... ok
+test tests::per_deal_max_is_enforced ... ok
+test tests::invoice_amount_payee_description_and_timing_are_checked ... ok
+test tests::rail_must_match_the_offer ... ok
+test tests::refund_returns_the_reservation ... ok
+test tests::run_sale_drives_a_whole_sale_over_a_rail ... ok
+test tests::proof_replayed_to_another_buyer_fails ... ok
+test tests::principals_can_verify_every_deal_and_refusal ... ok
+test tests::scope_mismatch_is_refused ... ok
+test tests::unknown_json_fields_are_rejected ... ok
+test tests::self_payments_are_flagged_and_excluded_from_metrics ... ok
+test tests::swapped_ciphertext_after_proving_fails ... ok
+test tests::unpaid_invoice_expires ... ok
+test tests::unregistered_job_class_is_refused_by_default ... ok
+test tests::wrong_preimage_cannot_settle_and_buyer_is_refunded ... ok
+test tests::wrong_result_fails_verification_and_nothing_is_paid ... ok
+test tests::wrong_signatures_are_refused ... ok
+test result: ok. 63 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.63s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test a_cancelled_hold_invoice_refunds_the_buyer ... ignored, needs two LND regtest nodes (lnd-regtest workflow)
+test a_reused_payment_hash_is_refused ... ignored, needs two LND regtest nodes (lnd-regtest workflow)
+test the_buyer_node_refuses_a_presented_invoice_with_other_terms ... ignored, needs two LND regtest nodes (lnd-regtest workflow)
+test the_hold_invoice_reads_back_with_the_requested_terms ... ignored, needs two LND regtest nodes (lnd-regtest workflow)
+test result: ok. 0 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test seller_cannot_sell_a_failing_patch ... ok
+test public_patch_sale ... ok
+test public_sudoku_sale ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+test src/proof.rs - proof::InsecureDevTransparentBackend (line 364) - compile fail ... ok
+test src/proof.rs - proof::InsecureDevTransparentBackend (line 358) - compile fail ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.55s
