@@ -1,0 +1,10 @@
+== before-sudoku9 at 2026-10-21T17:52:00Z, block height 113
+== alice channelbalance
+{"local_balance":{"sat":"996529","msat":"996529000"},"remote_balance":{"sat":"1","msat":"1000"}}
+== alice walletbalance
+{"confirmed_balance":"98995882","unconfirmed_balance":"0"}
+== bob channelbalance
+{"local_balance":{"sat":"1","msat":"1000"},"remote_balance":{"sat":"996529","msat":"996529000"}}
+== bob walletbalance
+{"confirmed_balance":"0","unconfirmed_balance":"0"}
+== no sale invoice yet

@@ -1,0 +1,11 @@
+date: 2026-10-21T17:46:43Z
+commit: de0beb8b9ed0b23fb23dbaca5c4781df152e963b
+Linux runnervm8k3b6 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+4
+               total        used        free      shared  buff/cache   available
+Mem:           15989         957       12871          41        2520       15031
+Swap:           3071           0        3071
+Docker version 28.0.4, build b8034c0
+rustc 1.99.0 (b940084d7 2026-09-28)
+LND_IMAGE=lightninglabs/lnd:v0.21.4-beta
+BTC_IMAGE=polarlightning/bitcoind:28.0

@@ -1,0 +1,90 @@
+== bob channelbalance
+{
+    "balance": "2001",
+    "pending_open_balance": "0",
+    "local_balance": {
+        "sat": "2001",
+        "msat": "2001000"
+    },
+    "remote_balance": {
+        "sat": "994529",
+        "msat": "994529000"
+    },
+    "unsettled_local_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "unsettled_remote_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "pending_open_local_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "pending_open_remote_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "custom_channel_data": "010000"
+}
+== bob listchannels
+{
+    "channels": [
+        {
+            "active": true,
+            "remote_pubkey": "0296d5366471f89e24b375a6b47b2ca8d43b98d77130bc654c63bb48dcf7a602ec",
+            "channel_point": "f02abc098513f89db255682a4a58970de4bd6e70bf7613500a40da0bcae5471a:0",
+            "chan_id": "1a47e5ca0bda400a501376bf706ebde40d97584a2a6855b29df8138509bc2af0",
+            "scid": "118747255865344",
+            "scid_str": "108x1x0",
+            "capacity": "1000000",
+            "local_balance": "2001",
+            "remote_balance": "994529",
+            "commit_fee": "2810",
+            "commit_weight": "1116",
+            "fee_per_kw": "2500",
+            "unsettled_balance": "0",
+            "total_satoshis_sent": "0",
+            "total_satoshis_received": "2001",
+            "num_updates": "6",
+            "pending_htlcs": [],
+            "csv_delay": 144,
+            "private": false,
+            "initiator": false,
+            "chan_status_flags": "ChanStatusDefault",
+            "local_chan_reserve_sat": "10000",
+            "remote_chan_reserve_sat": "10000",
+            "static_remote_key": false,
+            "commitment_type": "ANCHORS",
+            "lifetime": "208",
+            "uptime": "208",
+            "close_address": "",
+            "push_amount_sat": "0",
+            "thaw_height": 0,
+            "local_constraints": {
+                "csv_delay": 144,
+                "chan_reserve_sat": "10000",
+                "dust_limit_sat": "354",
+                "max_pending_amt_msat": "990000000",
+                "min_htlc_msat": "1",
+                "max_accepted_htlcs": 483
+            },
+            "remote_constraints": {
+                "csv_delay": 144,
+                "chan_reserve_sat": "10000",
+                "dust_limit_sat": "354",
+                "max_pending_amt_msat": "990000000",
+                "min_htlc_msat": "1",
+                "max_accepted_htlcs": 483
+            },
+            "alias_scids": [],
+            "zero_conf": false,
+            "zero_conf_confirmed_scid": "0",
+            "peer_alias": "alice",
+            "peer_scid_alias": "0",
+            "memo": "",
+            "custom_channel_data": ""
+        }
+    ]
+}
