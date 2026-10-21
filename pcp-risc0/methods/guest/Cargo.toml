@@ -1,0 +1,23 @@
+[package]
+name = "pcp-guest"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false
+
+[workspace]
+
+[dependencies]
+risc0-zkvm = { version = "3.0.6", default-features = false, features = ["std"] }
+# The statement core only: `default-features = false` turns off `std` in
+# pcp, which leaves encoding, crypto, job and statement (no_std + alloc;
+# dependencies sha2 and chacha20poly1305, nothing else).
+pcp = { path = "../../../pcp", default-features = false }
+
+# Optional, UNTESTED: RISC Zero's accelerated SHA-256 (a precompile) instead
+# of software SHA-256 in the guest. It cuts cycles for every tagged hash.
+# Check the exact tag for your risc0 version in RISC Zero's "precompiles"
+# documentation before enabling; GitHub was not reachable when this was
+# written. Measure both for the cost table.
+# [patch.crates-io]
+# sha2 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha2-v0.10.9-risczero.0" }

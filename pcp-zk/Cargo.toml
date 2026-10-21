@@ -1,0 +1,38 @@
+[package]
+name = "pcp-zk"
+version = "0.0.1"
+edition = "2021"
+description = "PCP/0 zero-knowledge proof backend experiment: halo2 (IPA over Pasta, transparent) proof of a ZKCP sudoku sale with SHA-256 payment hash and a SHA-256 counter-mode keystream."
+publish = false
+license = "MIT OR Apache-2.0"
+
+# Standalone: not a member of ../pcp's build.
+[workspace]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "pcp-zk"
+path = "src/bin/pcp-zk.rs"
+
+[dependencies]
+halo2_proofs = "=0.3.5"
+halo2_gadgets = "=0.5.0"
+group = "0.13"
+ff = "0.13"
+rand_core = { version = "0.6", features = ["getrandom"] }
+sha2 = "0.10"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+
+[profile.test]
+opt-level = 3
+
+[profile.dev.package."*"]
+opt-level = 3
+
