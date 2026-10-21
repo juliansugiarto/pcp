@@ -1,6 +1,7 @@
 //! A sudoku sale over two real LND nodes (regtest), with the INSECURE dev
-//! proof backend. Feature `lnd`. NOT TESTED against a node by this
-//! repository: see RUN-ON-MAC.md.
+//! proof backend. Feature `lnd`. Run against LND v0.19.3-beta and
+//! v0.21.4-beta on regtest by `.github/workflows/lnd-regtest.yml`; for a
+//! local run see RUN-ON-MAC.md.
 //!
 //! The point of this binary is the rail, not the proof: it checks that hold
 //! invoices, payment and settlement on real LND behave the way the
@@ -23,13 +24,14 @@ use pcp::job::{JobClass, SudokuJob};
 use pcp::mandate::{Agent, Mandate, MandateTerms, Role, SecretKey};
 use pcp::proof::InsecureDevTransparentBackend;
 use pcp::protocol::{BuyerPolicy, SellerConfig, RAIL_BOLT11};
-use pcp::rail::lnd::{LndConfig, LndRail};
+use pcp::rail::lnd::{LndConfig, LndRail, LND_MIN_FINAL_CLTV};
 use pcp::rail::Rail;
 use pcp::sale::{run_sale, SaleParams, TwoNodes};
 use rand::rngs::OsRng;
 
 /// Settings for a regtest run. Timelocks are in seconds and converted to
-/// blocks at 600 s per block: LND's minimum final CLTV is 18 blocks.
+/// blocks at 600 s per block: LND's minimum final CLTV is
+/// `LND_MIN_FINAL_CLTV` (24) blocks.
 pub fn regtest_terms(price_msat: u64) -> (BuyerPolicy, SellerConfig) {
     let policy = BuyerPolicy {
         rail: RAIL_BOLT11.to_string(),
@@ -42,7 +44,7 @@ pub fn regtest_terms(price_msat: u64) -> (BuyerPolicy, SellerConfig) {
         rail: RAIL_BOLT11.to_string(),
         offer_ttl_secs: 600,
         invoice_expiry_secs: 600,
-        min_htlc_secs: 18 * 600,
+        min_htlc_secs: LND_MIN_FINAL_CLTV * 600,
         settle_margin_secs: 600,
         ..SellerConfig::default()
     };

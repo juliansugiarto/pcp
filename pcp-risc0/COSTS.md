@@ -28,5 +28,5 @@ Execute-only runs, which count cycles without proving, took about 0.02 s per job
 ## Not yet measured
 
 - Apple Silicon with the Metal GPU prover. It is expected to be much faster than this CPU-only runner, but that has not been measured.
-- A reproducible image id. This build did not use `RISC0_USE_DOCKER=1`, so the image id `6dc846c4…e8ea` comes from this runner's toolchain. A buyer on another machine can only match it after a Docker build. That is required before any sale to a stranger.
-- The LND rail with real nodes.
+- Costs with the reproducible guest. This table used a native build (image id `6dc846c4…e8ea`). The Docker build, whose image id `abe2df21…d941` two CI jobs reproduced, executes the 9x9 sudoku in 98,941 user cycles instead of 88,629, still inside one 2^17 segment, so the proving cost should not change much. That is not yet measured.
+- A real proof and the real LND rail in the same sale (`--rail lnd`). The LND rail has settled sales on regtest in CI, but only with the dev proof backend.

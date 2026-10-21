@@ -1,0 +1,119 @@
+# The LND rail against real LND nodes (regtest, Docker). Results go to the
+# `ci-results-lnd` branch and to workflow artifacts, never to main.
+#
+# Regtest sats only. The sale uses the INSECURE dev proof backend: it tests
+# the Lightning rail, not the proof.
+name: lnd-regtest
+
+# Private repo: manual only (its Actions are blocked by billing). scripts/export-public.sh
+# uncomments the #public# lines, so the public repo also runs on pushes to main.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pcp/src/**"
+      - "pcp/Cargo.*"
+      - "pcp/tests/lnd_regtest.rs"
+      - ".github/lnd-regtest/**"
+      - ".github/workflows/lnd-regtest.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lnd-regtest-rail-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lnd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        # Current LND release (Docker Hub, 2026-09-30) and the previous line.
+        lnd: [v0.21.4-beta, v0.19.3-beta]
+    env:
+      LND_IMAGE: lightninglabs/lnd:${{ matrix.lnd }}
+      BTC_IMAGE: polarlightning/bitcoind:28.0
+      OUT: out
+      CREDS: creds
+    steps:
+      - uses: actions/checkout@v4
+      - name: Machine
+        run: |
+          mkdir -p out
+          { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; docker --version; rustc --version; } | tee out/machine.txt
+      - name: Images
+        run: |
+          echo "LND_IMAGE=$LND_IMAGE" | tee out/images.txt
+          echo "BTC_IMAGE=$BTC_IMAGE" | tee -a out/images.txt
+      - name: Build lnd_sale and tests
+        run: |
+          cd pcp
+          cargo build --features lnd --bin lnd_sale 2>&1 | tail -n 5
+          cargo test --features lnd --no-run 2>&1 | tail -n 5
+          cargo test --features lnd 2>&1 | grep -E "^test |test result" | tee ../out/cargo-test-lnd.txt
+      - name: Start regtest network
+        run: bash .github/lnd-regtest/up.sh 2>&1 | tee out/setup.txt
+      - name: Sale over LND (lnd_sale)
+        id: sale
+        continue-on-error: true
+        run: |
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds/alice/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds/alice/admin.macaroon
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8082
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/bob/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
+          set -o pipefail
+          timeout 300 ./pcp/target/debug/lnd_sale 2>&1 | tee out/lnd-sale.txt
+      - name: Rail tests against the nodes (lnd_regtest, ignored tests)
+        id: railtests
+        continue-on-error: true
+        run: |
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds/alice/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds/alice/admin.macaroon
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8082
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/bob/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
+          set -o pipefail
+          cd pcp
+          timeout 600 cargo test --features lnd --test lnd_regtest -- --ignored --test-threads=1 2>&1 | tee ../out/lnd-regtest-tests.txt
+      - name: Raw REST probe (curl)
+        if: always()
+        continue-on-error: true
+        run: bash .github/lnd-regtest/probe.sh 2>&1 | tee out/probe.txt
+      - name: Dump node state
+        if: always()
+        run: bash .github/lnd-regtest/dump.sh > out/dump.txt 2>&1 || true
+      - name: Summary
+        if: always()
+        run: |
+          { echo "sale: ${{ steps.sale.outcome }}"; echo "rail tests: ${{ steps.railtests.outcome }}"; cat out/images.txt 2>/dev/null; } | tee out/summary.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lnd-regtest-${{ matrix.lnd }}-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results-lnd
+        if: always()
+        run: |
+          git config user.name "somnus-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="lnd/$(date -u +%Y%m%dT%H%M%SZ)-${{ matrix.lnd }}"
+          for i in 1 2 3 4 5; do
+            git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
+            # Keep what the branch already has (lnd/ and risc0-image-id/); on a
+            # fresh orphan branch, drop the source tree from the index.
+            git checkout -f -B ci-results-lnd origin/ci-results-lnd 2>/dev/null \
+              || { git checkout -f --orphan ci-results-lnd && git rm -rq --cached .; }
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add lnd && git commit -qm "lnd regtest ${{ matrix.lnd }} run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
+            sleep $((RANDOM % 20 + 5))
+          done
+      - name: Fail if the sale or the rail tests failed
+        if: steps.sale.outcome != 'success' || steps.railtests.outcome != 'success'
+        run: exit 1

@@ -6,7 +6,9 @@
 //! - [`Ledger`], the in-memory HTLC simulation (`lightning-htlc-sim/0`),
 //!   used by the tests and the demo;
 //! - `lnd::LndRail` (feature `lnd`), a client for one LND node's REST API
-//!   using hold invoices (`lightning-bolt11/0`). Not exercised in tests.
+//!   using hold invoices (`lightning-bolt11/0`). Exercised against real
+//!   regtest nodes by `tests/lnd_regtest.rs` (ignored by default) and the
+//!   `lnd-regtest` CI workflow.
 //!
 //! A rail is the payer's or payee's own view of the network. It is not a
 //! protocol party: it can delay or fail a payment, but it cannot settle one

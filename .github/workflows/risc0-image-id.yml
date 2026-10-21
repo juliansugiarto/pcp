@@ -1,0 +1,85 @@
+# A reproducible RISC Zero image id: the guest built in Docker
+# (RISC0_USE_DOCKER=1, see pcp-risc0/methods/build.rs) in two separate jobs,
+# and once natively for comparison. Results go to the `ci-results-lnd`
+# branch and to workflow artifacts, never to main.
+name: risc0-image-id
+
+# Private repo: manual only (its Actions are blocked by billing). scripts/export-public.sh
+# uncomments the #public# lines, so the public repo also runs on pushes to main.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pcp-risc0/**"
+      - "pcp/src/**"
+      - ".github/workflows/risc0-image-id.yml"
+
+permissions:
+  contents: write
+
+# Never cancel a running build: the guest image id does not depend on the
+# std-only code most pushes to this branch change.
+concurrency:
+  group: risc0-image-id-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  risc0-image-id:
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [docker-1, docker-2, native]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install RISC Zero toolchain
+        run: |
+          mkdir -p out
+          curl -L https://risczero.com/install | bash
+          export PATH="$HOME/.risc0/bin:$PATH"
+          rzup install 2>&1 | tail -n 20
+          rzup show 2>&1 | tee out/rzup-show.txt
+          echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
+      - name: Build pcp-risc0 (${{ matrix.build }})
+        run: |
+          cd pcp-risc0
+          if [ "${{ matrix.build }}" != native ]; then export RISC0_USE_DOCKER=1; fi
+          echo "RISC0_USE_DOCKER=${RISC0_USE_DOCKER:-}" | tee ../out/build-mode.txt
+          curl -fsS "https://hub.docker.com/v2/repositories/risczero/risc0-guest-builder/tags?page_size=30&ordering=last_updated" \
+            | jq -r '.results[] | "\(.name) \(.last_updated)"' > ../out/guest-builder-tags.txt || true
+          set -o pipefail
+          # The guest first (fails fast), then the host. Full output kept.
+          cargo build --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }
+          grep -E "Docker context|Building ELF|^#[0-9]+ (DONE|ERROR)|risc0-guest-builder" ../out/build-methods-full.txt | head -n 40 || true
+          docker images --digests | grep -i risc0 | tee ../out/docker-images.txt || true
+          cargo build --release 2>&1 | tail -n 20 | tee ../out/build.txt
+      - name: Image id and execute-only
+        run: |
+          cd pcp-risc0
+          set -o pipefail
+          ./target/release/pcp-risc0 --job sudoku9 --execute-only 2>&1 | tee ../out/execute-sudoku9.txt
+          find target -path '*riscv32im-risc0-zkvm-elf*' -type f \( -name 'pcp-guest' -o -name 'pcp-guest.bin' \) -exec sha256sum {} \; | tee ../out/guest-elf-sha256.txt
+          { echo "build: ${{ matrix.build }}"; echo "commit: $GITHUB_SHA"; grep "guest image id" ../out/execute-sudoku9.txt; } | tee ../out/image-id.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: risc0-image-id-${{ matrix.build }}-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results-lnd
+        if: always()
+        run: |
+          git config user.name "somnus-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="risc0-image-id/$(date -u +%Y%m%dT%H%M%SZ)-${{ matrix.build }}"
+          for i in 1 2 3 4 5; do
+            git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
+            # Keep what the branch already has (lnd/ and risc0-image-id/); on a
+            # fresh orphan branch, drop the source tree from the index.
+            git checkout -f -B ci-results-lnd origin/ci-results-lnd 2>/dev/null \
+              || { git checkout -f --orphan ci-results-lnd && git rm -rq --cached .; }
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add risc0-image-id && git commit -qm "risc0 image id ${{ matrix.build }} run ${{ github.run_id }}" && git push origin ci-results-lnd && break
+            sleep $((RANDOM % 20 + 5))
+          done

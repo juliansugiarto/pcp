@@ -29,14 +29,14 @@ The guest input contains the result `R` and the key `k`. A remote proving servic
 
 ## `backend_id` and image id
 
-`backend_id` has the form `risc0-zkvm-3-succinct/<image id hex>`. `offer_id` commits to `backend_id`, so an offer names the exact guest binary. The buyer checks the receipt against the image id they built themselves. So that a seller and a buyer on different machines get the same image id, build the guest with Docker: `RISC0_USE_DOCKER=1 cargo build --release`. Without Docker, the image id depends on the local toolchain.
+`backend_id` has the form `risc0-zkvm-3-succinct/<image id hex>`. `offer_id` commits to `backend_id`, so an offer names the exact guest binary. The buyer checks the receipt against the image id they built themselves. So that a seller and a buyer on different machines get the same image id, build the guest with Docker: `RISC0_USE_DOCKER=1 cargo build --release` (`methods/build.rs` maps the variable to risc0-build's Docker option, using the builder image `risczero/risc0-guest-builder:r0.1.88.0`). Two separate CI jobs built it this way on 21 October 2026 and got the same image id, `abe2df2125017d6785cab6fe7103c0ecf3fc130e34d9f7efa0359c8ffe06d941`. Without Docker, the image id depends on the local toolchain.
 
 ## What has and has not been checked
 
 | Part | Status |
 |---|---|
 | `pcp::statement` (relation, encoding, vectors) | Tested in the `pcp` crate, including the `--no-default-features` (no_std) build. |
-| Guest (`methods/guest`) | **Compiled and run in CI** (rzup, risc0 3.0.6), 21 October 2026. Image id `6dc846c4…e8ea`, not yet from a reproducible Docker build. |
+| Guest (`methods/guest`) | **Compiled and run in CI** (rzup, risc0 3.0.6), 21 October 2026. Reproducible image id from the Docker build: `abe2df21…d941` (two independent CI builds agree). The native build in the cost table had `6dc846c4…e8ea`. |
 | `methods/build.rs` | **Run in CI** with the real guest. |
 | Host (`host/src/main.rs`) | **Passes type checking** (`cargo check` and `cargo clippy`, no warnings, with and without `--features lnd`) against risc0-zkvm 3.0.6 from crates.io. **Linked and run in CI:** sudoku n=4, sudoku n=9 and the test-suite job each ended `SETTLED`. |
 | Accelerated SHA-256 patch | Only a comment in `methods/guest/Cargo.toml`. Not yet tried. |

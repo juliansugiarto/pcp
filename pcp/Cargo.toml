@@ -24,6 +24,12 @@ name = "public_api"
 path = "tests/public_api.rs"
 required-features = ["std"]
 
+# Against two real LND regtest nodes; every test is #[ignore] (see the file).
+[[test]]
+name = "lnd_regtest"
+path = "tests/lnd_regtest.rs"
+required-features = ["lnd"]
+
 [features]
 default = ["std"]
 # Everything except the statement core: mandates, protocol state machines,

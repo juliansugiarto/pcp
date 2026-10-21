@@ -6,6 +6,8 @@
 # the seller's own machine (SPEC: proving must be local), never on a CI runner.
 name: bench
 
+# Private repo: manual only (its Actions are blocked by billing). scripts/export-public.sh
+# uncomments the #public# lines, so the public repo also runs on pushes to main.
 on:
   workflow_dispatch:
   push:
@@ -18,7 +20,7 @@ on:
       - "pcp-zk/src/**"
       - "pcp-zk/Cargo.*"
       - "pcp-zk/scripts/**"
-      - ".github/workflows/**"
+      - ".github/workflows/bench.yml"
 
 permissions:
   contents: write
