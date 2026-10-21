@@ -18,6 +18,8 @@
 
 set -euo pipefail
 
+trap 'echo "make-bundle: failed at line $LINENO: $BASH_COMMAND" >&2' ERR
+
 # macOS ships `shasum`, not `sha256sum`.
 if ! command -v sha256sum >/dev/null 2>&1; then sha256sum() { shasum -a 256 "$@"; }; fi
 
@@ -109,7 +111,8 @@ COMMIT=$(cat "$BUNDLE/.r_commitment"); rm "$BUNDLE/.r_commitment"
 
 # 2. Prove. k is drawn inside `prove` from the OS CSPRNG and written only to SECRETS.
 "$B" prove --puzzle "$BUNDLE/givens.txt" --solution "$SECRETS/R.txt" --binding "$BIND" \
-  --out "$BUNDLE" --secret "$SECRETS/k.txt" 2>"$SECRETS/prove.log"
+  --out "$BUNDLE" --secret "$SECRETS/k.txt" 2>"$SECRETS/prove.log" \
+  || { echo "prove failed; its log:" >&2; cat "$SECRETS/prove.log" >&2; exit 1; }
 chmod 600 "$SECRETS/k.txt"
 H=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['payment_hash'])" "$BUNDLE/public.json")
 FP=$("$B" vk-fingerprint)
