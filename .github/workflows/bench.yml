@@ -6,8 +6,6 @@
 # the seller's own machine (SPEC: proving must be local), never on a CI runner.
 name: bench
 
-# Private repo: manual only (its Actions are blocked by billing). scripts/export-public.sh
-# uncomments the #public# lines, so the public repo also runs on pushes to main.
 on:
   workflow_dispatch:
   push:
@@ -76,7 +74,7 @@ jobs:
       - name: Publish results to ci-results
         if: always()
         run: |
-          git config user.name "somnus-ci"
+          git config user.name "pcp-ci"
           git config user.email "ci@users.noreply.github.com"
           dest="bench/risc0-$(date -u +%Y%m%dT%H%M%SZ)"
           for i in 1 2 3; do
@@ -112,7 +110,7 @@ jobs:
       - name: Publish results to ci-results
         if: always()
         run: |
-          git config user.name "somnus-ci"
+          git config user.name "pcp-ci"
           git config user.email "ci@users.noreply.github.com"
           dest="bench/pcp-zk-${{ matrix.os }}-$(date -u +%Y%m%dT%H%M%SZ)"
           for i in 1 2 3; do

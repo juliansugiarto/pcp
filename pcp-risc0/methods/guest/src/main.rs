@@ -11,7 +11,7 @@
 //! panics and no receipt exists. The panic message names only the failed
 //! relation, never R or k.
 //!
-//! NOT COMPILED in the authoring environment (no RISC Zero toolchain there).
+//! Built and run in CI (risc0 3.0.6); RISC0_USE_DOCKER=1 gives the reproducible image id.
 
 use pcp::statement::{evaluate, StatementInput};
 use risc0_zkvm::guest::env;

@@ -1,6 +1,6 @@
 # PCP/0: Proof-Contingent Payment
 
-**Status:** draft, version 0. Reference implementation in this folder (Rust crate `pcp`). Not audited. The only proof backend built and tested in v0 is insecure by design (section 7.3); a RISC Zero backend exists as an unbuilt skeleton (section 7.2). The tested settlement rail is simulated; an LND rail compiles but has not been run against a node (section 8).
+**Status:** draft, version 0. Reference implementation in this folder (Rust crate `pcp`). Not audited. This crate's own tests use a proof backend that is insecure by design (section 7.3). A RISC Zero backend in `../pcp-risc0/` (section 7.2) is built and run in CI, with a reproducible guest image id. Two rails exist (section 8): a simulated ledger, and an LND rail that has been run against real LND v0.19.3 and v0.21.4 nodes on regtest in CI. On 21 October 2026 a sale with a real RISC Zero proof settled over two real LND nodes on regtest in CI. Nothing has run on signet or mainnet.
 
 Key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119.
 
@@ -22,12 +22,12 @@ No payment without `k`; no `k` (through the payment) without payment.
 
 PCP/0 has three layers:
 
-| Layer | What it does | v0 | Target |
-|---|---|---|---|
-| Condition | Proves the statement for a job class | `InsecureDevTransparentBackend` (no zero knowledge) | RISC Zero or SP1 guest (transparent STARK, no trusted setup) |
-| Settlement | Pays to `H`, settles on `k` | In-memory HTLC ledger | Lightning BOLT11 invoice with `payment_hash = H` |
-| Binding | Ties proof, offer, buyer and invoice together; buyer checks everything offline before paying | Implemented | Same |
-| Authorisation | Ties each agent to a principal's signed mandate (scope, cap, per-deal maximum, expiry); payouts to the principal's node; signed receipts and refusals to the principal | Implemented (Ed25519) | Same; other mandate encodings MAY be accepted by local policy, none may be required |
+| Layer | What it does | What exists in v0 |
+|---|---|---|
+| Condition | Proves the statement for a job class | `InsecureDevTransparentBackend` (no zero knowledge), for this crate's tests. A RISC Zero guest in `../pcp-risc0/` (transparent STARK, no trusted setup), built reproducibly and run in CI |
+| Settlement | Pays to `H`, settles on `k` | In-memory HTLC ledger. Lightning BOLT11 hold invoices with `payment_hash = H` through LND (feature `lnd`), run on regtest only |
+| Binding | Ties proof, offer, buyer and invoice together; buyer checks everything offline before paying | Implemented |
+| Authorisation | Ties each agent to a principal's signed mandate (scope, cap, per-deal maximum, expiry); payouts to the principal's node; signed receipts and refusals to the principal | Implemented (Ed25519). Other mandate encodings MAY be accepted by local policy; none may be required |
 
 ## 2. Roles
 
@@ -280,7 +280,7 @@ trait ProofBackend {
 
 A sound prover MUST refuse to produce a proof for a witness that fails any relation.
 
-### 7.2 zkVM backend (skeleton in `../pcp-risc0/`, not yet run)
+### 7.2 zkVM backend (RISC Zero, in `../pcp-risc0/`, run in CI)
 
 The relation of 7.1 item 5 is one pure function, `statement::evaluate` (`no_std + alloc`; dependencies SHA-256 and ChaCha20-Poly1305 only; no randomness, clock or I/O). The dev backend calls it in the clear; a zkVM guest calls it inside the VM.
 
@@ -289,6 +289,8 @@ The relation of 7.1 item 5 is one pure function, `statement::evaluate` (`no_std 
 - **Journal** (public): `canonical_bytes("statement", [version, job_id, spec_hash, input_commitment, offer_id, buyer_nonce, ciphertext_hash, payment_hash])`, with `input_commitment`, `ciphertext_hash` and `payment_hash = SHA256(k)` computed inside. `SHA256(journal) = statement_hash`.
 
 The verifier rejects fake (dev-mode) receipts, verifies the receipt against the pinned image id (section 6), parses the journal and compares it field by field with the statement it built from its own state (section 9, V4). Proving MUST be local: the guest input contains `R` and `k`, so a remote proving service would learn the goods. The buyer verifies the STARK receipt directly; PCP/0 has no on-chain verifier and therefore no reason to wrap the proof in Groth16.
+
+The reference guest is built reproducibly in Docker; two separate CI builds gave the same image id, `abe2df2125017d6785cab6fe7103c0ecf3fc130e34d9f7efa0359c8ffe06d941`. Measured costs, and the sale that settled over two LND nodes on regtest with this guest, are in `../pcp-risc0/COSTS.md`.
 
 ### 7.3 `InsecureDevTransparentBackend` (v0): INSECURE
 
@@ -304,7 +306,7 @@ A BOLT11 invoice issued by `seller_node` with `payment_hash = H`, amount `price_
 
 ### 8.1a Rail interface
 
-The state machines settle through one interface, `rail::Rail`: `create_invoice(payee, H, amount, description_hash, expiry, min_htlc)`, `pay_invoice`, `settle_invoice(H, k)`, `lookup_invoice(H)` (payee's view of the HTLC) and `lookup_payment(H)` (payer's view, with `k` once settled). Offers name the rail (`lightning-htlc-sim/0` or `lightning-bolt11/0`) and both sides refuse a rail they are not on. The simulated ledger implements it; so does an LND REST client (feature `lnd`, hold invoices, untested against a node): the seller's node holds the HTLC until the seller settles with `k`, and the buyer's rail decodes the BOLT11 string with the buyer's own node and refuses to pay one that decodes to other terms than those checked in V5 to V8.
+The state machines settle through one interface, `rail::Rail`: `create_invoice(payee, H, amount, description_hash, expiry, min_htlc)`, `pay_invoice`, `settle_invoice(H, k)`, `lookup_invoice(H)` (payee's view of the HTLC) and `lookup_payment(H)` (payer's view, with `k` once settled). Offers name the rail (`lightning-htlc-sim/0` or `lightning-bolt11/0`) and both sides refuse a rail they are not on. The simulated ledger implements it; so does an LND REST client (feature `lnd`, hold invoices, run against LND v0.19.3 and v0.21.4 nodes on regtest in CI): the seller's node holds the HTLC until the seller settles with `k`, and the buyer's rail decodes the BOLT11 string with the buyer's own node and refuses to pay one that decodes to other terms than those checked in V5 to V8.
 
 ### 8.2 Simulated ledger (v0)
 
@@ -356,9 +358,10 @@ The seller, for its part:
 |---|---|
 | S1 | Check the request (`input_commitment` opens to `input`, job is one it serves and is registered, price within the buyer's maximum) |
 | S1m | **Mandates**: own mandate valid for `seller`, unexpired, covers the class, price within own per-deal maximum and cap; the buyer's mandate and `agent_sig` (section 2.1), price within its per-deal maximum and within `cap_msat - mandate_spent_msat`. Then quote an offer naming `payout_node` as `seller_node`, signed over `offer_auth` |
+| S1o | **Own offer**: fulfil only an offer this seller issued, unchanged: its own `agent_sig` verifies over `offer_auth`, and `seller_node`, `backend_id`, `job_id` and `spec_hash` match its configuration; otherwise refuse (`OfferMismatch`). Refuse an expired offer, before proving and again before invoicing (`OfferExpired`) |
 | S2 | Do the work; run `check` locally; refuse to package a failing result (`SellerResultInvalid`) |
 | S3 | Draw a fresh `k`; compute `H`, `C`, the statement; prove; create the invoice to `H`, payable to `payout_node` |
-| S4 | When an HTLC to `H` is locked for at least the price **and** its timeout is at least `settle_margin_secs` away **and** the sale stays within the seller's cap, settle with `k`. Otherwise withhold `k` (`SettleMarginTooShort`, `OwnMandate(CapExceeded)`). `k` MUST NOT be disclosed by any other means. |
+| S4 | When an HTLC to `H` is locked for at least the price **and** its timeout is at least `settle_margin_secs` away **and** the sale stays within the seller's cap, settle with `k`. Otherwise withhold `k` (`SettleMarginTooShort`, `OwnMandate(CapExceeded)`). `k` MUST NOT be disclosed by any other means. When it withholds for a reason that cannot clear (amount short, too close to the timeout), it SHOULD cancel the HTLC so the buyer's funds return at once. If a settle call fails, it MUST look the HTLC up before reporting failure: a settled HTLC means `k` reached the node, and the sale is recorded. On Lightning, express margins in blocks and keep the margin above the payee node's own hold-expiry cancel (LND `invoices.holdexpirydelta`, 12 blocks by default) |
 | S5 | Sign the receipt and append it, with the bundle and input, to the principal's log. Refusals at S1, S1m and S2 are logged too |
 
 ### 9.1 What each party can lose, by step
@@ -386,14 +389,14 @@ The mandate's budget and the log belong to the agent, not to one purchase: paral
 | # | Threat | Defence | Test |
 |---|---|---|---|
 | T1 | **Seller sends a wrong `C`**: ciphertext of a result that fails the check, or of something other than the proven result, or swapped after proving | V3 and V4 (relations `job_check` and `C = Enc_k(R)`; dev seal bound to statement hash). An honest backend refuses to prove a false statement | `wrong_result_fails_verification_and_nothing_is_paid`, `ciphertext_of_other_result_than_proven_fails`, `swapped_ciphertext_after_proving_fails`, `honest_seller_and_backend_refuse_wrong_result` |
-| T2 | **Buyer refuses to pay** after receiving the bundle | The buyer learns nothing about `R` (zero knowledge; in v0 only by API discipline, see T9). The seller loses work and proving cost, never `R`. Mitigations outside PCP/0: price proving cost in, rate-limit unknown buyers, ZKCSP-style service payments | `buyer_who_never_pays_never_gets_k`, `buyer_cannot_learn_result_before_paying` |
+| T2 | **Buyer refuses to pay** after receiving the bundle | The buyer learns nothing about `R` (zero knowledge; with the dev backend only by API discipline, see 7.3). The seller loses work and proving cost, never `R`. Mitigations outside PCP/0: price proving cost in, rate-limit unknown buyers, ZKCSP-style service payments | `buyer_who_never_pays_never_gets_k`, `buyer_cannot_learn_result_before_paying` |
 | T3 | **Invoice hash mismatch**: invoice to a hash whose preimage does not decrypt `C` (money with no delivery) | V6 | `invoice_payment_hash_mismatch_is_refused` |
 | T4 | Invoice amount, payee, description, binding altered | V5, V7 | `invoice_amount_payee_description_and_timing_are_checked` |
 | T5 | **Replay of a proof for another buyer** (forwarding a bundle or invoice made for Alice to Bob, or rewriting its public fields) | `buyer_nonce` and `offer_id` in the statement (V1, V2); `C` bound to `offer_id` via AEAD; proof bound to the statement hash; invoice bound to `statement_hash` (V5); fresh `k` per sale. Buyers SHOULD also refuse any `H` they have seen before | `proof_replayed_to_another_buyer_fails` |
 | T6 | **Lightning routing and hub trust** | Hubs and LSPs can delay or fail a payment; they cannot forge settlement without `k`. **Every hop on the route learns `k` when the payment settles**, so confidentiality of `R` after the sale rests on `C` not being public: send the bundle to the buyer only. Hops also see `H` (correlation); PTLCs remove that later. Prefer direct channels between repeat counterparties | Out of scope for the simulation |
 | T7 | **Griefing via expiry and lock time**: invoice that expires before the buyer can pay; invoice that asks for a very long HTLC lock; seller who holds the HTLC without settling; payment arriving so late that settling races the refund | V8 (minimum remaining time; maximum lock `htlc_secs`); HTLC timeout returns funds; seller withholds `k` within `settle_margin_secs` of the timeout (S4) | `invoice_amount_payee_description_and_timing_are_checked`, `expiry_refunds_and_seller_does_not_reveal_late`, `unpaid_invoice_expires`, `wrong_preimage_cannot_settle_and_buyer_is_refunded` |
 | T8 | **Seller reveals a wrong preimage** | Ledger rejects it (`SHA256(k) ≠ H`); funds stay locked, then refund; P3 re-checks | `wrong_preimage_cannot_settle_and_buyer_is_refunded` |
-| T9 | **The 2017 CCS attack on ZKCP** (Campanelli, Gennaro, Goldfeder, Nizzardo): in the 2016 pay-to-sudoku the buyer generated the zk-SNARK common reference string. A buyer who generates the CRS maliciously breaks zero knowledge and can learn part of the solution (a sudoku cell) without paying | PCP/0 requires backends whose proof the buyer verifies to have **no trusted setup**: STARK-based zkVMs (RISC Zero, SP1) use transparent, hash-based parameters, so there is no CRS for either party to choose and the attack's premise is absent. The Groth16 wrapper these zkVMs offer for on-chain verification re-introduces a setup; PCP/0 verifies off-chain and MUST NOT require it | Design rule; no zkVM in v0 |
+| T9 | **The 2017 CCS attack on ZKCP** (Campanelli, Gennaro, Goldfeder, Nizzardo): in the 2016 pay-to-sudoku the buyer generated the zk-SNARK common reference string. A buyer who generates the CRS maliciously breaks zero knowledge and can learn part of the solution (a sudoku cell) without paying | PCP/0 requires backends whose proof the buyer verifies to have **no trusted setup**: STARK-based zkVMs (RISC Zero, SP1) use transparent, hash-based parameters, so there is no CRS for either party to choose and the attack's premise is absent. The Groth16 wrapper these zkVMs offer for on-chain verification re-introduces a setup; PCP/0 verifies off-chain and MUST NOT require it | Design rule. The RISC Zero backend (7.2) uses succinct STARK receipts with no Groth16 wrapper |
 | T10 | **Dev backend used for real** | Insecure backend refused by default (`InsecureBackendRefused`); loud naming; `is_secure() = false` | `buyer_refuses_insecure_backend_by_default` |
 | T11 | Offer misdirected, expired, overpriced or for another job | O1 | `offer_checks` |
 | T12 | Seller reuses `k` across sales | Breaks the zero-nonce rule and lets every hop of the first payment settle the second. Harms the seller, not the buyer (the buyer still gets `k`). Sellers MUST draw a fresh `k`; the simulated ledger refuses duplicate hashes | `invoice_rules` (ledger) |
@@ -419,7 +422,7 @@ Categories only. "Mitigated by default" means the reference implementation ships
 | No recourse after a large wrong settlement | Per-deal value ceiling in the default buyer policy; mandate per-deal maximum and cap; staged small jobs | Mitigated by default in size. Finality itself is inherent, not mitigable by protocol |
 | Self-dealing volume inflating adoption metrics | Self-payments flagged in receipts and excluded from metrics (section 14) | Mitigated in measurement only. One person holding two principal keys is not detectable: inherent, not mitigable by protocol |
 | Gradual displacement of human work | Receipts to the principal keep a human as the accountable party | Inherent, not mitigable by protocol. PCP/0 takes no fee, so it concentrates nothing, and it redistributes nothing either |
-| Blame landing on identifiable authors | Defaults visible in code and in this document; section 13; this table | Mitigated by default in part. That the authors are the identifiable edge is inherent, not mitigable by protocol |
+| Blame landing on identifiable authors | Defaults visible in code and in this document; the legal note in `README.md` (section 13); this table | Mitigated by default in part. That the authors are the identifiable edge is inherent, not mitigable by protocol |
 
 ## 12. Non-goals and honest limits
 
@@ -438,15 +441,11 @@ Categories only. "Mitigated by default" means the reference implementation ships
   3. the seller's right to the good is not clean, so a third party can take it back later (stolen goods, assets later seized as proceeds of crime).
 
   PCP removes risk 1, and removes risk 2 when the promise is a predicate a program can check. It does nothing about risk 3. Nor can any proof system: the facts that decide risk 3 live outside the trade (an investigation, a registry, a court), and the power to act on them belongs to others.
-- **Not quantum-resistant as a whole.** A large fault-tolerant quantum computer running Shor's algorithm breaks elliptic-curve discrete logarithms. That breaks (a) Lightning and Bitcoin signatures, so channel funds can be stolen: a bigger and older target than PCP; (b) mandate signatures (Ed25519), so a mandate could be forged; (c) the soundness of discrete-log proof systems, including the halo2 IPA/Pasta backend, so a seller with such a machine could forge a proof at sale time and be paid for nothing. Things that hold against a quantum adversary as far as is known: the hash-based parts (SHA-256 for `H`, the Poseidon keystream, with roughly halved security under Grover: about 128 bits for a 256-bit key), the soundness of hash-based STARKs such as the zkVM backend's (without a Groth16 wrapper, which is pairing-based and not post-quantum), and the hiding of blinded Pedersen commitments, which is information-theoretic. If halo2's zero-knowledge is statistical in every component (expected from its design, not checked by this project), the privacy of past sales is not exposed by "harvest now, break later" through the proof itself; the remaining exposure is the 256-bit key under Grover. Mitigation is algorithm agility: `backend_id` is bound into the offer, so a buyer policy can refuse discrete-log backends, and mandate keys can move to a post-quantum signature scheme in a future mandate version. Settlement cannot be more quantum-resistant than the rail it settles on.
+- **Not quantum-resistant as a whole.** A large fault-tolerant quantum computer running Shor's algorithm breaks elliptic-curve discrete logarithms. That breaks (a) Lightning and Bitcoin signatures, so channel funds can be stolen: a bigger and older target than PCP; (b) mandate signatures (Ed25519), so a mandate could be forged; (c) the soundness of discrete-log proof systems, including the halo2 IPA/Pasta backend, so a seller with such a machine could forge a proof at sale time and be paid for nothing. Things that hold against a quantum adversary as far as is known: the hash-based parts (SHA-256 for `H`; the Poseidon keystream of the `zk-poseidon-ctr/0` suite, which the halo2 backend in `../pcp-zk/` uses and which is defined in `../pcp-zk/README.md`, section "Cipher suite `zk-poseidon-ctr/0`", not in this specification; with roughly halved security under Grover: about 128 bits for a 256-bit key), the soundness of hash-based STARKs such as the zkVM backend's (without a Groth16 wrapper, which is pairing-based and not post-quantum), and the hiding of blinded Pedersen commitments, which is information-theoretic. If halo2's zero-knowledge is statistical in every component (expected from its design, not checked by this project), the privacy of past sales is not exposed by "harvest now, break later" through the proof itself; the remaining exposure is the 256-bit key under Grover. Mitigation is algorithm agility: `backend_id` is bound into the offer, so a buyer policy can refuse discrete-log backends, and mandate keys can move to a post-quantum signature scheme in a future mandate version. Settlement cannot be more quantum-resistant than the rail it settles on.
 
 ## 13. Legal boundary
 
-- **The authors publish code and this specification. That is all.** Publishing open-source protocol code is the only activity of this project.
-- **Nobody in this project operates** a custodial wallet, a Lightning hub, LSP or router that forwards others' payments for a fee, a relay, matching service, facilitator or escrow that touches others' funds, a rupiah on-ramp or off-ramp, or any mixing service. Liability follows operation and fees, not authorship; the project stays on the authorship side.
-- **Indonesia:** any transaction with a payment purpose inside Indonesia must use rupiah (UU No. 7 Tahun 2011 tentang Mata Uang, Art. 21(1), with criminal penalties in Art. 33(1)), and payment-system providers may not process virtual-currency payments. Domestic payment in BTC is therefore unlawful, and PCP/0 MUST NOT be offered or marketed for domestic payment in Indonesia.
-- **First users are cross-border:** foreign agents paying foreign agents; developers paid from abroad for exported, verified work (whether Art. 21(2)'s international-trade exemption covers crypto consideration for exported services is untested; income is taxable); open-source bounties funded from abroad. The only lawful domestic form is decoupled and non-atomic: the proof gates key release while rupiah moves over a licensed rail.
-- This section is a summary of the project's position, not legal advice.
+Not part of the protocol. The project's legal position, including Indonesian currency law, is in the "Legal note" section of [`README.md`](README.md#legal-note).
 
 ## 14. Metrics
 
@@ -456,7 +455,7 @@ Limit: a person who holds two principal keys looks like two strangers. Metrics S
 
 ## Appendix A. Conformance vectors
 
-Computed by the Rust crate and independently by a Python implementation (`hashlib`, and `cryptography`'s ChaCha20Poly1305 and Ed25519); both agree. A second implementation MUST reproduce them. Test: `conformance_vectors` in `src/tests.rs`.
+Computed by the Rust crate (tests `conformance_vectors` in `src/tests.rs` for vectors 1 to 13, and `statement_core_conformance_vectors` in `src/statement.rs` for 14 to 17). `tools/vectors.py` is a separate Python implementation (`hashlib`, and `cryptography`'s ChaCha20Poly1305 and Ed25519) that recomputes all 17 vectors and compares each with this table: `python3 tools/vectors.py`. A second implementation MUST reproduce them.
 
 Fixed inputs: `k = 0x11 × 32`, `offer_id = 0x22 × 32`, `input_commitment = 0x33 × 32`, `buyer_nonce = 0x44 × 32`. For the mandate vectors: principal seed `0x55 × 32`, agent seed `0x66 × 32` (RFC 8032 secret keys), and the mandate `{version "PCP/0", role "buyer", scope [spec_hash #4], cap_msat 5 000 000, per_deal_max_msat 2 000 000, payout_node "principal-node", expires_at 86 400, nonce 0x77 × 32}`.
 

@@ -446,7 +446,7 @@ mod tests {
     }
 
     /// SPEC.md Appendix A, vectors 14 to 17. Computed by this crate and
-    /// independently by a Python implementation (hashlib and
+    /// independently by `tools/vectors.py` (hashlib and
     /// `cryptography`'s ChaCha20Poly1305); both agree.
     #[test]
     fn statement_core_conformance_vectors() {

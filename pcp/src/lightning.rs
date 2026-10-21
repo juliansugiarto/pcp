@@ -294,6 +294,24 @@ impl Ledger {
         Ok(())
     }
 
+    /// Payee cancels the locked HTLC paying `payment_hash`: the funds go back
+    /// to the payer now instead of at timeout (LND: CancelInvoice on a hold
+    /// invoice). The preimage is never involved.
+    pub fn cancel(&mut self, payee: &str, payment_hash: &Hash32) -> Result<(), LedgerError> {
+        let now = self.now;
+        let h = self
+            .htlcs
+            .values_mut()
+            .find(|h| h.payment_hash == *payment_hash && h.state == HtlcState::Locked)
+            .ok_or(LedgerError::UnknownHtlc)?;
+        if h.payee != payee {
+            return Err(LedgerError::NotPayee);
+        }
+        h.state = HtlcState::Refunded { at: now };
+        *self.balances.entry(h.payer.clone()).or_insert(0) += h.amount_msat;
+        Ok(())
+    }
+
     /// Return every timed-out `Locked` HTLC to its payer. Returns the ids
     /// refunded. Anyone may call this; it only ever moves funds back.
     pub fn refund_expired(&mut self) -> Vec<HtlcId> {

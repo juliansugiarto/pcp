@@ -1,4 +1,4 @@
-# In-house SHA-256 chip: notes for the next independent reviewer
+# In-house SHA-256 chip: notes for the next reviewer
 
 File: `src/sha256.rs`. Call site: `src/circuit.rs` (`ShaChip::digest`). This
 chip replaces the removed Table16 gadget. It is new and UNAUDITED. These notes
@@ -115,7 +115,7 @@ adversarial suites pass, which exercises this end to end.
 - `round_constants_and_iv_are_the_fips_known_answer`: `K` and `IV` are the FIPS
   180-4 tables.
 - `selector_enable_counts_match_the_layout`: 4/64/16/48/8 enables.
-- `every_sha_constraint_rejects_a_tampered_witness`: 19 advice-cell tampers (the original text said 21; corrected after the independent review, finding L-2),
+- `every_sha_constraint_rejects_a_tampered_witness`: 19 advice-cell tampers (the original text said 21; corrected after the review in `2026-10-21-newchip-review.md`, finding L-2),
   each rejected (non-boolean bit; packed != bits; wrong IV seed bits; tampered
   A/E/schedule/digest carry; tampered `W_t` for `t>=16`; tampered inter-round
   state; tampered final words; tampered digest word; tampered padding bits; SHA
@@ -126,7 +126,7 @@ COSTS).
 
 ## Still open (needs a human)
 
-- Independent review of this chip (these notes are the author's own).
+- A review of this chip by someone outside the project (these notes are the author's own; the review inside the project, by a separate AI reviewer, is `2026-10-21-newchip-review.md`).
 - A second implementation of the suite for cross-conformance vectors.
 - A full audit before any money relies on it.
 - Spot-checked but not proven: that the per-bit polynomials for Sigma/sigma/Ch/

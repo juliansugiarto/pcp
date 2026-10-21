@@ -1,6 +1,6 @@
 # Reviewer checklist for the bit-level SHA-256 chip
 
-*Written 21 October 2026 before the independent review of the new chip, and used by that review (`2026-10-21-newchip-review.md`). Items 7 and 12 describe an earlier draft of the chip; see the review's finding L-3. Item 16: the tool named there (Picus) has no halo2 front end; the halo2 analyser is Korrekt (quantstamp/halo2-analyzer), which was not run.*
+*Written 21 October 2026 before the review of the new chip (inside the project, by a separate AI reviewer that did not write the code), and used by that review (`2026-10-21-newchip-review.md`). Items 7 and 12 describe an earlier draft of the chip; see the review's finding L-3. Item 16: the tool named there (Picus) has no halo2 front end; the halo2 analyser is Korrekt (quantstamp/halo2-analyzer), which was not run.*
 
 
 ### 1.1 What I verified by reading, so the reviewer can start from here

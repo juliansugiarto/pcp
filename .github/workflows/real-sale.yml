@@ -8,8 +8,6 @@
 # seller proves on their own machine (SPEC: proving must be local).
 name: real-sale
 
-# Private repo: manual only (its Actions are blocked by billing). scripts/export-public.sh
-# uncomments the #public# lines, so the public repo also runs on pushes to main.
 on:
   workflow_dispatch:
   push:
@@ -143,7 +141,7 @@ jobs:
       - name: Publish results to ci-results-lnd
         if: always()
         run: |
-          git config user.name "somnus-ci"
+          git config user.name "pcp-ci"
           git config user.email "ci@users.noreply.github.com"
           dest="real-sale/$(date -u +%Y%m%dT%H%M%SZ)"
           for i in 1 2 3 4 5; do

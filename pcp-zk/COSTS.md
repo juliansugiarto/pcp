@@ -1,4 +1,4 @@
-# pcp-zk costs (measured in this container)
+# pcp-zk costs (measured on a 2-CPU Linux container)
 
 Machine: 2 CPUs, 8 GB RAM (cgroup limit about 6.3 GB), Linux, rustc 1.97.0 stable, `cargo build --release`. Measured on 2026-10-21 with the new in-house SHA-256 gadget (Table16 has been removed), one proving process at a time. Times are wall-clock times. Peak memory is the process `VmHWM` (read from `/proc/self/status`).
 
@@ -35,7 +35,7 @@ Total for one sale through the CLI with no cache at all: the seller takes about 
 
 ## Where the memory goes
 
-halo2_proofs 0.3 stores every advice/fixed/permutation column in the extended domain (a factor of 8 because of the highest degree, from the Poseidon S-box and the carry checks). With `k = 13` (8192 rows) the extended domain is only 65536 rows per column, much smaller than in the `k = 17` version (1,048,576 rows), even though the advice columns went up from 10 to 80. That is why the proving peak dropped from 4.29 GB to 0.57 GB. This machine (about 6.3 GB usable under its cgroup limit) now has plenty of room, and even two parallel provers should fit (about 1.2 GB), but the `prove` tests are still run one at a time to be safe.
+halo2_proofs 0.3 stores every advice/fixed/permutation column in the extended domain (a factor of 8 because of the highest degree, from the Poseidon S-box and the carry checks). With `k = 13` (8192 rows) the extended domain is only 65536 rows per column, much smaller than in the `k = 17` version (1,048,576 rows), even though the advice columns went up from 10 to 80. That is why the proving peak dropped from 4.29 GB to 0.57 GB. The measuring machine (about 6.3 GB usable under its cgroup limit) now has plenty of room, and even two parallel provers should fit (about 1.2 GB), but the `prove` tests are still run one at a time to be safe.
 
 ## Test durations (`cargo test --release -- --test-threads=1`)
 
@@ -43,7 +43,7 @@ halo2_proofs 0.3 stores every advice/fixed/permutation column in the extended do
 |---|---|---|
 | `--lib` (except `adversarial`) | 1 SHA reference test, 3 suite tests | <1 s |
 | `--lib adversarial` | 19 malicious witnesses rejected + honest SHA equal to `sha2` for 24 keys | 103 s |
-| `--lib review_tests` | 14 compensated attacks + layout and cell ownership test (from the independent reviewer) | 21 s |
+| `--lib review_tests` | 14 compensated attacks + layout and cell ownership test (from the separate AI reviewer inside the project) | 21 s |
 | `--test mock` | 7 MockProver tests | 32 s |
 | `--test prove` | 6 tests with real proofs (5 proofs created) | 46 s |
 

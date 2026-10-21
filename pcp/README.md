@@ -2,7 +2,7 @@
 
 > Verified exchange: pay only if it is proven, under a mandate you sign, settled where nobody can freeze it.
 
-**Status: v0, a prototype for learning and discussion. Not audited. The RISC Zero backend has produced real proofs in CI, and the LND rail has settled a full sale between two real LND nodes on regtest (LND v0.19.3 and v0.21.4), both on 21 October 2026. On the same day the two ran together: a sale with a real RISC Zero proof settled over real LND nodes on regtest. Do not use with real money.** For how to run the first real instance, see [`RUN-ON-MAC.md`](RUN-ON-MAC.md) (Indonesian; an English version is not yet written).
+**Status: v0, a prototype for learning and discussion. Not audited. The RISC Zero backend has produced real proofs in CI, and the LND rail has settled a full sale between two real LND nodes on regtest (LND v0.19.3 and v0.21.4), both on 21 October 2026. On the same day the two ran together: a sale with a real RISC Zero proof settled over real LND nodes on regtest. Do not use with real money.** For how to run it yourself, see [`RUN.md`](RUN.md).
 
 ## What PCP is
 
@@ -57,11 +57,11 @@ An imitation version with stablecoins can be built, but that version always carr
 - The `Rail` trait (`src/rail.rs`): create invoice, pay, settle with preimage, look up status. The simulated ledger implements it, and the buyer and seller state machines talk only through this trait.
 - The LND rail (`src/rail/lnd.rs`, feature `lnd`, off by default): hold invoices through the LND REST API. Run against real LND v0.19.3 and v0.21.4 nodes on regtest by the `lnd-regtest` CI workflow: a full sale settles, and `tests/lnd_regtest.rs` (ignored by default) checks a reused hash, a presented invoice with other terms, and a cancelled hold invoice.
 - `src/sale.rs`: one sale from start to finish on any backend and rail, with timing measurements for the cost table.
-- A demo with four principals and four agents, and 61 tests (68 with `--features lnd`).
+- A demo with four principals and four agents, and 66 tests (73 with `--features lnd`, plus 4 real-node tests that run against LND regtest in CI).
 
 ## What v0 does not do yet
 
-- **Zero knowledge runs outside this crate.** The RISC Zero backend is in [`../pcp-risc0/`](../pcp-risc0/), outside this crate's build. It was first run in CI on 21 October 2026 (64.6 s to prove a 9x9 sudoku on 4 vCPU, receipt 224 KB; see `../pcp-risc0/COSTS.md`). Inside this crate's own tests, the only backend, `InsecureDevTransparentBackend`, puts the witness (result and key) inside a seal whose key is written in the source code. Its verification still checks the full relation, so the protocol flow is tested. But anyone who reads the code can open that seal and get the result without paying. The buyer refuses this backend unless it is explicitly allowed for testing.
+- **Zero knowledge runs outside this crate.** The RISC Zero backend is in [`../pcp-risc0/`](../pcp-risc0/), outside this crate's build. It was first run in CI on 21 October 2026. Proving a 9x9 sudoku on 4 vCPU takes 150.6 s with the reproducible (Docker-built) guest, the one a buyer can check, and took 64.6 s with an earlier non-reproducible native build; the receipt is 224 KB (see `../pcp-risc0/COSTS.md`). Inside this crate's own tests, the only backend, `InsecureDevTransparentBackend`, puts the witness (result and key) inside a seal whose key is written in the source code. Its verification still checks the full relation, so the protocol flow is tested. But anyone who reads the code can open that seal and get the result without paying. The buyer refuses this backend unless it is explicitly allowed for testing.
 - **Real Lightning only on regtest.** The LND rail has settled sales between two real regtest nodes in CI, including a sale with a real RISC Zero proof (21 October 2026, see `../pcp-risc0/COSTS.md`). It has never run on signet or mainnet.
 - There is no "data matches schema" job class yet, although its shape is the same as the two existing classes.
 
@@ -76,9 +76,10 @@ cargo test
 cargo run --bin demo
 cargo test --features lnd                  # LND rail, no network
 cargo build --no-default-features          # statement core only, no_std (what the zkVM guest uses)
+python3 tools/vectors.py                   # SPEC Appendix A vectors 1 to 17 in Python (needs `cryptography`)
 ```
 
-With RISC Zero proofs and two regtest LND nodes: see [`RUN-ON-MAC.md`](RUN-ON-MAC.md) (Indonesian; an English version is not yet written).
+With RISC Zero proofs and two regtest LND nodes: see [`RUN.md`](RUN.md).
 
 Every agent in the demo works under its principal's mandate. Demo 1 sells a 9x9 sudoku solution between two agents. Demo 2 sells a patch: the seller's first candidate fails one test and cannot be sold, then the second candidate passes and is sold. Demo 3 shows a refusal: the same buyer agent asks again, its cap is almost used up, and the seller refuses.
 
@@ -98,7 +99,8 @@ The tests cover the normal path of both jobs and every threat: a ciphertext cont
 | `src/rail.rs`, `src/rail/lnd.rs` | `Rail` trait; LND rail (feature `lnd`) |
 | `src/sale.rs` | One complete sale on any backend and rail |
 | `src/bin/lnd_sale.rs` | Sudoku sale over two LND nodes (feature `lnd`) |
-| `RUN-ON-MAC.md` | Steps to run real proofs and regtest Lightning on a Mac (Indonesian; an English version is not yet written) |
+| `RUN.md` | How to run the tests, the halo2 CLI, the RISC Zero guest, and a sale over two LND nodes on regtest |
+| `tools/vectors.py` | Recomputes the SPEC Appendix A vectors in Python and compares them with the SPEC |
 | `src/mandate.rs` | Keys, mandates, agents, principal log, metrics |
 | `src/registry.rs` | Registry of reviewed job classes |
 | `src/protocol.rs` | Messages, buyer and seller state machines, receipts, error list |
@@ -106,17 +108,18 @@ The tests cover the normal path of both jobs and every threat: a ciphertext cont
 | `tests/public_api.rs` | Full-flow tests through the public API |
 | `src/bin/demo.rs` | Demo |
 
-## Legal limits
+## Legal note
 
-This project only publishes code and a specification. Nobody in this project runs a custodial wallet, a Lightning hub or router, a relay, escrow, a matching service, or rupiah on-ramps and off-ramps.
+This section is not part of the protocol. It was section 13 of `SPEC.md`.
 
-In Indonesia, transactions whose purpose is payment must use rupiah (Law 7/2011 on Currency, Article 21). Paying with BTC domestically is against the law. Therefore PCP must not be offered for domestic payments.
-
-The first users are cross-border: agents abroad paying agents abroad, developers paid from abroad for exported, verified work, and open source bounties funded from abroad. This section is the project's position, not legal advice.
+- **The authors publish code and the specification. That is all.** Publishing open-source protocol code is the only activity of this project.
+- **Nobody in this project operates** a custodial wallet, a Lightning hub, LSP or router that forwards others' payments for a fee, a relay, matching service, facilitator or escrow that touches others' funds, a rupiah on-ramp or off-ramp, or any mixing service. Liability follows operation and fees, not authorship; the project stays on the authorship side.
+- **Indonesia:** any transaction with a payment purpose inside Indonesia must use rupiah (UU No. 7 Tahun 2011 tentang Mata Uang, Art. 21(1), with criminal penalties in Art. 33(1)), and payment-system providers may not process virtual-currency payments. Domestic payment in BTC is therefore unlawful, and PCP MUST NOT be offered or marketed for domestic payment in Indonesia.
+- **First users are cross-border:** foreign agents paying foreign agents; developers paid from abroad for exported, verified work (whether Art. 21(2)'s international-trade exemption covers crypto consideration for exported services is untested; income is taxable); open-source bounties funded from abroad. The only lawful domestic form is decoupled and non-atomic: the proof gates key release while rupiah moves over a licensed rail.
+- This section is a summary of the project's position, not legal advice.
 
 ## Next steps
 
-1. **Run the zkVM backend.** The RISC Zero guest and host skeleton already exists in `../pcp-risc0/`. The next step is to compile and run it on a Mac (section 2 of `RUN-ON-MAC.md`, in Indonesian). STARK proofs need no trusted setup, so the 2017 CRS attack does not apply.
-2. **Run real Lightning.** The LND rail exists behind the `lnd` feature. Next step: two LND nodes on regtest with Polar (section 4 of `RUN-ON-MAC.md`, in Indonesian), then signet. Also check whether LND macaroon constraints or LNC budgets are enough as a budgeted credential for agents.
-3. **A measured cost table.** For each job class: cycle count, proving time, cost in USD and satoshi, and the ratio of proof cost to job price. Numbers that actually came out, not estimates.
-4. **A second implementation** that passes the vectors in Appendix A of the specification.
+1. **Signet.** The RISC Zero backend and the LND rail have run together on regtest (see `../pcp-risc0/COSTS.md`). Next: a sale between two LND nodes on signet. Also check whether LND macaroon constraints or LNC budgets are enough as a budgeted credential for agents.
+2. **More cost measurements.** Apple Silicon with the Metal GPU prover has not been measured (see `../pcp-risc0/COSTS.md`).
+3. **A second implementation** that passes the vectors in Appendix A of the specification. `tools/vectors.py` recomputes the vectors (encoding, cipher, mandate signature); it is not a second implementation of the protocol.

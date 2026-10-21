@@ -1,6 +1,6 @@
-# Independent soundness review: the bit-level SHA-256 chip in pcp-zk
+# Soundness review: the bit-level SHA-256 chip in pcp-zk
 
-Date: 2026-10-21. Reviewer: not the author. Read-only on the repo.
+Date: 2026-10-21. Reviewer: a separate AI model session (Claude) that did not write the code, inside the project; not an outside party. Read-only on the repo.
 Repo: `/home/claude/somnus`, branch `main`, HEAD `13eac4e`. The commit named in the brief, `c7581ec`, is the one that introduced the chip; `git diff --stat c7581ec HEAD -- pcp-zk/` touches only `README.md`, the old review, and `scripts/cli-e2e.sh`, so the sources reviewed (`pcp-zk/src/*.rs`) are byte-identical in both commits.
 Crate: `pcp-zk` (halo2_proofs 0.3.5, IPA/Pasta, `k = 13`). Files: `src/sha256.rs` (960 lines), `src/circuit.rs`, `src/adversarial.rs`, `src/lib.rs`, `src/bin/pcp-zk.rs`, `tests/mock.rs`, `scripts/cli-e2e.sh`.
 Checklist: `2026-10-21-reviewer-checklist.md` (section 1.2), items 1 to 16.

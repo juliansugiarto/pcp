@@ -69,7 +69,9 @@ fn the_hold_invoice_reads_back_with_the_requested_terms() {
     assert!(inv.bolt11.as_deref().unwrap().starts_with("lnbcrt"));
     // Nothing paid yet: the payee sees no HTLC.
     assert_eq!(seller.lookup_invoice(&req.payment_hash), Ok(None));
-    seller.cancel_invoice(&req.payment_hash).expect("cancel");
+    seller
+        .cancel_hold_invoice(&req.payment_hash)
+        .expect("cancel");
 }
 
 #[test]
@@ -84,7 +86,9 @@ fn a_reused_payment_hash_is_refused() {
         matches!(again, Err(RailError::Node(_))),
         "second invoice to the same hash must be refused, got {again:?}"
     );
-    seller.cancel_invoice(&req.payment_hash).expect("cancel");
+    seller
+        .cancel_hold_invoice(&req.payment_hash)
+        .expect("cancel");
 }
 
 #[test]
@@ -121,7 +125,9 @@ fn the_buyer_node_refuses_a_presented_invoice_with_other_terms() {
         Ok(PaymentStatus::Unknown)
     );
     assert_eq!(seller.lookup_invoice(&req.payment_hash), Ok(None));
-    seller.cancel_invoice(&req.payment_hash).expect("cancel");
+    seller
+        .cancel_hold_invoice(&req.payment_hash)
+        .expect("cancel");
 }
 
 #[test]
@@ -159,7 +165,7 @@ fn a_cancelled_hold_invoice_refunds_the_buyer() {
         Err(RailError::Ledger(LedgerError::PreimageMismatch))
     );
 
-    seller.cancel_invoice(&h).expect("cancel");
+    seller.cancel_hold_invoice(&h).expect("cancel");
     let status = wait_for(60, || match buyer.lookup_payment(&buyer_id, &h) {
         Ok(s @ PaymentStatus::Failed { .. }) => Some(s),
         _ => None,

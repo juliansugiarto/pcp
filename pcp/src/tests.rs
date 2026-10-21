@@ -438,6 +438,87 @@ fn verified(job_input: (TestSuiteJob, Vec<u8>)) -> (Fx, ProofBundle, InvoiceBind
 }
 
 #[test]
+fn seller_fulfils_only_offers_it_issued_unchanged() {
+    // A buyer that hands the offer back with a lower price, a later expiry,
+    // or no signature gets nothing proved and nothing invoiced.
+    let fx = fixture(TestSuiteJob, clamp_suite());
+    let mut cheap = fx.offer.clone();
+    cheap.price_msat = 1;
+    let mut forever = fx.offer.clone();
+    forever.offer_expires_at = u64::MAX;
+    let mut unsigned = fx.offer.clone();
+    unsigned.agent_sig = None;
+    for (name, o) in [
+        ("price", cheap),
+        ("expiry", forever),
+        ("unsigned", unsigned),
+    ] {
+        let mut fx = fixture(TestSuiteJob, clamp_suite());
+        // Same request as the offer was made for.
+        let req = fx.req.clone();
+        let o = Offer {
+            buyer_nonce: req.buyer_nonce,
+            input_commitment: req.input_commitment,
+            ..o
+        };
+        let r = fx.seller.fulfil(
+            &req,
+            &o,
+            CLAMP_OK.as_bytes().to_vec(),
+            &mut fx.ledger,
+            &mut OsRng,
+        );
+        assert!(
+            matches!(r, Err(PcpError::OfferMismatch)),
+            "{name}: {:?}",
+            r.err()
+        );
+    }
+    let _ = fx;
+}
+
+#[test]
+fn lightning_presets_fit_lnd() {
+    let b = BuyerPolicy::lightning();
+    let s = SellerConfig::lightning(PRICE);
+    assert_eq!(b.rail, RAIL_BOLT11);
+    assert_eq!(s.rail, RAIL_BOLT11);
+    // The buyer accepts the seller's final CLTV plus two LND hops.
+    assert!(b.htlc_secs >= s.min_htlc_secs + 2 * LN_HOP_DELTA_BLOCKS * SECS_PER_BLOCK);
+    // The seller's margin is above LND's hold-expiry cancel and below the
+    // final CLTV, so a fresh HTLC can be settled.
+    assert!(s.settle_margin_secs > LN_HOLD_EXPIRY_DELTA_BLOCKS * SECS_PER_BLOCK);
+    assert!(s.settle_margin_secs < s.min_htlc_secs);
+    // The offer outlives three proofs of the reproducible guest (151 s).
+    assert!(s.offer_ttl_secs >= 3 * 151);
+}
+
+#[test]
+fn seller_records_a_settle_whose_reply_was_lost() {
+    // The node settled (the seller's call reached it) but the reply never
+    // came back. On the next pass the seller must record the sale, commit the
+    // amount against its cap and log the receipt, not report "not paid".
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    let htlc = fx.buyer.pay(&mut fx.ledger).unwrap();
+    let k = fx
+        .seller
+        .sale_key_for_test(&binding.invoice.payment_hash)
+        .unwrap();
+    fx.ledger.settle("seller", htlc, k).unwrap();
+    assert!(matches!(
+        fx.seller.settle_paid(&mut fx.ledger).as_slice(),
+        [SaleOutcome::Settled {
+            amount_msat: PRICE,
+            ..
+        }]
+    ));
+    assert!(fx.seller.settle_paid(&mut fx.ledger).is_empty());
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Ok(BuyerProgress::Delivered));
+    assert_atomic(&fx, "buyer");
+}
+
+#[test]
 fn seller_refuses_to_fulfil_an_expired_offer() {
     let mut fx = fixture(TestSuiteJob, clamp_suite());
     let wait = fx.offer.offer_expires_at - fx.ledger.now();
@@ -561,7 +642,8 @@ fn expiry_refunds_and_seller_does_not_reveal_late() {
     let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
     fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
     let htlc = fx.buyer.pay(&mut fx.ledger).unwrap();
-    // Seller comes back too close to the timeout: it withholds k.
+    // Seller comes back too close to the timeout: it withholds k, and
+    // cancels the HTLC so the buyer's funds come back now, not at timeout.
     fx.ledger.advance(BuyerPolicy::default().htlc_secs - 60);
     let out = fx.seller.settle_paid(&mut fx.ledger);
     assert!(matches!(
@@ -571,8 +653,10 @@ fn expiry_refunds_and_seller_does_not_reveal_late() {
             ..
         }]
     ));
-    assert_eq!(fx.ledger.htlc(htlc).unwrap().state, HtlcState::Locked);
-    fx.ledger.advance(60);
+    assert!(matches!(
+        fx.ledger.htlc(htlc).unwrap().state,
+        HtlcState::Refunded { .. }
+    ));
     assert_eq!(fx.buyer.poll(&mut fx.ledger), Err(PcpError::Refunded));
     assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
     // After the refund the seller finds nothing to settle; k stays secret.
@@ -938,8 +1022,8 @@ fn conformance_vectors() {
     assert_eq!(m.verify_signature(), Ok(()));
 }
 
-/// Computed independently by a Python implementation (hashlib +
-/// `cryptography`'s ChaCha20Poly1305) before being pasted here.
+/// Also recomputed independently by `tools/vectors.py` (hashlib +
+/// `cryptography`'s ChaCha20Poly1305), which checks every vector in SPEC.md.
 const VECTORS: [&str; 13] = [
     "69b1f5ad126e00c4f741eab035dc593a23728edb32ee92d98dfd442272842463",
     "02d449a31fbb267c8f352e9968a79e3e5fc95c1bbeaa502fd6454ebde5a4bedc",

@@ -1,7 +1,7 @@
 //! A sudoku sale over two real LND nodes (regtest), with the INSECURE dev
 //! proof backend. Feature `lnd`. Run against LND v0.19.3-beta and
 //! v0.21.4-beta on regtest by `.github/workflows/lnd-regtest.yml`; for a
-//! local run see RUN-ON-MAC.md.
+//! local run see pcp/RUN.md.
 //!
 //! The point of this binary is the rail, not the proof: it checks that hold
 //! invoices, payment and settlement on real LND behave the way the
@@ -23,32 +23,21 @@ use std::time::Duration;
 use pcp::job::{JobClass, SudokuJob};
 use pcp::mandate::{Agent, Mandate, MandateTerms, Role, SecretKey};
 use pcp::proof::InsecureDevTransparentBackend;
-use pcp::protocol::{BuyerPolicy, SellerConfig, RAIL_BOLT11};
-use pcp::rail::lnd::{LndConfig, LndRail, LND_MIN_FINAL_CLTV};
+use pcp::protocol::{BuyerPolicy, SellerConfig};
+use pcp::rail::lnd::{LndConfig, LndRail};
 use pcp::rail::Rail;
 use pcp::sale::{run_sale, SaleParams, TwoNodes};
 use rand::rngs::OsRng;
 
-/// Settings for a regtest run. Timelocks are in seconds and converted to
-/// blocks at 600 s per block: LND's minimum final CLTV is
-/// `LND_MIN_FINAL_CLTV` (24) blocks.
+/// Settings for a regtest run: the Lightning presets
+/// ([`BuyerPolicy::lightning`], [`SellerConfig::lightning`]), whose
+/// timelocks fit LND's minimum final CLTV (24 blocks) and its default
+/// per-hop delta.
 pub fn regtest_terms(price_msat: u64) -> (BuyerPolicy, SellerConfig) {
-    let policy = BuyerPolicy {
-        rail: RAIL_BOLT11.to_string(),
-        htlc_secs: 40 * 600,
-        min_invoice_remaining_secs: 60,
-        ..BuyerPolicy::default()
-    };
-    let cfg = SellerConfig {
-        price_msat,
-        rail: RAIL_BOLT11.to_string(),
-        offer_ttl_secs: 600,
-        invoice_expiry_secs: 600,
-        min_htlc_secs: LND_MIN_FINAL_CLTV * 600,
-        settle_margin_secs: 600,
-        ..SellerConfig::default()
-    };
-    (policy, cfg)
+    (
+        BuyerPolicy::lightning(),
+        SellerConfig::lightning(price_msat),
+    )
 }
 
 fn agent_for(principal: &SecretKey, role: Role, node: &str, job: &dyn JobClass, now: u64) -> Agent {
@@ -73,7 +62,7 @@ fn main() {
     let connect = |who: &str| -> LndRail {
         let prefix = format!("PCP_{who}_LND_");
         let cfg = LndConfig::from_env(&prefix).unwrap_or_else(|e| {
-            eprintln!("{e}. See RUN-ON-MAC.md, part 2.");
+            eprintln!("{e}. See pcp/RUN.md, the LND regtest section.");
             std::process::exit(2)
         });
         LndRail::connect(cfg).unwrap_or_else(|e| {

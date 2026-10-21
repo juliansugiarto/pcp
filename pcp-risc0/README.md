@@ -1,6 +1,6 @@
 # pcp-risc0: RISC Zero proof backend for PCP/0
 
-> **This folder is not built by the `pcp` crate.** It is built and run by the `bench` CI workflow. On 21 October 2026 the guest was compiled and run for the first time, and all three jobs completed a full sale with real STARK proofs over the simulated rail. Measured costs are in [`COSTS.md`](COSTS.md). The image id is not yet reproducible (no Docker build), and the LND rail has not been run with real nodes. For the steps to run it, see [`../pcp/RUN-ON-MAC.md`](../pcp/RUN-ON-MAC.md) (Indonesian; an English version is not yet written).
+> **This folder is not built by the `pcp` crate.** It is built and run by the `bench` CI workflow. On 21 October 2026 the guest was compiled and run for the first time, and all three jobs completed a full sale with real STARK proofs over the simulated rail. Measured costs are in [`COSTS.md`](COSTS.md). The guest is also built reproducibly in Docker (two separate CI builds gave the same image id), and with that guest a sale with a real proof settled over two real LND nodes on regtest (`real-sale` workflow, run 39627526488). For the steps to run it, see [`../pcp/RUN.md`](../pcp/RUN.md).
 
 ## Contents
 
@@ -36,9 +36,10 @@ The guest input contains the result `R` and the key `k`. A remote proving servic
 | Part | Status |
 |---|---|
 | `pcp::statement` (relation, encoding, vectors) | Tested in the `pcp` crate, including the `--no-default-features` (no_std) build. |
-| Guest (`methods/guest`) | **Compiled and run in CI** (rzup, risc0 3.0.6), 21 October 2026. Reproducible image id from the Docker build: `abe2df21…d941` (two independent CI builds agree). The native build in the cost table had `6dc846c4…e8ea`. |
+| Guest (`methods/guest`) | **Compiled and run in CI** (rzup, risc0 3.0.6), 21 October 2026. Reproducible image id from the Docker build: `abe2df21…d941` (two separate CI builds agree). The native build in the cost table had `6dc846c4…e8ea`. |
 | `methods/build.rs` | **Run in CI** with the real guest. |
 | Host (`host/src/main.rs`) | **Passes type checking** (`cargo check` and `cargo clippy`, no warnings, with and without `--features lnd`) against risc0-zkvm 3.0.6 from crates.io. **Linked and run in CI:** sudoku n=4, sudoku n=9 and the test-suite job each ended `SETTLED`. |
+| Sale over LND with real proofs | **Run in CI** (`real-sale`, run 39627526488, 21 October 2026): with the Docker-built guest, a 9x9 sudoku sale and a test-suite sale settled over two LND v0.21.4 nodes on regtest. |
 | Accelerated SHA-256 patch | Only a comment in `methods/guest/Cargo.toml`. Not yet tried. |
 
 ### Type checking
@@ -56,12 +57,13 @@ The `Cargo.lock` in this folder is the result of version resolution during that 
 
 ## Running
 
-See [`../pcp/RUN-ON-MAC.md`](../pcp/RUN-ON-MAC.md) (Indonesian; an English version is not yet written). In short:
+See [`../pcp/RUN.md`](../pcp/RUN.md). In short, from this folder (a virtual workspace, so name the package with `-p`):
 
 ```bash
-cargo run --release -- --job sudoku4 --execute-only   # count cycles, no proof
-cargo run --release -- --job sudoku9                  # real proof, simulated Lightning
-cargo run --release --features lnd -- --job sudoku9 --rail lnd   # real proof, two regtest LND nodes
+export RISC0_USE_DOCKER=1   # reproducible image id; needs Docker
+cargo run --release -p pcp-risc0-host -- --job sudoku4 --execute-only   # count cycles, no proof
+cargo run --release -p pcp-risc0-host -- --job sudoku9                  # real proof, simulated Lightning
+cargo run --release -p pcp-risc0-host --features lnd -- --job sudoku9 --rail lnd   # real proof, two regtest LND nodes
 ```
 
 The last line of a successful run's output starts with `cost-row,` and contains the numbers for the cost table.

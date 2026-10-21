@@ -1,6 +1,6 @@
 # pcp-risc0 costs (first real run)
 
-Measured on 21 October 2026 by the `bench` workflow on a GitHub-hosted runner. The machine had 4 vCPU (x86_64), 16 GB RAM, Ubuntu 24.04 and no GPU. The toolchain was risc0 3.0.6, installed with `rzup` (cargo-risczero 3.0.6, r0vm 3.0.6). This was the first time the guest was compiled and run anywhere. Raw output is in the `ci-results` branch under `bench/risc0-20261021T103355Z/`.
+Measured on 21 October 2026 by the `bench` workflow on a GitHub-hosted runner. The machine had 4 vCPU (x86_64), 16 GB RAM, Ubuntu 24.04 and no GPU. The toolchain was risc0 3.0.6, installed with `rzup` (cargo-risczero 3.0.6, r0vm 3.0.6). This was the first time the guest was compiled and run anywhere. The guest in this first table was built natively, without Docker (image id `6dc846c4…e8ea`), so its image id is not reproducible on another machine; the reproducible guest is measured in the next section. Raw output is in the `ci-results` branch under `bench/risc0-20261021T103355Z/`.
 
 Each run is a full sale over the simulated Lightning rail:
 1. the seller proves locally;
@@ -9,6 +9,8 @@ Each run is a full sale over the simulated Lightning rail:
 4. the buyer decrypts and re-checks the result.
 
 All three runs ended with `SETTLED`.
+
+Native (non-reproducible) build:
 
 | Job | User cycles | Total cycles | Segments | Prove (s) | Verify (s) | Receipt (bytes) | Peak memory |
 |---|---|---|---|---|---|---|---|
@@ -33,10 +35,10 @@ The timelocks held with room to spare. The seller proves before it invoices, so 
 
 ## Reading the numbers
 
-- **Proving time follows the padded cycle count, not the job.** Sudoku n=4 and n=9 both pad to 2^17 cycles, so they cost the same. The test-suite job crosses into 2^18 and costs about 1.6 times as much. The 9x9 sudoku uses only 68% of its 2^17 segment, so there is headroom before the next step up.
-- **The receipt is a succinct STARK of about 224 KB.** It is transparent: no trusted setup and no Groth16 wrapper. That is 14 times larger than the halo2 proof (15,936 bytes), and verifying it is faster (0.012 s against 0.057 s).
-- **Proving is slower than halo2 on the same statement:** 64.6 s on 4 vCPU against 7.8 s on 2 CPUs. In exchange, the SHA-256 here is RISC Zero's own circuit rather than one this project wrote, and the guest is plain Rust.
-- **What one proof costs a seller** is the proving time multiplied by the price of the machine's time. On a rented 4-vCPU machine, 65 s is about 1/55 of an hour. Fill in a real hourly rate and the BTC price on the day before putting this next to a sale price.
+- **Proving time follows the padded cycle count, not the job.** In the native build, sudoku n=4 and n=9 both pad to 2^17 cycles, so they cost the same, and the test-suite job crosses into 2^18 and costs about 1.6 times as much. In the reproducible guest, the 9x9 sudoku also pads to 2^18 (98,941 user cycles), so it costs the same as the test-suite job, about 150 s.
+- **The receipt is a succinct STARK of about 224 KB.** It is transparent: no trusted setup and no Groth16 wrapper. That is 14 times larger than the halo2 proof (15,936 bytes), and verifying it is faster (0.012 s native, 0.018 s reproducible, against 0.057 s).
+- **Proving is slower than halo2 on the same statement:** 150.6 s on 4 vCPU with the reproducible guest (64.6 s with the non-reproducible native build) against 7.8 s on 2 CPUs. In exchange, the SHA-256 here is RISC Zero's own circuit rather than one this project wrote, and the guest is plain Rust.
+- **What one proof costs a seller** is the proving time multiplied by the price of the machine's time. On a rented 4-vCPU machine, 151 s with the reproducible guest is about 1/24 of an hour. Fill in a real hourly rate and the BTC price on the day before putting this next to a sale price.
 
 ## Not yet measured
 

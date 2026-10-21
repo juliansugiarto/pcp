@@ -1,16 +1,16 @@
 # pcp-zk: real zero-knowledge proofs for the PCP/0 sudoku sale
 
 > **STATUS: NOT SAFE (NOT AUDITED). DO NOT USE WITH REAL MONEY.**
-> An independent review on 21 October 2026 found four critical flaws in the upstream SHA-256 Table16 gadget (halo2_gadgets 0.5.0): the round constants `K_t` are free, the compression carries are unbounded, the message words `W_16..W_63` are unconstrained, and `a_final`/`e_final` are unconstrained. The flaws were shown to be real (see `review/2026-10-21-poc.md`: with the old gadget, a malicious witness makes the circuit accept an `H` that is not `SHA256(k)`).
+> A review on 21 October 2026, done inside the project by a separate AI reviewer (a Claude model session) that did not write the code, found four critical flaws in the upstream SHA-256 Table16 gadget (halo2_gadgets 0.5.0): the round constants `K_t` are free, the compression carries are unbounded, the message words `W_16..W_63` are unconstrained, and `a_final`/`e_final` are unconstrained. The flaws were shown to be real (see `review/2026-10-21-poc.md`: with the old gadget, a malicious witness makes the circuit accept an `H` that is not `SHA256(k)`).
 >
 > What has been fixed: the Table16 gadget was removed entirely and replaced with a simple, auditable SHA-256 chip written in-house (`src/sha256.rs`). Every 32-bit word is decomposed into boolean bits, `K_t` and the IV are in fixed columns, all carries are bounded, the message schedule words and the state between rounds are bound through gates and copy constraints, and there are no free cells. Every constraint class is tested with 19 malicious witnesses and 14 compensated attacks (the trace after the corrupted cell is recomputed and `H` is replaced with a fake digest, so only the constraint under test can reject it), all of which must be rejected, and the in-circuit SHA is matched against `sha2` for 24 keys. The `verify` CLI was also fixed: the buyer must supply their own puzzle, `H`, and binding, the circuit is rebuilt from those, and the result is FAIL if the seller's `public.json` does not match.
 >
-> What is NOT done yet: this SHA-256 chip is NEW and NOT AUDITED. The tests only show that an honest witness passes and a number of malicious witnesses fail, not that there are no other flaws. Before anyone may trust it, it needs: (1) an independent review of this new SHA-256 chip, (2) a second implementation of the whole suite for cross-conformance vectors, and (3) a full audit. Do not consider this safe.
+> What is NOT done yet: this SHA-256 chip is NEW and NOT AUDITED. It was reviewed inside the project by a separate AI reviewer that did not write the code; it has not been audited by any outside party. The tests only show that an honest witness passes and a number of malicious witnesses fail, not that there are no other flaws. Before anyone may trust it, it needs: (1) a review of this new SHA-256 chip by someone outside the project, (2) a second implementation of the whole suite for cross-conformance vectors, and (3) a full audit. Do not consider this safe.
 
 
 Status: experiment. Not audited. Do not use with real money.
 
-This folder is its own Cargo project, separate from `../pcp`. It contains a halo2 circuit, a prover and a verifier as a CLI, and tests. Everything is built and run in this container using only crates from crates.io, on stable Rust.
+This folder is its own Cargo project, separate from `../pcp`. It contains a halo2 circuit, a prover and a verifier as a CLI, and tests. It builds and runs with crates from crates.io only, on stable Rust.
 
 ## What is proven
 
@@ -56,7 +56,9 @@ s_j    Poseidon_2(kk, j)   for j = 0..80
 c_j    r_j + s_j  (mod p)                 addition in the field
 ```
 
-`p` is the Pallas base field modulus (about 2^254). Poseidon here is `P128Pow5T3` from halo2_poseidon (width 3, rate 2, Orchard parameters) in `ConstantLength<L>` mode. The input length goes into the capacity element, so key derivation (3 inputs) and the keystream (2 inputs) are domain-separated, in addition to the `TAG_KK` tag.
+`p` is the Pallas base field modulus (about 2^254). Poseidon here is `P128Pow5T3` from `halo2_gadgets::poseidon` in halo2_gadgets 0.5.0 (width 3, rate 2, Orchard parameters) in `ConstantLength<L>` mode. The input length goes into the capacity element, so key derivation (3 inputs) and the keystream (2 inputs) are domain-separated, in addition to the `TAG_KK` tag.
+
+halo2_gadgets 0.5.0 is the version whose Table16 SHA-256 gadget was found forgeable (see the status note above). This crate uses it only for Poseidon; it does not use its SHA-256 gadget.
 
 Decryption by the buyer after paying: `r_j = c_j - s_j`, and the result must be an integer in 1..9.
 
@@ -101,10 +103,10 @@ This chip no longer uses a 2^16 lookup table, so `k` dropped from 17 to 13 (see 
 
 Done:
 
-- Real ZK proofs, transparent, built and verified on this machine.
+- Real ZK proofs, transparent, built and verified on Linux x86_64 and macOS arm64 (`scripts/cli-e2e.sh` in the `bench` workflow, 21 October 2026).
 - The in-circuit `H` is the same as standard `sha2::Sha256` (tested with 24 keys, including extreme keys: all zeros, all 0xff, two alternating bit patterns), and matches vector 2 from SPEC.md.
 - Every constraint class of the SHA-256 chip is rejected by 19 malicious-witness tests (non-boolean bit, packed value that does not match its bits, altered carry, altered schedule/state/final/padding word, SHA key different from the Poseidon key). The endianness of `H` and the number of selectors are also pinned by tests.
-- 14 compensated attacks from the independent reviewer (`src/review_tests.rs`) test the `W_t` copy into the rounds, the state copy into the digest, the IV constant copy, the key copy into the schedule, and carries solved in the field. Mutation test on 2026-10-21: if the `W_t` copy or the E carry range check is removed, the 19 older tests and 7 MockProver tests still pass, and only the compensated tests fail. That is why these tests are required.
+- 14 compensated attacks from the reviewer (a separate AI reviewer inside the project that did not write the chip; `src/review_tests.rs`) test the `W_t` copy into the rounds, the state copy into the digest, the IV constant copy, the key copy into the schedule, and carries solved in the field. Mutation test on 2026-10-21: if the `W_t` copy or the E carry range check is removed, the 19 older tests and 7 MockProver tests still pass, and only the compensated tests fail. That is why these tests are required.
 - The reviewer's layout test (`layout_selectors_rotations_and_ownership`) records the assignment without MockProver: it counts selector rows, checks that every rotation of every gate lands on a cell assigned by the same region, and lists all copy constraints.
 - A proof with a wrong solution does not pass verification; an altered `C`, `H`, givens, or binding does not pass; the proof and the public inputs do not contain `R` or `k` (checked byte by byte in the tests).
 
@@ -141,15 +143,15 @@ $B decrypt --dir sale --key $(cat seller-k.hex)
 
 Tests: `cargo test --release -- --test-threads=1`. The `--lib` tests include the SHA reference test, the suite tests, and the adversarial tests (malicious witnesses rejected + honest SHA equal to `sha2`). The `mock` tests use the halo2 MockProver; the `prove` tests create real proofs. `--test-threads=1` is required: the adversarial tests use a thread-local hook, and two parallel provers raise memory use. With the new SHA chip, the full test run finishes in a few minutes (not tens of minutes as with the Table16 version).
 
-A "break this" bundle for strangers: `scripts/make-bundle.sh BUNDLE_DIR SECRETS_DIR [LABEL]`. It produces the puzzle as an empty grid, `public.json`, `proof.bin`, `BUNDLE.md` (the exact claim, the values, two bounties), `verify.sh`, and `SHA256SUMS`. `R`, `k`, and the commitment salt are written only to `SECRETS_DIR`, and the script refuses if that folder is inside a git repo. An empty grid is used because for an ordinary sudoku `R` can be computed from the puzzle, which would make the privacy bounty meaningless. A privacy bounty claim is checked with `scripts/check-bounty-claim.py SECRETS_DIR CLAIM_FILE`. Test on 2026-10-21 from the output of `scripts/export-public.sh` in a fresh folder, with no target and no cache: `verify.sh` printed OK in 57.6 seconds including the build and parameters (the verification itself took 0.064 seconds). A wrong fingerprint, a tampered proof, and a mismatched `SHA256SUMS` all fail.
+A "break this" bundle for strangers: `scripts/make-bundle.sh BUNDLE_DIR SECRETS_DIR [LABEL]`. It produces the puzzle as an empty grid, `public.json`, `proof.bin`, `BUNDLE.md` (the exact claim, the values, two bounties), `verify.sh`, and `SHA256SUMS`. `R`, `k`, and the commitment salt are written only to `SECRETS_DIR`, and the script refuses if that folder is inside a git repo. An empty grid is used because for an ordinary sudoku `R` can be computed from the puzzle, which would make the privacy bounty meaningless. A privacy bounty claim is checked with `scripts/check-bounty-claim.py SECRETS_DIR CLAIM_FILE`. Test on 2026-10-21 from a fresh copy of the public repository files, with no target and no cache: `verify.sh` printed OK in 57.6 seconds including the build and parameters (the verification itself took 0.064 seconds). A wrong fingerprint, a tampered proof, and a mismatched `SHA256SUMS` all fail.
 
-`pcp-zk vk-fingerprint` prints the SHA-256 of the verifying key representation that halo2 also hashes into the transcript. Its value for the current circuit (2026-10-21) is `d8fb5e70076e3d0c8617de14c44bc5c37594032acd910b11ff42663fa3a8d2e4`, and it changes if even one constraint changes (tested by changing the E carry range). `verify --vk-fingerprint HEX` returns FAIL if your build is not the circuit the bundle names. Whether the value is the same on a Mac has not been tested.
+`pcp-zk vk-fingerprint` prints the SHA-256 of the verifying key representation that halo2 also hashes into the transcript. Its value for the current circuit (2026-10-21) is `d8fb5e70076e3d0c8617de14c44bc5c37594032acd910b11ff42663fa3a8d2e4`, and it changes if even one constraint changes (tested by changing the E carry range). `verify --vk-fingerprint HEX` returns FAIL if your build is not the circuit the bundle names. The value is the same on macOS arm64 and on Linux x86_64 (`bench` workflow, 21 October 2026; raw output in the `ci-results` branch under `bench/pcp-zk-macos-latest-20261021T100324Z/` and `bench/pcp-zk-ubuntu-latest-20261021T100231Z/`).
 
 End-to-end CLI test: `scripts/cli-e2e.sh [DIR]`. This script runs one honest sale, then 3 buyer inputs that do not match `public.json`, 6 consistent lies and tamperings that only the proof can catch (a different H, a different binding, a different puzzle, an altered ciphertext, one proof byte flipped, a truncated proof), and 2 decryptions (correct key and wrong key). `H = SHA256(k)` is also checked outside the circuit with Python's `hashlib`. Result on 2026-10-21: 14 of 14 as expected.
 
 The transparent parameters are generated in about 5 seconds (k=13) and then stored in `target/params-k13.bin` (or at the `PCP_ZK_PARAMS` path). This cache adds no trust: the file is used only if its SHA-256 equals `PARAMS_SHA256` in the code, and anyone can regenerate the same parameters from scratch.
 
-Cost summary on this machine (2 CPUs): proving about 8 seconds with peak memory of 0.57 GB, verification 0.06 seconds, proof 15936 bytes. Details are in `COSTS.md`.
+Cost summary on a 2-CPU Linux machine: proving about 8 seconds with peak memory of 0.57 GB, verification 0.06 seconds, proof 15936 bytes. Details are in `COSTS.md`.
 
 ## Plan for connecting to the `ProofBackend` trait in pcp
 

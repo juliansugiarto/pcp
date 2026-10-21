@@ -2,9 +2,9 @@
 name = "pcp-zk"
 version = "0.0.1"
 edition = "2021"
-description = "PCP/0 zero-knowledge proof backend experiment: halo2 (IPA over Pasta, transparent) proof of a ZKCP sudoku sale with SHA-256 payment hash and a SHA-256 counter-mode keystream."
+description = "PCP/0 zero-knowledge proof backend experiment: halo2 (IPA over Pasta, transparent) proof of a ZKCP sudoku sale with a SHA-256 payment hash and a Poseidon CTR keystream (zk-poseidon-ctr/0)."
 publish = false
-license = "MIT OR Apache-2.0"
+license = "MIT"
 
 # Standalone: not a member of ../pcp's build.
 [workspace]

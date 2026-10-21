@@ -28,7 +28,8 @@
 //! delta of 18 must be greater than minimum of 24"). This rail asks for at
 //! least 24, so on this rail a seller's `min_htlc_secs` is at least
 //! 24 * 600 = 14 400 s, and the buyer's `BuyerPolicy::htlc_secs` must be
-//! raised to match (RUN-ON-MAC.md uses 24 000).
+//! raised to match. `BuyerPolicy::lightning()` and `SellerConfig::lightning()`
+//! give values that fit (see `pcp/RUN.md`).
 //!
 //! Authentication: the macaroon is sent as the `Grpc-Metadata-macaroon`
 //! header (hex). TLS: LND's self-signed `tls.cert` is the only trusted root
@@ -158,10 +159,11 @@ impl LndRail {
     }
 
     /// Cancel a hold invoice and fail any HTLC held for it
-    /// (`POST /v2/invoices/cancel`). Not used by the protocol; for a seller
-    /// that decides not to settle and wants to free the buyer's funds
-    /// before the timeout.
-    pub fn cancel_invoice(&self, payment_hash: &Hash32) -> Result<(), RailError> {
+    /// (`POST /v2/invoices/cancel`). The protocol calls it through
+    /// [`Rail::cancel_invoice`] when the seller decides never to settle, so
+    /// the buyer's funds come back at once instead of at LND's hold-expiry
+    /// cancel (`invoices.holdexpirydelta`, 12 blocks before expiry by default).
+    pub fn cancel_hold_invoice(&self, payment_hash: &Hash32) -> Result<(), RailError> {
         self.post(
             "/v2/invoices/cancel",
             &json!({ "payment_hash": B64.encode(payment_hash) }),
@@ -352,6 +354,10 @@ impl Rail for LndRail {
             &json!({ "preimage": B64.encode(preimage) }),
         )
         .map(|_| ())
+    }
+
+    fn cancel_invoice(&mut self, _payee: &str, payment_hash: &Hash32) -> Result<(), RailError> {
+        self.cancel_hold_invoice(payment_hash)
     }
 
     fn lookup_invoice(&mut self, payment_hash: &Hash32) -> Result<Option<IncomingHtlc>, RailError> {

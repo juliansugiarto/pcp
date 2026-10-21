@@ -488,6 +488,36 @@ pub struct BuyerPolicy {
     pub rail: String,
 }
 
+/// Seconds per block assumed when converting timelocks on the BOLT11 rail.
+pub const SECS_PER_BLOCK: u64 = 600;
+/// Final CLTV delta a seller asks for on Lightning: LND v0.21 refuses less
+/// than 24 blocks for a hold invoice.
+pub const LN_FINAL_CLTV_BLOCKS: u64 = 24;
+/// LND's default per-hop CLTV delta (`bitcoin.timelockdelta`, 80 blocks).
+pub const LN_HOP_DELTA_BLOCKS: u64 = 80;
+/// Intermediate hops a buyer's timelock limit leaves room for by default.
+pub const LN_ROUTE_HOPS: u64 = 2;
+/// LND cancels a held HTLC this many blocks before it expires
+/// (`invoices.holdexpirydelta`, default 12). A seller's settle margin below
+/// this never binds on LND.
+pub const LN_HOLD_EXPIRY_DELTA_BLOCKS: u64 = 12;
+
+impl BuyerPolicy {
+    /// Defaults for a buyer paying BOLT11 hold invoices over Lightning.
+    /// The HTLC limit leaves room for the seller's final CLTV, two routing
+    /// hops at LND's default delta and a buffer: 24 + 2 x 80 + 20 = 204
+    /// blocks. `BuyerPolicy::default()` targets the simulated ledger and its
+    /// one-hour limit would refuse every LND invoice.
+    pub fn lightning() -> Self {
+        BuyerPolicy {
+            htlc_secs: (LN_FINAL_CLTV_BLOCKS + LN_ROUTE_HOPS * LN_HOP_DELTA_BLOCKS + 20)
+                * SECS_PER_BLOCK,
+            rail: RAIL_BOLT11.to_string(),
+            ..BuyerPolicy::default()
+        }
+    }
+}
+
 impl Default for BuyerPolicy {
     fn default() -> Self {
         BuyerPolicy {
@@ -946,6 +976,22 @@ impl Buyer {
                 Ok(())
             }
             Err(e) => {
+                // The call failed, but the HTLC may have left anyway (a lost
+                // reply). If the node shows the payment in flight or settled,
+                // the money is out: keep the reservation and wait.
+                if matches!(
+                    rail.lookup_payment(&self.node, &invoice.payment_hash),
+                    Ok(PaymentStatus::InFlight) | Ok(PaymentStatus::Settled { .. })
+                ) {
+                    self.reserved_msat = amount;
+                    self.state = BuyerState::Paid {
+                        offer,
+                        statement,
+                        bundle,
+                        invoice,
+                    };
+                    return Ok(());
+                }
                 self.agent.release(amount);
                 self.state = BuyerState::InvoiceAccepted {
                     offer,
@@ -1077,6 +1123,26 @@ pub struct SellerConfig {
     /// The settlement rail named in offers. Default [`RAIL_SIM`];
     /// [`RAIL_BOLT11`] with a real node.
     pub rail: String,
+}
+
+impl SellerConfig {
+    /// Defaults for a seller on Lightning with hold invoices. The final CLTV
+    /// is LND's minimum (24 blocks). The settle margin is two blocks more than
+    /// LND's own hold-expiry cancel, so the seller never tries to settle an
+    /// HTLC its node is about to cancel. The offer lives 15 minutes: at least
+    /// three times the measured proving time of the reproducible RISC Zero
+    /// guest on 4 vCPU (151 s).
+    pub fn lightning(price_msat: u64) -> Self {
+        SellerConfig {
+            price_msat,
+            offer_ttl_secs: 900,
+            invoice_expiry_secs: 600,
+            min_htlc_secs: LN_FINAL_CLTV_BLOCKS * SECS_PER_BLOCK,
+            settle_margin_secs: (LN_HOLD_EXPIRY_DELTA_BLOCKS + 2) * SECS_PER_BLOCK,
+            rail: RAIL_BOLT11.to_string(),
+            ..SellerConfig::default()
+        }
+    }
 }
 
 impl Default for SellerConfig {
@@ -1275,6 +1341,26 @@ impl Seller {
         {
             return Err(PcpError::OfferMismatch);
         }
+        // Fulfil only an offer this seller issued, with exactly the terms it
+        // signed. `offer_id` covers every term (price, expiry, node, backend,
+        // rail, ...), so an offer handed back with any term changed fails the
+        // signature. Without this, a buyer who returns the offer over a wire
+        // could set its own price or expiry.
+        let issued_by_me = offer.agent_sig.as_ref().is_some_and(|sig| {
+            crate::mandate::verify_sig(
+                &self.agent.public_key(),
+                &offer.auth_message(&self.agent.mandate_id()),
+                sig,
+            )
+        });
+        if !issued_by_me
+            || offer.seller_node != self.node
+            || offer.backend_id != self.backend.backend_id()
+            || offer.job_id != self.job.job_id()
+            || offer.spec_hash != self.job.spec_hash()
+        {
+            return Err(PcpError::OfferMismatch);
+        }
         let Some(buyer_mandate) = req.mandate.clone() else {
             return Err(PcpError::CounterpartyMandate(MandateError::Missing));
         };
@@ -1344,6 +1430,13 @@ impl Seller {
     /// Settle every open sale whose HTLC is locked for the full price with
     /// enough time left. This is the only place `k` ever leaves the seller.
     /// Each settlement appends a signed receipt to the principal's log.
+    /// Test hook: the key of an open sale, to simulate a settle that reached
+    /// the node while its reply was lost.
+    #[cfg(test)]
+    pub(crate) fn sale_key_for_test(&self, h: &Hash32) -> Option<[u8; 32]> {
+        self.sales.get(h).map(|s| s.key)
+    }
+
     pub fn settle_paid(&mut self, rail: &mut dyn Rail) -> Vec<SaleOutcome> {
         let now = rail.now();
         let mut out = Vec::new();
@@ -1362,24 +1455,41 @@ impl Seller {
                     continue;
                 }
             };
-            if htlc.state != IncomingState::Held || htlc.payee != self.node {
+            if htlc.payee != self.node {
                 out.push(SaleOutcome::NotPaid { payment_hash: *h });
                 continue;
             }
-            if htlc.amount_msat < sale.price_msat {
-                out.push(SaleOutcome::Withheld {
-                    payment_hash: *h,
-                    reason: PcpError::InvoiceAmountMismatch {
-                        invoice: htlc.amount_msat,
-                        offer: sale.price_msat,
-                    },
-                });
-                continue;
+            match htlc.state {
+                IncomingState::Held => {}
+                // Only this seller holds `k`, so a settled HTLC means an
+                // earlier settle reached the node even though its reply was
+                // lost. Record the sale now instead of losing the receipt.
+                IncomingState::Settled => {
+                    out.push(finish_sale(&self.agent, h, sale, htlc.amount_msat, now));
+                    continue;
+                }
+                IncomingState::Canceled => {
+                    out.push(SaleOutcome::NotPaid { payment_hash: *h });
+                    continue;
+                }
             }
-            if htlc.timeout_at.saturating_sub(now) < self.cfg.settle_margin_secs {
+            // Reasons that can never clear for this HTLC: cancel it so the
+            // buyer's funds come back now, not at the HTLC timeout.
+            let permanent = if htlc.amount_msat < sale.price_msat {
+                Some(PcpError::InvoiceAmountMismatch {
+                    invoice: htlc.amount_msat,
+                    offer: sale.price_msat,
+                })
+            } else if htlc.timeout_at.saturating_sub(now) < self.cfg.settle_margin_secs {
+                Some(PcpError::SettleMarginTooShort)
+            } else {
+                None
+            };
+            if let Some(reason) = permanent {
+                let _ = rail.cancel_invoice(&self.node, h);
                 out.push(SaleOutcome::Withheld {
                     payment_hash: *h,
-                    reason: PcpError::SettleMarginTooShort,
+                    reason,
                 });
                 continue;
             }
@@ -1391,41 +1501,63 @@ impl Seller {
                 continue;
             }
             match rail.settle_invoice(&self.node, h, sale.key) {
-                Ok(()) => {
-                    sale.settled = true;
-                    self.agent.commit(htlc.amount_msat);
-                    self.agent.record_deal(
-                        Receipt {
-                            version: VERSION.to_string(),
-                            role: Role::Seller,
-                            mandate_id: [0u8; 32],
-                            principal_key: [0u8; 32],
-                            counterparty_mandate_id: sale.buyer_mandate.mandate_id(),
-                            counterparty_principal_key: sale.buyer_mandate.principal_key,
-                            agent_key: [0u8; 32],
-                            offer_id: sale.offer_id,
-                            statement_hash: sale.statement_hash,
-                            bundle_id: sale.bundle.bundle_id(),
-                            payment_hash: *h,
-                            preimage: sale.key,
-                            amount_msat: htlc.amount_msat,
-                            settled_at: now,
-                            agent_sig: Sig([0u8; 64]),
-                        },
-                        &sale.bundle,
-                        &sale.input,
+                Ok(()) => out.push(finish_sale(&self.agent, h, sale, htlc.amount_msat, now)),
+                Err(e) => {
+                    // The settle may have reached the node although the call
+                    // failed (a lost reply). Look before reporting failure.
+                    let settled = matches!(
+                        rail.lookup_invoice(h),
+                        Ok(Some(x)) if x.state == IncomingState::Settled
                     );
-                    out.push(SaleOutcome::Settled {
-                        payment_hash: *h,
-                        amount_msat: htlc.amount_msat,
-                    });
+                    if settled {
+                        out.push(finish_sale(&self.agent, h, sale, htlc.amount_msat, now));
+                    } else {
+                        out.push(SaleOutcome::Withheld {
+                            payment_hash: *h,
+                            reason: e.into(),
+                        });
+                    }
                 }
-                Err(e) => out.push(SaleOutcome::Withheld {
-                    payment_hash: *h,
-                    reason: e.into(),
-                }),
             }
         }
         out
+    }
+}
+
+/// Mark a sale settled, commit its amount against the seller's cap, and
+/// append the signed receipt to the principal's log.
+fn finish_sale(
+    agent: &Agent,
+    h: &Hash32,
+    sale: &mut Sale,
+    amount_msat: u64,
+    at: u64,
+) -> SaleOutcome {
+    sale.settled = true;
+    agent.commit(amount_msat);
+    agent.record_deal(
+        Receipt {
+            version: VERSION.to_string(),
+            role: Role::Seller,
+            mandate_id: [0u8; 32],
+            principal_key: [0u8; 32],
+            counterparty_mandate_id: sale.buyer_mandate.mandate_id(),
+            counterparty_principal_key: sale.buyer_mandate.principal_key,
+            agent_key: [0u8; 32],
+            offer_id: sale.offer_id,
+            statement_hash: sale.statement_hash,
+            bundle_id: sale.bundle.bundle_id(),
+            payment_hash: *h,
+            preimage: sale.key,
+            amount_msat,
+            settled_at: at,
+            agent_sig: Sig([0u8; 64]),
+        },
+        &sale.bundle,
+        &sale.input,
+    );
+    SaleOutcome::Settled {
+        payment_hash: *h,
+        amount_msat,
     }
 }

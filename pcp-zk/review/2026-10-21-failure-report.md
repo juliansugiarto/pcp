@@ -2,7 +2,7 @@
 
 *21 October 2026. Julian Sugiarto.*
 
-This is a failure report. It covers a proof-contingent payment circuit (ZKCP over Lightning) that used the halo2 Table16 SHA-256 gadget. An internal read-only review found that a seller could forge the payment hash. We reproduced the forgery, removed the gadget, and wrote a replacement. This post covers what broke, how we found it, what replaced it, and what the replacement has and has not been checked for.
+This is a failure report. It covers a proof-contingent payment circuit (ZKCP over Lightning) that used the halo2 Table16 SHA-256 gadget. A read-only review inside the project, by a separate AI reviewer (a Claude model session) that did not write the code, found that a seller could forge the payment hash. We reproduced the forgery, removed the gadget, and wrote a replacement. This post covers what broke, how we found it, what replaced it, and what the replacement has and has not been checked for.
 
 No real money was ever involved. The circuit was never published as safe to use.
 
@@ -21,7 +21,7 @@ Proof system: halo2_proofs 0.3.5, IPA over Pasta. It is transparent, with no tru
 
 ## What broke
 
-We vendored the Table16 SHA-256 gadget from halo2_gadgets 0.5.0 and patched three small things we had noticed. A reviewer who had not written the code then read all of it, read-only, and found four independent ways to forge `H`:
+We vendored the Table16 SHA-256 gadget from halo2_gadgets 0.5.0 and patched three small things we had noticed. A separate AI reviewer (a Claude model session) that had not written the code then read all of it, read-only, and found four independent ways to forge `H`:
 
 | ID | Gap |
 |---|---|
@@ -57,7 +57,7 @@ The replacement is a bit-level SHA-256 chip. It was written so that a reviewer c
 Tests:
 
 - 19 malicious witnesses are rejected: a non-boolean bit, a packed value that disagrees with its bits, a wrong IV word, a shifted carry in each of the four carry columns, shifted W, A, E, digest and padding words, and SHA key bits that differ from the Poseidon key.
-- 14 compensated forgeries are rejected, each by exactly the constraint that owns the tampered cell. In each one the trace downstream of the tampered cell is recomputed and `H` is set to the forged digest, so only one constraint can catch it. They were written by the independent reviewer (section 5).
+- 14 compensated forgeries are rejected, each by exactly the constraint that owns the tampered cell. In each one the trace downstream of the tampered cell is recomputed and `H` is set to the forged digest, so only one constraint can catch it. They were written by the second reviewer (section 5).
 - In-circuit SHA-256 equals the `sha2` crate for 24 keys.
 - 7 MockProver tests and 6 real-proof tests pass.
 - A 14-case CLI end-to-end run passes. It includes a seller who lies consistently: their public file agrees with a forged `H`, binding or puzzle, so only the proof can reject it.
@@ -76,7 +76,7 @@ Table16's 2^16-row spread table was what forced `k = 17`. Without it `k` drops t
 
 ## What the replacement has and has not been checked for
 
-A second reviewer, again someone who had not written the chip, checked it against a 16-item checklist. Two tools did the checking, not reading alone. The first was a recorder that replays the circuit's assignments without MockProver. The second was the set of 14 compensated forgeries above.
+A second reviewer, again a separate AI model session (Claude) that had not written the chip, checked it against a 16-item checklist. Two tools did the checking, not reading alone. The first was a recorder that replays the circuit's assignments without MockProver. The second was the set of 14 compensated forgeries above.
 
 - Every advice cell has exactly one owner.
 - 23,128 (gate, row, cell) rotation triples land on cells assigned by the same region.

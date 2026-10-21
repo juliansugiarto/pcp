@@ -136,6 +136,10 @@ pub trait Rail {
         preimage: [u8; 32],
     ) -> Result<(), RailError>;
 
+    /// Payee: cancel the held HTLC paying `payment_hash`, returning the funds
+    /// to the payer now. Used when the seller decides never to settle it.
+    fn cancel_invoice(&mut self, payee: &str, payment_hash: &Hash32) -> Result<(), RailError>;
+
     /// Payee: the live or settled HTLC paying `payment_hash`, if any.
     fn lookup_invoice(&mut self, payment_hash: &Hash32) -> Result<Option<IncomingHtlc>, RailError>;
 
@@ -189,6 +193,10 @@ impl Rail for Ledger {
             .ok_or(LedgerError::UnknownHtlc)?
             .id;
         Ok(Ledger::settle(self, payee, id, preimage)?)
+    }
+
+    fn cancel_invoice(&mut self, payee: &str, payment_hash: &Hash32) -> Result<(), RailError> {
+        Ok(Ledger::cancel(self, payee, payment_hash)?)
     }
 
     fn lookup_invoice(&mut self, payment_hash: &Hash32) -> Result<Option<IncomingHtlc>, RailError> {

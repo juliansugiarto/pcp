@@ -1,5 +1,7 @@
 # pcp-zk soundness review (read-only)
 
+Reviewer: a separate AI model session (Claude) that did not write the code, inside the project; not an outside party.
+
 Scope: /home/claude/somnus/pcp-zk (halo2_proofs 0.3.5 IPA/Pasta, halo2_gadgets 0.5.0).
 Method: I read every source file and the upstream registry copy of halo2_gadgets 0.5.0
 (`diff -r` of `src/sha256` against

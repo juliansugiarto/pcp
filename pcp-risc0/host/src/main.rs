@@ -17,16 +17,18 @@
 //! `backend_id` is `risc0-zkvm-3-succinct/<image id hex>`, so the offer
 //! (whose `offer_id` commits to `backend_id`) names the exact guest binary.
 //!
-//! STATUS: type-checked only (`cargo check` and `cargo clippy` against
-//! risc0-zkvm 3.0.6 from crates.io, with the guest build, the prover's C++
-//! kernels and the recursion artefact download skipped). Never linked, never
-//! run: the RISC Zero toolchain could not be downloaded where this was
-//! written. See ../README.md.
+//! STATUS: built and run in CI against risc0-zkvm 3.0.6, 21 October 2026.
+//! Over the simulated rail, sudoku n=4, sudoku n=9 and the test-suite job
+//! each settled with a real proof. With the guest built reproducibly in
+//! Docker (`RISC0_USE_DOCKER=1`, image id `abe2df21…d941`), a sudoku sale
+//! and a test-suite sale settled over two LND v0.21.4 nodes on regtest
+//! (`real-sale` workflow). Not audited. See ../README.md and ../COSTS.md.
 //!
-//! Usage (see ../../pcp/RUN-ON-MAC.md):
+//! Usage (see ../../pcp/RUN.md), from `pcp-risc0/` (`--rail lnd` needs
+//! `--features lnd`):
 //!
 //! ```text
-//! cargo run --release -- [--job sudoku9|sudoku4|testsuite] [--rail sim|lnd] [--execute-only]
+//! cargo run --release -p pcp-risc0-host -- [--job sudoku9|sudoku4|testsuite] [--rail sim|lnd] [--execute-only]
 //! ```
 
 use std::cell::RefCell;
@@ -364,7 +366,6 @@ fn main() {
         #[cfg(feature = "lnd")]
         "lnd" => {
             use pcp::rail::lnd::{LndConfig, LndRail};
-            use pcp::rail::RAIL_BOLT11;
             let connect = |p: &str| {
                 LndRail::connect(LndConfig::from_env(p).unwrap_or_else(|e| panic!("{e}")))
                     .unwrap_or_else(|e| panic!("{p}: {e:?}"))
@@ -378,18 +379,10 @@ fn main() {
                 two.buyer.node_id().to_string(),
                 two.seller.node_id().to_string(),
             );
-            let policy = BuyerPolicy {
-                rail: RAIL_BOLT11.into(),
-                htlc_secs: 40 * 600,
-                ..BuyerPolicy::default()
-            };
-            let cfg = SellerConfig {
-                price_msat: price,
-                rail: RAIL_BOLT11.into(),
-                min_htlc_secs: pcp::rail::lnd::LND_MIN_FINAL_CLTV * 600,
-                settle_margin_secs: 600,
-                ..SellerConfig::default()
-            };
+            // Lightning presets: timelocks in whole blocks that fit LND's
+            // minimum final CLTV and its default per-hop delta.
+            let policy = BuyerPolicy::lightning();
+            let cfg = SellerConfig::lightning(price);
             (&mut two, b, s, policy, cfg)
         }
         other => {

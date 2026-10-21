@@ -1,5 +1,5 @@
-# RISC Zero backend for PCP/0. NOT a member of the `pcp` crate build and not
-# built in CI in the authoring environment (see README.md). Layout follows
+# RISC Zero backend for PCP/0. Not a member of the `pcp` crate build; built and
+# run by the bench, risc0-image-id and real-sale CI workflows. Layout follows
 # the `cargo risczero new` template of risc0 3.0.6 (crates.io, 2026-07-17).
 [workspace]
 resolver = "2"

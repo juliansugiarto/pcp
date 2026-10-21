@@ -11,6 +11,8 @@ What I'm adding:
 - a mandate that a human signs, so software agents can buy and sell on someone's behalf without spending without limits;
 - honest numbers about what it costs.
 
+The design is written up in the whitepaper: [`WHITEPAPER.md`](WHITEPAPER.md) ([PDF](whitepaper.pdf)).
+
 > **Please don't use this with real money yet.** It's experimental, and nobody outside the project has audited it.
 
 ## What's in here
@@ -18,7 +20,7 @@ What I'm adding:
 | Folder | What it is | Where it stands |
 |---|---|---|
 | `pcp/` | The protocol (`pcp/SPEC.md`) and a Rust implementation: mandates, offers, statements, and a Lightning rail (simulated, plus LND behind `--features lnd`) | Tests pass. A full sale has settled between two real LND nodes on regtest in CI |
-| `pcp-zk/` | A transparent zero-knowledge proof (halo2, IPA over Pasta) for selling a sudoku solution, with a SHA-256 chip I wrote myself | Works, and was reviewed inside the project. **Not audited.** Treat it as something to break, not something to pay through |
+| `pcp-zk/` | A transparent zero-knowledge proof (halo2, IPA over Pasta) for selling a sudoku solution, with a SHA-256 chip I wrote myself | Works. Reviewed inside the project by a separate AI reviewer that did not write the code; **not audited** by any outside party. Treat it as something to break, not something to pay through |
 | `pcp-risc0/` | The same statement as a RISC Zero zkVM program. This is the backend meant for real payments | Runs: a sale with a real proof has settled over real LND nodes on regtest. Proving the 9x9 sudoku with the reproducible guest takes 151 s on 4 vCPU; the receipt is 224 KB and verifies in 0.018 s. See `pcp-risc0/COSTS.md` |
 | `spec/`, `verifier/`, `tests/` | witnessed-record, an earlier design for publicly recountable signed records that I've put on hold | Parked |
 
@@ -32,9 +34,11 @@ scripts/cli-e2e.sh                          # an honest sale, 9 lies or tampers 
 
 On a 2-CPU machine: proving takes 7.8 s and 0.57 GB, verifying takes 0.057 s, and the proof is 15,936 bytes. The full breakdown is in `pcp-zk/COSTS.md`.
 
+To build the RISC Zero guest reproducibly and run a sale over two LND nodes on regtest, see `pcp/RUN.md`.
+
 ## The embarrassing part (worth reading first)
 
-The first SHA-256 gadget I used turned out to be forgeable. A seller could have proven a false payment hash and been paid for nothing. An internal review caught it before any money was involved. Then I found that upstream had already removed that gadget three weeks earlier, for exactly this reason, and I simply hadn't read why.
+The first SHA-256 gadget I used turned out to be forgeable. A seller could have proven a false payment hash and been paid for nothing. A review inside the project, by a separate AI reviewer (a Claude model session) that did not write the code, caught it before any money was involved. Then I found that upstream had already removed that gadget three weeks earlier, for exactly this reason, and I simply hadn't read why.
 
 The whole story is in `pcp-zk/review/2026-10-21-failure-report.md`: how it was found, the exploits, the replacement, and what has and hasn't been checked since. The other files in `pcp-zk/review/` are the reviews, the proof of concept and the reviewer checklist. Section 12 of `pcp/SPEC.md` lists the honest limits, including that the system as a whole is not quantum-resistant.
 
@@ -63,4 +67,4 @@ bc1qt48zk92qrrzmdf4kx8argtga6wnxhs2julnctg
 
 <sub>Also accepted: ETH and BNB Chain `0xaA7c8810888eeCC0946AAaa8625D5Ce2dDC4E2F9`, Solana `GM6y46HGzvJiQy5mWeyRUccDaK9bbmMmSLAxkUPrpS2p`, Tron `TRkwRyx3uhiExgAd7NbisUsgrRvn9Wi9h2`.</sub>
 
-MIT license. Written by Julian Sugiarto, with help from contributors.
+MIT license. Written by Julian Sugiarto.
