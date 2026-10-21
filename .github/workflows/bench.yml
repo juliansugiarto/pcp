@@ -10,6 +10,15 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths:
+      - "pcp/src/**"
+      - "pcp/Cargo.*"
+      - "pcp-risc0/**/*.rs"
+      - "pcp-risc0/**/Cargo.*"
+      - "pcp-zk/src/**"
+      - "pcp-zk/Cargo.*"
+      - "pcp-zk/scripts/**"
+      - ".github/workflows/**"
 
 permissions:
   contents: write
