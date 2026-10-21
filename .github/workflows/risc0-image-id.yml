@@ -46,8 +46,14 @@ jobs:
           cd pcp-risc0
           if [ "${{ matrix.build }}" != native ]; then export RISC0_USE_DOCKER=1; fi
           echo "RISC0_USE_DOCKER=${RISC0_USE_DOCKER:-}" | tee ../out/build-mode.txt
+          curl -fsS "https://hub.docker.com/v2/repositories/risczero/risc0-guest-builder/tags?page_size=30&ordering=last_updated" \
+            | jq -r '.results[] | "\(.name) \(.last_updated)"' > ../out/guest-builder-tags.txt || true
           set -o pipefail
-          cargo build --release 2>&1 | tail -n 60 | tee ../out/build.txt
+          # The guest first (fails fast), then the host. Full output kept.
+          cargo build --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }
+          grep -E "Docker context|Building ELF|^#[0-9]+ (DONE|ERROR)|risc0-guest-builder" ../out/build-methods-full.txt | head -n 40 || true
+          docker images --digests | grep -i risc0 | tee ../out/docker-images.txt || true
+          cargo build --release 2>&1 | tail -n 20 | tee ../out/build.txt
       - name: Image id and execute-only
         run: |
           cd pcp-risc0
