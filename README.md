@@ -55,6 +55,12 @@ Donations go to the bounty fund for the two challenges above. Lightning, as a re
 lno1zrxq8pjw7qjlm68mtp7e3yvxee4y5xrgjhhyf2fxhlphpckrvevh50u0q2jc9vhm8vl7me3zyzc5k0slwlv8msva9prweneujggq52w8vs99gqszscfw45da9ka0fcevnalar09mtyljd9ht6geglszsq0xugxhpuzqqqvlln9nv4qhm266r9nga8jqf7jcpkfl4jzp9dwlsk93k58t5j2m3dxv4wxnfmgwf8nswkaqyenng5prdjv7eqdlsmv8x2l5xnnkyya34967sl4scm7ysjx3702tgjxfekmzcf5gjgqqsqq79ml8ejgkdpr4y0xs2d67euc
 ```
 
-On-chain addresses will be added here.
+Bitcoin on-chain:
+
+```
+bc1qt48zk92qrrzmdf4kx8argtga6wnxhs2julnctg
+```
+
+<sub>Also accepted: ETH and BNB Chain `0xaA7c8810888eeCC0946AAaa8625D5Ce2dDC4E2F9`, Solana `GM6y46HGzvJiQy5mWeyRUccDaK9bbmMmSLAxkUPrpS2p`, Tron `TRkwRyx3uhiExgAd7NbisUsgrRvn9Wi9h2`.</sub>
 
 MIT license. Written by Julian Sugiarto, with help from contributors.
