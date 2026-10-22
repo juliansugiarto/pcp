@@ -5,7 +5,9 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use crate::job::{JobClass, SudokuJob};
-use crate::rail::Rail;
+use crate::proof::ProofBackend;
+use crate::protocol::BuyerPolicy;
+use crate::rail::{Rail, RAIL_BOLT11};
 
 use super::sim_file::SimFileRail;
 
@@ -200,5 +202,71 @@ pub fn logger(role: &'static str) -> impl FnMut(&str) {
             .map(|d| d.as_secs())
             .unwrap_or(0);
         println!("[{role} {t}] {l}");
+    }
+}
+
+/// The whole buyer process for one sudoku purchase, shared by `pcp-buy`
+/// (dev backend) and verify-only buyers with a real backend (e.g.
+/// `pcp-buy-risc0`). Takes pcp-buy's options. Exits 0 delivered,
+/// 10 refunded, 11 aborted, 1 stopped by an error or the deadline.
+pub fn run_buy(
+    a: &Args,
+    usage: &'static str,
+    make_backend: &dyn Fn() -> Box<dyn ProofBackend>,
+    allow_insecure_dev_backend: bool,
+) -> ! {
+    let job = sudoku(a.get("job").unwrap_or("sudoku9")).unwrap_or_else(|| fail(usage, "--job"));
+    let input = job
+        .parse_grid(a.get("puzzle").unwrap_or(DEFAULT_PUZZLE9))
+        .unwrap_or_else(|| fail(usage, "--puzzle does not parse"));
+    let mut rail = rail(a.req("rail"), a.flag("allow-sim"), usage);
+    let mut policy = if rail.rail_id() == RAIL_BOLT11 {
+        BuyerPolicy::lightning()
+    } else {
+        BuyerPolicy::default()
+    };
+    policy.allow_insecure_dev_backend = allow_insecure_dev_backend;
+    let wire = wire(a, usage);
+    let make_job = job_factory(job);
+    let mut log = logger("buyer");
+    let r = super::run_buyer(super::BuyerRun {
+        state_dir: a.path("state"),
+        wire,
+        rail: rail.as_mut(),
+        make_job: &make_job,
+        make_backend,
+        policy,
+        input,
+        max_price_msat: a.num("max-price-msat", 2_000_000),
+        poll: std::time::Duration::from_millis(a.num("poll-ms", 200)),
+        resend: std::time::Duration::from_secs(a.num("resend-secs", 5)),
+        offer_wait_secs: a.num("offer-wait-secs", 120),
+        deadline: std::time::Duration::from_secs(a.num("deadline-secs", 600)),
+        tamper_accept: a.flag("tamper-accept"),
+        log: &mut log,
+    });
+    match r {
+        Ok(s) => {
+            println!(
+                "buyer summary: {} {} spent_msat {}",
+                s.state,
+                s.reason.clone().unwrap_or_default(),
+                s.spent_msat
+            );
+            if let Some(hex_r) = &s.result_hex {
+                if let Ok(grid) = hex::decode(hex_r) {
+                    println!("{}", job.render(&grid));
+                }
+            }
+            std::process::exit(match s.state.as_str() {
+                "Delivered" => 0,
+                "Refunded" => 10,
+                _ => 11,
+            })
+        }
+        Err(e) => {
+            eprintln!("buyer stopped: {e}");
+            std::process::exit(1)
+        }
     }
 }

@@ -29,7 +29,8 @@
 #
 # CASE names: clean, repeat-accept, tampered-accept, buyer-gone,
 # buyer-node-down (LND only, needs BUYER_NODE_STOP and BUYER_NODE_START
-# commands), and every crash point (seller:offer:pre ...). Default: all.
+# commands), wrong-backend (not in the default set; see the case), and
+# every crash point (seller:offer:pre ...). Default: all but wrong-backend.
 # Prints one line per case and writes OUT/summary.txt. Exit 0 only if every
 # case passed. Needs bash, timeout and python3.
 
@@ -145,6 +146,13 @@ run_case() {
     # Paying with the price held (lookups fail), then finish when the node
     # is back.
     buyer-node-down) bp=buyer:pay:pre; bmode=node-down ;;
+    # The buyer pins another proof backend than the seller offers (e.g. a
+    # verify-only buyer with WRONG_BACKEND_ARGS="--image-id <other>"): it
+    # refuses the offer, nothing is proven or paid.
+    wrong-backend)
+      read -r -a extra <<<"${WRONG_BACKEND_ARGS:-}"; buyer_exit=11
+      expect_state=Aborted; expect_settled=0; expect_proofs=0
+      expect_reason=backend_not_accepted; brefusals=(--expect-refusals 1) ;;
     seller:*) sp=$name ;;
     buyer:*) bp=$name ;;
   esac

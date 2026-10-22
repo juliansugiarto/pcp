@@ -18,6 +18,7 @@ http = ["pcp/http"]
 [dependencies]
 methods = { path = "../methods" }
 pcp = { path = "../../pcp" }
+pcp-risc0-verify = { path = "../verify" }
 # `default-features = false` drops the `bonsai` feature: remote proving is
 # not even compiled in. A proving service would learn R and k.
 risc0-zkvm = { version = "3.0.6", default-features = false, features = ["prove"] }

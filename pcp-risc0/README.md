@@ -25,7 +25,7 @@ The guest input contains the result `R` and the key `k`. A remote proving servic
 - `risc0-zkvm` is used with `default-features = false, features = ["prove"]`. The `bonsai` feature is not compiled in.
 - The host uses `LocalProver` directly, not `default_prover()` (which follows the `RISC0_PROVER` and `BONSAI_API_KEY` variables).
 - Dev mode is explicitly turned off (`with_dev_mode(false)`), and fake receipts are rejected both when creating and when checking proofs.
-- Receipts are of the succinct kind (STARK, no trusted setup). Not Groth16.
+- Receipts are of the succinct kind (STARK, no trusted setup). Not Groth16. The verifier (`verify/`, shared by the host and the verify-only buyer `pcp-buy-risc0`) decodes nothing else: composite receipts nest without limit and a 200 KB one nested 10,000 deep overflows the stack of a plain `bincode` decode (checked 22 October 2026). See `IMAGE-ID.md`.
 
 ## `backend_id` and image id
 

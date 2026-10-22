@@ -10,9 +10,9 @@
 //!   directly instead of `default_prover()`, which would follow
 //!   `RISC0_PROVER` / `BONSAI_API_KEY` from the environment. A proving
 //!   service would learn R and k. Dev mode (fake receipts) is refused.
-//! - `verify` checks the public fields, rejects fake receipts, verifies the
-//!   receipt against the pinned image id, and compares the journal with the
-//!   buyer's own expected statement.
+//! - `verify` is `pcp_risc0_verify::verify_receipt`, the code a verify-only
+//!   buyer runs: public fields, size cap, no fake receipt, receipt valid for
+//!   the image id (exit code 0), journal equal to the expected statement.
 //!
 //! `backend_id` is `risc0-zkvm-3-succinct/<image id hex>`, so the offer
 //! (whose `offer_id` commits to `backend_id`) names the exact guest binary.
@@ -45,17 +45,12 @@ use pcp::crypto;
 use pcp::job::{JobClass, SudokuJob, TestSuiteJob};
 use pcp::lightning::Ledger;
 use pcp::mandate::{Agent, Mandate, MandateTerms, Role, SecretKey};
-use pcp::proof::{
-    check_bundle_public, ProofBackend, ProofBundle, ProveError, Statement, VerifyError, Witness,
-};
+use pcp::proof::{ProofBackend, ProofBundle, ProveError, Statement, VerifyError, Witness};
 use pcp::protocol::{BuyerPolicy, SellerConfig};
 use pcp::sale::{run_sale, SaleParams, SaleRails};
-use pcp::statement::{evaluate_with, Journal};
+use pcp::statement::evaluate_with;
 use rand::rngs::OsRng;
-use risc0_zkvm::{
-    Digest, Executor, ExecutorEnv, InnerReceipt, LocalProver, Prover, ProverOpts, Receipt,
-    VerifierContext,
-};
+use risc0_zkvm::{Digest, Executor, ExecutorEnv, InnerReceipt, LocalProver, Prover, ProverOpts};
 
 /// What one proof cost, for the cost table.
 #[derive(Clone, Debug, Default)]
@@ -66,10 +61,6 @@ pub struct ProveStats {
     pub prove_secs: f64,
     pub receipt_bytes: usize,
 }
-
-/// Largest receipt the verifier will deserialise (a succinct receipt is
-/// about 224 KB; see ../COSTS.md).
-const MAX_RECEIPT_BYTES: usize = 1 << 20;
 
 /// The RISC Zero proof backend. Local proving only.
 pub struct Risc0Backend {
@@ -87,9 +78,8 @@ impl Risc0Backend {
         let image_id = Digest::from(PCP_GUEST_ID);
         // ProofBackend::backend_id returns &'static str; one small leak per
         // process.
-        let backend_id: &'static str = Box::leak(
-            format!("risc0-zkvm-3-succinct/{}", hex::encode(image_id.as_bytes())).into_boxed_str(),
-        );
+        let backend_id: &'static str =
+            Box::leak(pcp_risc0_verify::backend_id_for(&image_id).into_boxed_str());
         Risc0Backend {
             image_id,
             backend_id,
@@ -174,25 +164,8 @@ impl ProofBackend for Risc0Backend {
         statement: &Statement,
         bundle: &ProofBundle,
     ) -> Result<(), VerifyError> {
-        check_bundle_public(self.backend_id, job, statement, bundle)?;
-        // A succinct receipt is about 224 KB. Refuse anything far larger
-        // before deserialising bytes from a stranger.
-        if bundle.proof.len() > MAX_RECEIPT_BYTES {
-            return Err(VerifyError::ProofMalformed);
-        }
-        let receipt: Receipt =
-            bincode::deserialize(&bundle.proof).map_err(|_| VerifyError::ProofMalformed)?;
-        if matches!(receipt.inner, InnerReceipt::Fake(_)) {
-            return Err(VerifyError::ReceiptInvalid);
-        }
-        let ctx = VerifierContext::default().with_dev_mode(false);
-        receipt
-            .verify_with_context(&ctx, self.image_id)
-            .map_err(|_| VerifyError::ReceiptInvalid)?;
-        let journal =
-            Journal::from_bytes(&receipt.journal.bytes).ok_or(VerifyError::ProofMalformed)?;
-        journal.check_expected(&statement.journal())?;
-        Ok(())
+        // The same checks a verify-only buyer runs (pcp-risc0-verify).
+        pcp_risc0_verify::verify_receipt(self.image_id, self.backend_id, job, statement, bundle)
     }
 }
 

@@ -1,0 +1,26 @@
+[package]
+name = "pcp-risc0-verify"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false
+description = "Verify-only RISC Zero backend for PCP/0 buyers: no guest build, no prover, no rzup, no Docker."
+
+[[bin]]
+name = "pcp-buy-risc0"
+path = "src/bin/pcp_buy_risc0.rs"
+
+[features]
+# Real Lightning (an LND node) instead of the simulated network file.
+lnd = ["pcp/lnd"]
+# The HTTP binding of the wire (--seller-url).
+http = ["pcp/http"]
+
+[dependencies]
+pcp = { path = "../../pcp" }
+# Verification only: no `client` (no rzup, no risc0-build, no r0vm), no
+# `prove`, no `bonsai`.
+risc0-zkvm = { version = "3.0.6", default-features = false, features = ["std"] }
+bincode = "1.3"
+serde = { version = "1", features = ["derive"] }
+hex = "0.4"

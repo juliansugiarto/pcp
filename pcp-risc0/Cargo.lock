@@ -2647,8 +2647,20 @@ dependencies = [
  "libc",
  "methods",
  "pcp",
+ "pcp-risc0-verify",
  "rand 0.8.8",
  "risc0-zkvm",
+]
+
+[[package]]
+name = "pcp-risc0-verify"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "hex",
+ "pcp",
+ "risc0-zkvm",
+ "serde",
 ]
 
 [[package]]

@@ -1,0 +1,105 @@
+# S-C: the verify-only RISC Zero buyer (pcp-risc0/verify, binary
+# pcp-buy-risc0) builds on a clean runner without the RISC Zero toolchain
+# (no rzup, no Docker, no guest build), in the time a stranger would wait.
+# real-sale.yml runs it in a sale. Results go to the `ci-results` branch
+# under verify-buyer/<UTC ts>/ and to workflow artifacts, never to main.
+name: verify-buyer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pcp/src/**"
+      - "pcp/Cargo.*"
+      - "pcp-risc0/verify/**"
+      - "pcp-risc0/Cargo.*"
+      - ".github/workflows/verify-buyer.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verify-buyer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Machine
+        run: |
+          mkdir -p out
+          { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; nproc; rustc --version; } | tee out/machine.txt
+      - name: No RISC Zero toolchain on this runner
+        id: clean
+        continue-on-error: true
+        run: |
+          { command -v rzup && echo "rzup present"; command -v r0vm && echo "r0vm present";
+            [ -d "$HOME/.risc0" ] && echo "~/.risc0 present"; true; } | tee out/toolchain.txt
+          ! grep -q present out/toolchain.txt && echo "none found" | tee -a out/toolchain.txt
+      - name: Dependencies have no prover, rzup or guest builder
+        id: tree
+        continue-on-error: true
+        run: |
+          cd pcp-risc0
+          set -o pipefail
+          cargo tree -p pcp-risc0-verify --features lnd,http -e normal,build --prefix none | sed 's/ (\*)$//' | sort -u > ../out/deps.txt
+          wc -l < ../out/deps.txt | tee ../out/deps-count.txt
+          ! grep -E "^(rzup|risc0-build|methods|bonsai-sdk|risc0-circuit-rv32im-sys) " ../out/deps.txt
+      - name: One pinned image id
+        id: pin
+        continue-on-error: true
+        run: |
+          cd pcp-risc0
+          a=$(grep -A1 'pub const PINNED_IMAGE_ID' verify/src/lib.rs | grep -oE '[0-9a-f]{64}')
+          b=$(grep -m1 -oE '^[0-9a-f]{64}$' IMAGE-ID.md)
+          { echo "verify/src/lib.rs: $a"; echo "IMAGE-ID.md:       $b"; } | tee ../out/image-id.txt
+          [ -n "$a" ] && [ "$a" = "$b" ]
+      - name: Build (release, from scratch) and test
+        id: build
+        continue-on-error: true
+        run: |
+          cd pcp-risc0
+          set -o pipefail
+          s=$(date +%s)
+          cargo build --release -p pcp-risc0-verify --features lnd,http 2>&1 | tail -n 3
+          secs=$(( $(date +%s) - s ))
+          echo "build_secs: $secs" | tee ../out/build-time.txt
+          cargo test --release -p pcp-risc0-verify 2>&1 | grep -E "^test |test result" | tee ../out/test.txt
+          ./target/release/pcp-buy-risc0 --help 2>&1 | head -n 3 | tee ../out/help.txt || true
+          ls -l target/release/pcp-buy-risc0 | tee -a ../out/build-time.txt
+          # A stranger should not wait more than 15 minutes.
+          [ "$secs" -le 900 ] || { echo "build took $secs s, over 900"; exit 1; }
+      - name: Collect
+        if: always()
+        run: |
+          { echo "clean_runner: ${{ steps.clean.outcome }}"; echo "deps: ${{ steps.tree.outcome }}";
+            echo "pin: ${{ steps.pin.outcome }}";
+            echo "build: ${{ steps.build.outcome }}"; cat out/build-time.txt 2>/dev/null; } | tee out/outcomes.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verify-buyer-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results
+        if: always()
+        run: |
+          git config user.name "pcp-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="verify-buyer/$(date -u +%Y%m%dT%H%M%SZ)"
+          for i in 1 2 3 4 5; do
+            git fetch origin +refs/heads/ci-results:refs/remotes/origin/ci-results 2>/dev/null || true
+            git checkout -f -B ci-results origin/ci-results 2>/dev/null \
+              || { git checkout -f --orphan ci-results && git rm -rq --cached .; }
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add verify-buyer && git commit -qm "verify-buyer run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results && break
+            sleep $((RANDOM % 20 + 5))
+          done
+      - name: Fail if the runner had the toolchain, a forbidden dependency appeared, the ids differ, or the build failed or was slow
+        if: steps.clean.outcome != 'success' || steps.tree.outcome != 'success' || steps.pin.outcome != 'success' || steps.build.outcome != 'success'
+        run: |
+          cat out/outcomes.txt
+          exit 1

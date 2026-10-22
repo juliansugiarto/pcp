@@ -36,8 +36,6 @@ jobs:
       BTC_IMAGE: polarlightning/bitcoind:28.0
       OUT: out
       CREDS: creds
-      # The reproducible image id from risc0-image-id.yml (two Docker builds).
-      EXPECTED_IMAGE_ID: cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
     steps:
       - uses: actions/checkout@v4
       - name: Machine
@@ -79,6 +77,9 @@ jobs:
       - name: Build pcp-risc0 --features lnd,http (guest in Docker)
         run: |
           cd pcp-risc0
+          # The pinned image id (IMAGE-ID.md): what the verify-only buyer
+          # accepts and what risc0-image-id.yml reproduces.
+          EXPECTED_IMAGE_ID=$(grep -A1 'pub const PINNED_IMAGE_ID' verify/src/lib.rs | grep -oE '[0-9a-f]{64}')
           export RISC0_USE_DOCKER=1
           echo "RISC0_USE_DOCKER=$RISC0_USE_DOCKER" | tee ../out/build-mode.txt
           set -o pipefail
@@ -126,11 +127,17 @@ jobs:
           bash .github/lnd-regtest/sale-state.sh after-testsuite
           grep -h "cost-row" out/sale-testsuite.txt | sed 's/^\[[0-9:]*\] //' | tee out/cost-row-testsuite.txt || true
           [ "$rc" = 0 ] || { echo "testsuite sale exit $rc"; exit 1; }
+      - name: Build the verify-only buyer (pcp-buy-risc0)
+        run: |
+          cd pcp-risc0
+          set -o pipefail
+          cargo build --release -p pcp-risc0-verify --features lnd,http > ../out/build-verify-full.txt 2>&1 || { tail -n 150 ../out/build-verify-full.txt; exit 1; }
+          tail -n 2 ../out/build-verify-full.txt
       - name: Build pcp-setup and pcp-audit
         run: |
           cd pcp
           cargo build --features lnd --bins 2>&1 | tail -n 3
-      - name: Two processes with real proofs (clean, and the seller killed after invoicing)
+      - name: Two processes with real proofs (clean, seller killed after invoicing; directory, HTTP, verify-only buyer)
         id: twoproc
         continue-on-error: true
         run: |
@@ -149,7 +156,14 @@ jobs:
           # Over HTTP too (SPEC 5.5, loopback): the seller loop is busy for the
           # whole proof, so the buyer's accepts get 202 and it asks again.
           WIRE=http bash pcp/tools/crash-matrix.sh twoproc-http clean seller:invoice:post 2>&1 | tee out/two-process-http.txt || rc=1
-          for m in twoproc:two-process twoproc-http:two-process-http; do
+          # The verify-only buyer (pcp-buy-risc0, no RISC Zero toolchain) over
+          # HTTP: a clean sale, and the same buyer pinned to another image id,
+          # which must refuse the offer before anything is proven.
+          other_id=$(cd pcp-risc0 && grep -A1 'pub const PINNED_IMAGE_ID' verify/src/lib.rs | grep -oE '[0-9a-f]{64}' | tr '0-9a-f' '1-9a-f0')
+          BUY_BIN=$PWD/pcp-risc0/target/release/pcp-buy-risc0 BUY_PRE="" WIRE=http \
+            WRONG_BACKEND_ARGS="--image-id $other_id" \
+            bash pcp/tools/crash-matrix.sh twoproc-verify clean wrong-backend 2>&1 | tee out/two-process-verify.txt || rc=1
+          for m in twoproc:two-process twoproc-http:two-process-http twoproc-verify:two-process-verify; do
             for d in ${m%%:*}/*/; do
               [ -d "$d" ] || continue
               n=$(basename "$d"); mkdir -p "out/${m##*:}/$n"

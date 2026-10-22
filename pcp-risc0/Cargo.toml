@@ -3,7 +3,7 @@
 # the `cargo risczero new` template of risc0 3.0.6 (crates.io, 2026-07-17).
 [workspace]
 resolver = "2"
-members = ["host", "methods"]
+members = ["host", "methods", "verify"]
 
 # Always optimize; building and running the guest takes much longer without optimization.
 [profile.dev]
