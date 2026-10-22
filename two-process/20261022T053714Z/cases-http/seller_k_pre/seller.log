@@ -1,0 +1,18 @@
+listening on http://127.0.0.1:18709 (put a TLS proxy in front)
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+[seller 1792647407] seller up: 0 offers, 0 sales on record
+[seller 1792647408] offer 960ee3c53ce5 sent
+[seller 1792647408] accept 960ee3c53ce5 : proving
+[seller 1792647408] proved 960ee3c53ce5 in 0.001 s
+PCP_CRASH_AT=seller:k:pre: aborting
+timeout: the monitored command dumped core
+--- restarted after seller:k:pre ---
+listening on http://127.0.0.1:18709 (put a TLS proxy in front)
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+[seller 1792647408] seller up: 1 offers, 0 sales on record
+[seller 1792647408] proved 960ee3c53ce5 in 0.001 s
+[seller 1792647408] invoice 960ee3c53ce5 sent
+[seller 1792647409] bundle 960ee3c53ce5 sent again
+[seller 1792647409] SETTLED: revealed k, 1000000 msat
+[seller 1792647409] seller done: 1 sales over, committed 1000000 msat
+seller summary: settled 1 cancelled 0 refused 0 proofs 1 committed_msat 1000000
