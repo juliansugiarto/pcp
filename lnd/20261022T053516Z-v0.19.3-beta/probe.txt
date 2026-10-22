@@ -1,0 +1,11 @@
+k=d92cad4b0a389128747d67feb3d02abf1b2b0750e66020816b4adf1610077be2 H=6948d301cc5775d4a2d8d9c245c6482ffe20b3d40763002a98e5ca82eddad457
+{"payment_request":"lnbcrt10u1p4dngygpp5d9ydxqwv2a6afgkcm8pyt3jg9llzpv75qa3sq25cuh9g9mw663tsdqqcqpcxqzjcsp5rya75sh54yp86qvumrg9qnxjv9rqh9jjerll5w4pdkwhkffqvuxs9qxpqysgq3wx3gwrwuqhveke44wnjzevqufq5qh4dypnn79m73fast0wxxgdhwntgd4amvlm9svwvkukqsjhw96xends6v8duumexqvs6v0twf3gpk3kpzh", "add_index":"53", "payment_addr":"GTvqQvSpAn0BnNjQUEzSYUYLllLI//o6oW2deyUgZw0="}
+curl: (28) Operation timed out after 6002 milliseconds with 2283 bytes received
+stream lines: 2
+{"status":"IN_FLIGHT","htlcs":[]}
+{"status":"IN_FLIGHT","htlcs":[{"status":"IN_FLIGHT","attempt_time_ns":"1792647304898779053","total_time_lock":140}]}
+{"state":"ACCEPTED","htlcs":[{"state":"ACCEPTED","amt_msat":"1000000","expiry_height":140,"accept_height":113}]}
+{"status":"IN_FLIGHT","payment_preimage":"0000000000000000000000000000000000000000000000000000000000000000","nhtlcs":1}
+{}
+{"status":"SUCCEEDED","payment_preimage":"d92cad4b0a389128747d67feb3d02abf1b2b0750e66020816b4adf1610077be2","nhtlcs":1,"htlc_resolve":["1792647311928053849"]}
+{"state":"SETTLED","settled":true,"amt_paid_msat":"1000000","htlcs":[{"state":"SETTLED","amt_msat":"1000000"}]}
