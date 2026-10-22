@@ -82,6 +82,11 @@ impl TestSuiteJob {
     }
 
     /// Decode a test suite; `None` if malformed or out of bounds.
+    // clippy 1.99 suggests `as_chunks::<16>()`. This function is compiled
+    // into the zkVM guest, so changing it would change the guest binary and
+    // its reproducible image id; a lint attribute does not. Rust 1.97 does
+    // not know the lint, hence `unknown_lints`.
+    #[allow(unknown_lints, clippy::chunks_exact_to_as_chunks)]
     pub fn decode_suite(bytes: &[u8]) -> Option<Vec<(i64, i64)>> {
         let count = u32::from_be_bytes(bytes.get(..4)?.try_into().ok()?) as usize;
         if count == 0 || count > MAX_VECTORS || bytes.len() != 4 + 16 * count {
