@@ -679,23 +679,45 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
                 }
             }
             BuyerState::InvoiceAccepted { .. } => {
-                if let Err(e) = buyer.begin_pay(run.rail.rail_id(), run.rail.now()) {
+                // P0, once, saved before any payment of ours; then pay. A
+                // refusal or an error falls through to the loop's tail
+                // (timeouts, deadline, sleep), never `continue`: a lookup
+                // error is not terminal and must not spin.
+                let ready = buyer.payment_hash_checked()
+                    || match buyer.check_payment_hash(run.rail) {
+                        Ok(()) => {
+                            save(&buyer)?;
+                            true
+                        }
+                        Err(e) => {
+                            save(&buyer)?;
+                            (run.log)(&format!("not paying: {}", e.code()));
+                            false
+                        }
+                    };
+                let ready = ready
+                    && match buyer.begin_pay(run.rail.rail_id(), run.rail.now()) {
+                        Ok(()) => true,
+                        Err(e) => {
+                            save(&buyer)?;
+                            (run.log)(&format!("not paying: {}", e.code()));
+                            false
+                        }
+                    };
+                if ready {
                     save(&buyer)?;
-                    (run.log)(&format!("not paying: {}", e.code()));
-                    continue;
-                }
-                save(&buyer)?;
-                crash_point("buyer:paying:post");
-                match buyer.send_payment(run.rail) {
-                    Ok(()) => {
-                        crash_point("buyer:pay:pre");
-                        save(&buyer)?;
-                        crash_point("buyer:pay:post");
-                        (run.log)("paid: HTLC to H on its way");
-                    }
-                    Err(e) => {
-                        save(&buyer)?;
-                        (run.log)(&format!("payment not sent: {}", e.code()));
+                    crash_point("buyer:paying:post");
+                    match buyer.send_payment(run.rail) {
+                        Ok(()) => {
+                            crash_point("buyer:pay:pre");
+                            save(&buyer)?;
+                            crash_point("buyer:pay:post");
+                            (run.log)("paid: HTLC to H on its way");
+                        }
+                        Err(e) => {
+                            save(&buyer)?;
+                            (run.log)(&format!("payment not sent: {}", e.code()));
+                        }
                     }
                 }
             }

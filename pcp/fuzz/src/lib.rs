@@ -588,8 +588,12 @@ struct Edge {
 }
 
 fn judge(e: &Edge) -> Value {
+    judge_offer(e, &honest().offer, "boundary")
+}
+
+fn judge_offer(e: &Edge, offer_json: &Value, label: &str) -> Value {
     let h = honest();
-    let offer: Offer = serde_json::from_value(h.offer.clone()).expect("offer");
+    let offer: Offer = serde_json::from_value(offer_json.clone()).expect("offer");
     let bundle: ProofBundle = serde_json::from_value(h.bundle.clone()).expect("bundle");
     let binding: InvoiceBinding = serde_json::from_value(h.binding.clone()).expect("binding");
     let a = agent_with(
@@ -630,9 +634,9 @@ fn judge(e: &Edge) -> Value {
         },
     };
     serde_json::json!({
-        "changed": ["boundary"],
+        "changed": [label],
         "request": serde_json::to_value(&req).expect("request"),
-        "offer": h.offer,
+        "offer": offer_json,
         "bundle": h.bundle,
         "binding": h.binding,
         "now": e.now,
@@ -698,4 +702,134 @@ pub fn boundary_cases() -> Vec<Value> {
         }
     }
     out
+}
+
+/// The honest offer under a seller mandate with other terms, signed for
+/// real (principal and agent keys of the seller in [`seller`]), so the
+/// buyer's mandate checks after the signatures are reached: role, expiry,
+/// scope, self-owned, version, payout node, per-deal maximum (SPEC 2.1).
+pub fn mandate_cases() -> Vec<Value> {
+    let h = honest();
+    // The seller's keys, regenerated as `agent(2, ...)` makes them.
+    let mut rng = StdRng::seed_from_u64(2);
+    let principal = SecretKey::generate(&mut rng);
+    let key = SecretKey::generate(&mut rng);
+    let honest_terms = || MandateTerms {
+        role: Role::Seller,
+        scope: vec![job().spec_hash()],
+        cap_msat: 10_000_000,
+        per_deal_max_msat: 2_000_000,
+        payout_node: "bob-node".to_string(),
+        expires_at: 86_400,
+    };
+    let offer: Offer = serde_json::from_value(h.offer.clone()).expect("offer");
+    let mut cases: Vec<(&str, Mandate)> = Vec::new();
+    let sign = |principal: &SecretKey, t: MandateTerms| {
+        Mandate::sign(
+            principal,
+            key.public_key(),
+            t,
+            &mut StdRng::seed_from_u64(7),
+        )
+    };
+    cases.push(("mandate:honest", sign(&principal, honest_terms())));
+    cases.push((
+        "mandate:role",
+        sign(
+            &principal,
+            MandateTerms {
+                role: Role::Buyer,
+                ..honest_terms()
+            },
+        ),
+    ));
+    for (name, at) in [
+        ("mandate:expires_at_now", NOW),
+        ("mandate:expires_at_now+1", NOW + 1),
+    ] {
+        cases.push((
+            name,
+            sign(
+                &principal,
+                MandateTerms {
+                    expires_at: at,
+                    ..honest_terms()
+                },
+            ),
+        ));
+    }
+    cases.push((
+        "mandate:scope",
+        sign(
+            &principal,
+            MandateTerms {
+                scope: vec![[9; 32]],
+                ..honest_terms()
+            },
+        ),
+    ));
+    cases.push((
+        "mandate:scope_empty",
+        sign(
+            &principal,
+            MandateTerms {
+                scope: vec![],
+                ..honest_terms()
+            },
+        ),
+    ));
+    cases.push((
+        "mandate:payout_node",
+        sign(
+            &principal,
+            MandateTerms {
+                payout_node: "other-node".into(),
+                ..honest_terms()
+            },
+        ),
+    ));
+    for (name, max) in [
+        ("mandate:per_deal_price-1", PRICE - 1),
+        ("mandate:per_deal_price", PRICE),
+    ] {
+        cases.push((
+            name,
+            sign(
+                &principal,
+                MandateTerms {
+                    per_deal_max_msat: max,
+                    ..honest_terms()
+                },
+            ),
+        ));
+    }
+    // The agent as its own principal.
+    cases.push(("mandate:self_owned", sign(&key, honest_terms())));
+    // Another version, re-signed by the principal.
+    let mut v = sign(&principal, honest_terms());
+    v.version = "PCP/1".into();
+    v.principal_sig = principal.sign(&v.mandate_id());
+    cases.push(("mandate:version", v));
+    let e = Edge {
+        now: NOW,
+        max_price_msat: 2_000_000,
+        max_deal_msat: BuyerPolicy::default().max_deal_msat,
+        htlc_secs: BuyerPolicy::default().htlc_secs,
+        min_invoice_remaining_secs: BuyerPolicy::default().min_invoice_remaining_secs,
+        allow_insecure: true,
+        own_per_deal_msat: 2_000_000,
+        own_cap_msat: 10_000_000,
+    };
+    cases
+        .into_iter()
+        .map(|(name, m)| {
+            let sig = key.sign(&offer.auth_message(&m.mandate_id()));
+            let o = Offer {
+                mandate: Some(m),
+                agent_sig: Some(sig),
+                ..offer.clone()
+            };
+            judge_offer(&e, &serde_json::to_value(&o).expect("offer"), name)
+        })
+        .collect()
 }

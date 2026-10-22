@@ -48,6 +48,9 @@ jobs:
           # every verdict of the Rust buyer on the corpus must match.
           echo "## independent checks (pcp/tools/independent)" | tee -a ../out/cargo-test.txt
           python3 -I tools/independent/vectors_check.py | tail -n 1 | tee -a ../out/cargo-test.txt
+          # Appendix A in Python too (tools/vectors.py, 22 vectors); uses the
+          # runner's system `cryptography`, nothing installed.
+          python3 -I tools/vectors.py | tail -n 1 | tee -a ../out/cargo-test.txt
           python3 -I tools/independent/compare.py "$RUNNER_TEMP/corpus.jsonl" | tee ../out/independent.txt | grep -E "^cases|^agree|^rust_|^we_|^same_|^diff_|^ignored" | tee -a ../out/cargo-test.txt
           echo "## cargo test --locked --features http" | tee -a ../out/cargo-test.txt
           cargo test --locked --features http 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee -a ../out/cargo-test.txt

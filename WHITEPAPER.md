@@ -2,7 +2,7 @@
 
 **Julian Sugiarto**  
 github.com/juliansugiarto/pcp  
-22 October 2026
+23 October 2026
 
 **Abstract.** A payment that settles if and only if the seller has proven, before payment, that the work is correct would let strangers trade without an escrow agent, a platform or a court. Bitcoin made payments irreversible and so protected sellers; it left buyers to "routine escrow mechanisms" that were never specified. We specify one. The seller encrypts the result under a fresh key k, proves in zero knowledge that the ciphertext decrypts under k to a result that passes the buyer's predicate and that SHA256(k) equals a Lightning payment hash, and the buyer pays an invoice to that hash. Claiming the payment reveals k, which is the decryption key, so neither side can hold the other's part without giving up its own. Every message is bound by hash to an offer, a buyer nonce and a backend identifier, so a proof cannot be replayed or re-priced. Every agent acts under a human-signed mandate with a scope, a cap and an expiry, and is paid into its principal's node, so software can trade without being able to fund itself. Only proof systems with no trusted setup are accepted, which removes the known attack on the 2016 construction. A full sale with a real zkVM proof has settled between two real Lightning nodes on regtest in continuous integration: 62 to 102 s to prove a 9x9 sudoku on a 4-vCPU runner, about 0.02 s to verify, 224 KB receipt, key in the buyer's hands about 0.5 s after paying. Nothing here is audited.
 
@@ -14,7 +14,7 @@ Exchange between strangers needs one of two things: simultaneity, so that neithe
 
 Any trade between strangers carries three risks: (1) the counterparty does not deliver or does not pay; (2) the good is not what was promised; (3) the seller's right to the good is not clean, and a third party takes it back later. Proof-contingent payment (PCP) removes risk 1 entirely. It removes risk 2 when the promise can be written as a predicate that a program can check. It does nothing about risk 3, and neither can any proof system, because the facts that decide it live outside the trade.
 
-The mechanism is not new. Maxwell described zero-knowledge contingent payment (ZKCP) in 2011 [2], and in February 2016 Maxwell bought a sudoku solution from Bowe for 0.10 BTC on the Bitcoin mainnet, live at Financial Cryptography [3, 4]. In 2017 Campanelli, Gennaro, Goldfeder and Nizzardo showed that the 2016 construction leaks part of the good to a buyer who generates the proof system's common reference string maliciously [5]. What this paper adds is a written protocol that binds proof, offer, buyer and invoice together; a mandate layer so that software agents can trade under a human's limits; a rule that admits only proof systems with nothing to poison; and measured numbers from a sale that settled over real Lightning nodes.
+The mechanism is not new. Maxwell described zero-knowledge contingent payment (ZKCP) in 2011 [2], and in February 2016 Maxwell bought a sudoku solution from Bowe for 0.10 BTC on the Bitcoin mainnet, live at Financial Cryptography [3, 4]. In 2017 Campanelli, Gennaro, Goldfeder and Nizzardo showed that the 2016 construction leaks part of the good to a buyer who generates the proof system's common reference string maliciously [5]. In November 2024 Conduition described the same construction over Lightning, with the HTLC preimage as the decryption key and a zkVM proof that the ciphertext decrypts to a valid solution, with pseudocode and timings but no implementation [17]; we found that note only after this work was written, and should have cited it from the start. What this paper adds is a written protocol that binds proof, offer, buyer and invoice together; a mandate layer so that software agents can trade under a human's limits; a rule that admits only proof systems with nothing to poison; and measured numbers from a sale that settled over real Lightning nodes.
 
 ## 2. Proof-contingent payment
 
@@ -150,7 +150,7 @@ The two backends are not measured on the same machine and the comparison is roug
 
 **Not quantum-resistant as a whole.** A large quantum computer breaks elliptic-curve discrete logarithms: Lightning and Bitcoin signatures (a bigger and older target), Ed25519 mandates, and the soundness of discrete-log proof systems including the halo2 backend, so such a seller could be paid for nothing. What holds, as far as is known: SHA-256 for H and the hash-based soundness of STARKs without a Groth16 wrapper, at about 128 bits for a 256-bit key under Grover. Mitigation is agility: a buyer policy can refuse discrete-log backends by backend_id, and mandates can move to a post-quantum signature in a later version. Settlement cannot be more quantum-resistant than the rail it settles on.
 
-**Not audited.** The specification, the Rust implementation (66 tests, 73 with the LND rail, plus 4 run against real LND nodes), the zkVM guest and the halo2 circuit have been reviewed and tested inside the project. Nobody outside it has audited any of them. None of the rules in the specification is enforceable against a modified client; they are defaults, enforced by counterparties' refusal.
+**Not audited.** The specification, the Rust implementation (113 tests, 132 with the LND rail and HTTP binding, plus 4 run against real LND nodes, as of 23 October 2026), the zkVM guest and the halo2 circuit have been reviewed and tested inside the project. Nobody outside it has audited any of them. None of the rules in the specification is enforceable against a modified client; they are defaults, enforced by counterparties' refusal.
 
 ## 9. Conclusion
 
@@ -189,3 +189,5 @@ We have specified the half of Nakamoto's sentence that was left as an exercise. 
 [15] CVE-2026-54496 / GHSA-ww9q-8r59-xv46, soundness flaw in the variable-base scalar multiplication gadget of halo2_gadgets, published 6 July 2026. https://osv.dev/vulnerability/GHSA-ww9q-8r59-xv46
 
 [16] J. Sugiarto, "PCP/0: Proof-Contingent Payment," specification and reference implementation, 2026. https://github.com/juliansugiarto/pcp (pcp/SPEC.md, pcp-risc0/COSTS.md, pcp-zk/COSTS.md, pcp-zk/review/2026-10-21-failure-report.md)
+
+[17] Conduition, "Verifiably Buy Solutions to NP Problems with Bitcoin," 2 November 2024. https://conduition.io/bitcoin/zkpreimage/

@@ -1041,7 +1041,54 @@ fn conformance_vectors() {
     m.principal_sig = principal.sign(&m.mandate_id());
     assert_eq!(hex::encode(m.principal_sig.0), VECTORS[12]);
     assert_eq!(m.verify_signature(), Ok(()));
+
+    // The signed messages (SPEC 3.2), over vectors 9 and 12, and the
+    // agent's signature over accept_auth.
+    let req = Request {
+        version: "PCP/0".into(),
+        job_id: "pcp/sudoku/v0".into(),
+        spec_hash: SudokuJob::four().spec_hash(),
+        input: vec![],
+        input_commitment: [0x33; 32],
+        buyer_nonce: [0x44; 32],
+        max_price_msat: 2_000_000,
+        mandate_spent_msat: 0,
+        mandate: None,
+        agent_sig: None,
+    };
+    let mid = m.mandate_id();
+    let acc = Accept {
+        version: "PCP/0".into(),
+        offer_id: offer.offer_id(),
+        mandate: None,
+        agent_sig: None,
+    };
+    let got = [
+        hex::encode(req.request_id()),
+        hex::encode(req.auth_message(&mid)),
+        hex::encode(offer.auth_message(&mid)),
+        hex::encode(acc.auth_message(&mid)),
+        hex::encode(agent.sign(&acc.auth_message(&mid)).0),
+    ];
+    if std::env::var("PCP_PRINT_VECTORS").is_ok() {
+        for (i, g) in got.iter().enumerate() {
+            eprintln!("vector {}: {g}", 18 + i);
+        }
+    }
+    for (i, g) in got.iter().enumerate() {
+        assert_eq!(g, AUTH_VECTORS[i], "vector {}", 18 + i);
+    }
 }
+
+/// SPEC Appendix A, vectors 18 to 22 (request_id, request_auth, offer_auth,
+/// accept_auth, agent_sig over accept_auth).
+const AUTH_VECTORS: [&str; 5] = [
+    "4457df6cabb8d893ee67b366c4620da65805c18abdcc8cbc5146f23496f9a530",
+    "fc1be7bd4ffd3f93b9841885b3b7d6abc6bd5df4faebccc81a244c07fd00e02c",
+    "6ff441b26e43d3bc20f7c79d3105b071089d0a323f7ff9d425e015a38f7ca499",
+    "cbc1d0d5d6eb01f84a175b27130d8208388cf7fd21c3944354fb4ec8e4e41143",
+    "00895f8953ac55c3620fe613e6e45cd4e042d4ed925e11bca7e1e2f54e85e78acb4cc68a1780fb43878011c35fe3f76828c85701dae160b8e90af3330b67a705",
+];
 
 /// Also recomputed independently by `tools/vectors.py` (hashlib +
 /// `cryptography`'s ChaCha20Poly1305), which checks every vector in SPEC.md.
@@ -1976,6 +2023,9 @@ struct FlakyRail<'a> {
     cancels: u32,
     /// Report another rail id than the ledger's.
     rail_id: Option<&'static str>,
+    /// `lookup_payment` reports this instead of asking the ledger (another
+    /// payment to the same hash from this node).
+    status: Option<crate::rail::PaymentStatus>,
 }
 
 impl<'a> FlakyRail<'a> {
@@ -1985,6 +2035,7 @@ impl<'a> FlakyRail<'a> {
             pay_lost_reply: false,
             pay_fails: false,
             lookup_fails: false,
+            status: None,
             cancels: 0,
             rail_id: None,
         }
@@ -2051,8 +2102,85 @@ impl crate::rail::Rail for FlakyRail<'_> {
         if self.lookup_fails {
             return Err(crate::rail::RailError::Node("node unreachable".into()));
         }
+        if let Some(st) = &self.status {
+            return Ok(st.clone());
+        }
         self.inner.lookup_payment(payer, h)
     }
+}
+
+#[test]
+fn a_payment_hash_the_node_already_paid_is_refused_before_paying() {
+    use crate::rail::PaymentStatus;
+    // In flight or settled from this node: refused at P0, nothing reserved,
+    // nothing paid, no receipt.
+    for st in [
+        PaymentStatus::InFlight,
+        PaymentStatus::Settled {
+            preimage: [1; 32],
+            at: 1,
+        },
+    ] {
+        let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+        fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+        let mut rail = FlakyRail::new(&mut fx.ledger);
+        rail.status = Some(st);
+        let log_before = fx.bp.agent.log_len();
+        assert_eq!(fx.buyer.pay_via(&mut rail), Err(PcpError::PaymentHashSeen));
+        assert_eq!(fx.buyer.state().name(), "Aborted");
+        // Logged as a refusal for the principal.
+        assert_eq!(fx.bp.agent.log_len(), log_before + 1);
+        assert_eq!(fx.bp.agent.committed_msat(), 0);
+        assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+        assert_eq!(PcpError::PaymentHashSeen.code(), "payment_hash_seen");
+    }
+    // A failed earlier payment does not count.
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    {
+        let mut rail = FlakyRail::new(&mut fx.ledger);
+        rail.status = Some(PaymentStatus::Failed { at: 1 });
+        fx.buyer.check_payment_hash(&mut rail).unwrap();
+    }
+    assert!(fx.buyer.payment_hash_checked());
+    // A lookup error changes nothing; P0 is asked again.
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    {
+        let mut rail = FlakyRail::new(&mut fx.ledger);
+        rail.lookup_fails = true;
+        assert!(fx.buyer.check_payment_hash(&mut rail).is_err());
+    }
+    assert!(!fx.buyer.payment_hash_checked());
+    assert_eq!(fx.buyer.state().name(), "InvoiceAccepted");
+    // No payment without P0.
+    assert!(matches!(
+        fx.buyer.begin_pay(crate::rail::RAIL_SIM, 0),
+        Err(PcpError::WrongState(_))
+    ));
+}
+
+#[test]
+fn p0_runs_once_so_our_own_payment_is_never_taken_for_a_foreign_one() {
+    // The race Fable found: our payment reaches the node but the call and
+    // the lookup report nothing, so the reservation is released and the
+    // state is InvoiceAccepted again, while our HTLC is in flight. P0 must
+    // not run again and refuse our own payment; the retry finds it.
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    fx.buyer.check_payment_hash(&mut fx.ledger).unwrap();
+    {
+        let mut rail = FlakyRail::new(&mut fx.ledger);
+        rail.pay_fails = true;
+        assert!(fx.buyer.pay_via(&mut rail).is_err());
+    }
+    assert_eq!(fx.buyer.state().name(), "InvoiceAccepted");
+    // Now a lookup would say "in flight" (as if ours had gone out).
+    let mut rail = FlakyRail::new(&mut fx.ledger);
+    rail.status = Some(crate::rail::PaymentStatus::InFlight);
+    assert_eq!(fx.buyer.pay_via(&mut rail), Ok(()));
+    assert_eq!(fx.buyer.state().name(), "Paid");
+    assert!(fx.buyer.payment_hash_checked());
 }
 
 #[test]
@@ -2062,6 +2190,8 @@ fn pay_with_lost_reply_and_unreachable_node_keeps_the_reservation() {
     // is out. Once the node answers, the payment is found and stands.
     let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
     fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    // P0 while the node still answers.
+    fx.buyer.check_payment_hash(&mut fx.ledger).unwrap();
     {
         let mut rail = FlakyRail::new(&mut fx.ledger);
         rail.pay_lost_reply = true;
@@ -2584,6 +2714,7 @@ fn buyer_restarted_in_paying_finds_the_payment() {
     let (bundle, binding) = w.seller.invoice(&id, &mut w.ledger).unwrap();
     w.buyer.verify_bundle(&bundle).unwrap();
     w.buyer.check_invoice(&binding, w.ledger.now()).unwrap();
+    w.buyer.check_payment_hash(&mut w.ledger).unwrap();
     // The payment leaves; the node is unreachable for the lookup; the buyer
     // saves `Paying` and dies.
     {

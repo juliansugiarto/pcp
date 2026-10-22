@@ -237,7 +237,7 @@ A refusal carries one wire code. Codes are lowercase `snake_case`; a mandate fai
 | `CiphertextHashMismatch` | `ciphertext_hash_mismatch` | | `OwnMandate(x)` | `own_mandate.x` |
 | `ProofInvalid` | `proof_invalid` | | `CounterpartyMandate(x)` | `counterparty_mandate.x` |
 
-The seller also uses `offer_not_issued`, `seller_busy` and `principal_not_allowed` (S1, S1o). A buyer that got no offer before its deadline logs `no_answer`; one whose accepted invoice expired before it paid logs `invoice_expired`. A received code with nothing left after reduction is logged as `unreadable_reason`. A refusal received from the counterparty is logged as `refused_by_counterparty.<code>`, its code reduced to the characters `a-z 0-9 _ . - :` and at most 128 of them, so a hostile peer cannot put arbitrary text in the principal's log.
+The buyer also uses `payment_hash_seen` (P0). The seller also uses `offer_not_issued`, `seller_busy` and `principal_not_allowed` (S1, S1o). A buyer that got no offer before its deadline logs `no_answer`; one whose accepted invoice expired before it paid logs `invoice_expired`. A received code with nothing left after reduction is logged as `unreadable_reason`. A refusal received from the counterparty is logged as `refused_by_counterparty.<code>`, its code reduced to the characters `a-z 0-9 _ . - :` and at most 128 of them, so a hostile peer cannot put arbitrary text in the principal's log.
 
 The log is exported as JSON lines, one entry per line. It goes to the principal, never to a third party.
 
@@ -269,7 +269,8 @@ A job class is in scope for PCP/0 only if:
 
 - `check` is a pure function of `(params, input, result)`: no clock, network, randomness, floating point or environment;
 - `check` is total and terminates within a bound the class documents;
-- inputs and results have a canonical byte encoding the class defines.
+- inputs and results have a canonical byte encoding the class defines;
+- the class is **search-shaped** (a review criterion, 6.4; it cannot be tested from `check`): the offer and the proof are in the buyer's hands before payment (and in any proxy's, section 12), and they say that a valid result exists for this input. The buyer MUST be willing to reveal that fact to the seller and to anyone who sees the offer or bundle, and the result itself MUST be worth paying for given it. A class whose answer is that fact (yes/no, decision problems), or whose result space is small enough to try against `check` one by one, is out of scope: the buyer would learn the answer, or could find it, without paying.
 
 The predicate **is** the contract. A result that passes `check` is a correct delivery by definition, even if it is not the result the buyer had in mind; buyers must write predicates that say what they want.
 
@@ -309,7 +310,7 @@ This list is a default, not a guarantee. A fork can define any class. See sectio
 
 Each client keeps a local **registry**: `spec_hash → (name, version, review note)`. By default a buyer does not buy, and a seller does not sell, a class whose `spec_hash` is not in its registry (`JobClassNotRegistered`). An explicit development flag (`allow_unregistered_job_classes`) lifts this for testing.
 
-An entry means the class was **reviewed and tested**: checked against the rules of section 6 and against section 6.3, with conformance vectors. It does not mean the class is safe or harmless. The registry is a local value; anyone can fork it and nobody is asked for permission. The v0 reference registry holds `pcp/sudoku/v0` (n = 4 and n = 9) and `pcp/testsuite-toyexpr/v0`.
+An entry means the class was **reviewed and tested**: checked against the rules of section 6 (search-shaped included) and against section 6.3, with conformance vectors. It does not mean the class is safe or harmless. The registry is a local value; anyone can fork it and nobody is asked for permission. The v0 reference registry holds `pcp/sudoku/v0` (n = 4 and n = 9) and `pcp/testsuite-toyexpr/v0`.
 
 ## 7. Proof backends
 
@@ -397,6 +398,7 @@ The buyer performs these steps in this order. A failure at any step aborts the p
 | V6 | **`invoice.payment_hash = H`** (the proven `statement.payment_hash`) | `InvoiceHashMismatch` |
 | V7 | `invoice.amount_msat = price_msat`; `invoice.payee = seller_node = payout_node` of the seller mandate; `invoice.description_hash = statement_hash` | `InvoiceAmountMismatch`, `InvoicePayeeMismatch`, `InvoiceDescriptionMismatch` |
 | V8 | **Expiry**: more than `min_invoice_remaining_secs` left (`now + min_invoice_remaining_secs < created_at + expiry_secs`); `min_htlc_secs <= htlc_secs` (buyer's maximum lock) | `InvoiceExpiresTooSoon`, `HtlcLockTooLong` |
+| P0 | **Seen `H`**: once per purchase, before any payment of its own, ask the node about payments from this node to `H`. In flight or settled: refuse. A failed earlier payment does not count. P0 is what makes P1's lookup rule sound: without it a reused `H` is refused by the node, the lookup finds the earlier payment, and the buyer records a receipt and a cap charge for money that never left. Never repeated after it passed (a payment of ours may be out by then). Best effort where the node cannot look a payment up by hash (P1's fallback scan) | `PaymentHashSeen` |
 | P1 | **Pay**: reserve the price against the mandate's cap (refused if expired or over cap) and record the state `Paying`, then HTLC to `H` from the principal's node, locked for `htlc_secs`. If the payment call fails, look the payment up at the node: in flight or settled means paid; known never to have left (or failed) releases the reservation; a lookup that fails keeps `Paying` and the reservation, and is retried. A buyer MUST NOT release a reservation while the payment may be out. (The reference LND rail looks the payment up by hash with `TrackPaymentV2`, where "payment isn't initiated" means it never left; only if that endpoint is missing does it fall back to scanning the node's last 1,000 payments.) A buyer MUST NOT pay on an offer past `offer_expires_at`, even if the invoice is still payable | `OwnMandate(…)`; rail error (state `Paying` or back to `InvoiceAccepted`) |
 | P2 | **Receive preimage** `k` when the HTLC settles; if it times out, funds return and the reservation is released | `Refunded` |
 | P3 | **`SHA256(k) = H`** | `PreimageMismatch` |
@@ -463,7 +465,7 @@ The mandate's budget and the log belong to the agent, not to one purchase: paral
 | T9 | **The 2017 CCS attack on ZKCP** (Campanelli, Gennaro, Goldfeder, Nizzardo): in the 2016 pay-to-sudoku the buyer generated the zk-SNARK common reference string. A buyer who generates the CRS maliciously breaks zero knowledge and can learn part of the solution (a sudoku cell) without paying | PCP/0 requires backends whose proof the buyer verifies to have **no trusted setup**: STARK-based zkVMs (RISC Zero, SP1) use transparent, hash-based parameters, so there is no CRS for either party to choose and the attack's premise is absent. The Groth16 wrapper these zkVMs offer for on-chain verification re-introduces a setup; PCP/0 verifies off-chain and MUST NOT require it | Design rule. The RISC Zero backend (7.2) uses succinct STARK receipts with no Groth16 wrapper, and its verifier refuses any other receipt kind before verifying (`pcp-risc0-verify`, `only_succinct_receipts_decode`) |
 | T10 | **Dev backend used for real** | Insecure backend refused by default (`InsecureBackendRefused`); loud naming; `is_secure() = false` | `buyer_refuses_insecure_backend_by_default` |
 | T11 | Offer misdirected, expired, overpriced or for another job | O1 | `offer_checks` |
-| T12 | Seller reuses `k` across sales | Breaks the zero-nonce rule and lets every hop of the first payment settle the second. Harms the seller, not the buyer (the buyer still gets `k`). Sellers MUST draw a fresh `k`; the simulated ledger refuses duplicate hashes | `invoice_rules` (ledger) |
+| T12 | Seller reuses `k` across sales | Breaks the zero-nonce rule: two ciphertexts under one key and nonce give `R1 XOR R2` to anyone holding both, without `k`. Lets every hop of the first payment settle the second. Harms the seller (unpaid) and the privacy of both results, not the buyer's funds. Sellers MUST draw a fresh `k` and MUST NOT issue two invoices to one `H`; both rails refuse a duplicate hash. A buyer whose node already paid `H` refuses at P0 rather than record a receipt for a payment it never made | `invoice_rules` (ledger), `a_payment_hash_the_node_already_paid_is_refused_before_paying`, `p0_runs_once_so_our_own_payment_is_never_taken_for_a_foreign_one` |
 | T13 | Predicate does not say what the buyer meant | Not a protocol failure. The predicate is the contract (section 6) | n/a |
 | T14 | **Agent spends beyond its authorisation** (over cap, over per-deal maximum, after expiry, outside scope) | Own-mandate checks at R0, O2 and P1 with the cap reserved atomically across parallel purchases; the seller's S1m check against the declared spend; the principal's log audit re-checks the running total; custody caps (2.1) | `cap_is_enforced_across_deals`, `per_deal_max_is_enforced`, `expired_mandates_are_refused`, `scope_mismatch_is_refused`, `refund_returns_the_reservation` |
 | T15 | **Missing, forged or stolen mandate** (no mandate; altered limits; mandate signed by another key; a valid mandate presented by someone without its agent key) | Required by default (O2, S1m); `principal_sig` over `mandate_id`; `agent_sig` over `request_auth` / `offer_auth` | `missing_mandate_is_refused_by_both_sides`, `wrong_signatures_are_refused` |
@@ -498,7 +500,8 @@ Categories only. "Mitigated by default" means the reference implementation ships
 - Custody of anyone's funds or keys; routing others' payments.
 - Fiat or stablecoin settlement. (A stablecoin version can be built; it adds an issuer who can freeze and a facilitator who can be regulated, which are exactly the roles PCP/0 has none of.)
 - On-chain verification of proofs; BitVM-style optimistic verification. Later, for large long-running jobs.
-- Privacy of the payment beyond what Lightning gives (hash correlation across hops remains until PTLCs).
+- Privacy of the payment beyond what Lightning gives. Without PTLCs every hop sees `H`, the amount and the timelock and, on settlement, `k`. A hop links the payment to a deal only if it also sees `H` elsewhere: the invoice, the statement, or a receipt (receipts carry `payment_hash` and `preimage`, so a principal's log shared with others is itself a linking surface). With `k`, a hop can decrypt `C` if it also obtains the bundle (`C` and `offer_id`). The bundle travels only over the PCP channel, so a hop learns `R` only through the endpoints of that channel or a TLS terminator in it.
+- **What a proxy in front of the seller sees.** Over HTTP behind a TLS-terminating proxy or tunnel (the sale window uses a Cloudflare quick tunnel), the proxy operator sees every request, offer, Accept, bundle (`C`, `offer_id` and the proof) and invoice in clear: the job, the `input`, and both mandates (principal and agent keys, caps, `payout_node`). `k` never crosses the PCP channel, but `C` and `offer_id` together with `k` from a hop on the payment path give `R`. The proxy cannot change terms or redirect the payment (`request_auth`, `offer_auth`, `accept_auth` and the BOLT11 signature bind them); it can read, drop or delay. A buyer who cares should reach the seller over a channel it trusts end to end.
 - **Which trade risk PCP removes, and which it does not.** Any trade between strangers carries three risks:
   1. the counterparty does not deliver or does not pay;
   2. the good is not what was promised;
@@ -519,7 +522,7 @@ Limit: a person who holds two principal keys looks like two strangers. Metrics S
 
 ## Appendix A. Conformance vectors
 
-Computed by the Rust crate (tests `conformance_vectors` in `src/tests.rs` for vectors 1 to 13, and `statement_core_conformance_vectors` in `src/statement.rs` for 14 to 17). `tools/vectors.py` is a separate Python implementation (`hashlib`, and `cryptography`'s ChaCha20Poly1305 and Ed25519) that recomputes all 17 vectors and compares each with this table: `python3 tools/vectors.py`. A second implementation MUST reproduce them.
+Computed by the Rust crate (tests `conformance_vectors` in `src/tests.rs` for vectors 1 to 13 and 18 to 22, and `statement_core_conformance_vectors` in `src/statement.rs` for 14 to 17). `tools/vectors.py` is a separate Python implementation (`hashlib`, and `cryptography`'s ChaCha20Poly1305 and Ed25519) that recomputes all 22 vectors and compares each with this table: `python3 tools/vectors.py`. A second implementation MUST reproduce them.
 
 Fixed inputs: `k = 0x11 × 32`, `offer_id = 0x22 × 32`, `input_commitment = 0x33 × 32`, `buyer_nonce = 0x44 × 32`. For the mandate vectors: principal seed `0x55 × 32`, agent seed `0x66 × 32` (RFC 8032 secret keys), and the mandate `{version "PCP/0", role "buyer", scope [spec_hash #4], cap_msat 5 000 000, per_deal_max_msat 2 000 000, payout_node "principal-node", expires_at 86 400, nonce 0x77 × 32}`.
 
@@ -542,8 +545,12 @@ Fixed inputs: `k = 0x11 × 32`, `offer_id = 0x22 × 32`, `input_commitment = 0x3
 | 15 | `SHA256` of the guest input `canonical_bytes("guest-input", [spec_hash #4, input, R, k, C #14, offer_id, buyer_nonce])` | `ee93318d136f05eeecc095c3512a667c4bae50fa81b8fb1718e29c30ce66bed9` |
 | 16 | `SHA256` of the journal the guest commits for #15, which equals its `statement_hash` | `9119de0c3d909b092a118b655588b7e85e004e9de2d17ab297f247cd42bd3c02` |
 | 17 | Length in bytes of that journal | `261` |
+| 18 | `request_id` for sudoku n=4, the fixed inputs, `max_price_msat` 2 000 000, `mandate_spent_msat` 0 (`input` does not enter `request_id`) | `4457df6cabb8d893ee67b366c4620da65805c18abdcc8cbc5146f23496f9a530` |
+| 19 | `request_auth` over #18 and the mandate #12 | `fc1be7bd4ffd3f93b9841885b3b7d6abc6bd5df4faebccc81a244c07fd00e02c` |
+| 20 | `offer_auth` over the offer #9 and the mandate #12 (the mandate's role does not enter; #12 stands in for a seller's mandate) | `6ff441b26e43d3bc20f7c79d3105b071089d0a323f7ff9d425e015a38f7ca499` |
+| 21 | `accept_auth` over the offer #9 and the mandate #12 | `cbc1d0d5d6eb01f84a175b27130d8208388cf7fd21c3944354fb4ec8e4e41143` |
+| 22 | `agent_sig` over #21 with the agent secret key (seed `0x66 × 32`, public key #11) | `00895f8953ac55c3620fe613e6e45cd4e042d4ed925e11bca7e1e2f54e85e78acb4cc68a1780fb43878011c35fe3f76828c85701dae160b8e90af3330b67a705` |
 
-Vectors 14 to 17 are checked by `statement_core_conformance_vectors` in `src/statement.rs`.
 
 ## Appendix B. Lineage
 

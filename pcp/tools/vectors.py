@@ -2,7 +2,7 @@
 """Recompute the PCP/0 conformance vectors (SPEC.md, Appendix A) from scratch.
 
 This is a second implementation of the encoding. It follows SPEC.md and shares
-no code with the Rust crate. It recomputes all 17 vectors of Appendix A and
+no code with the Rust crate. It recomputes all 22 vectors of Appendix A and
 compares each with the value printed in SPEC.md, which it reads from the
 Appendix A table itself.
 
@@ -118,7 +118,7 @@ def compute() -> dict:
     ])
 
     principal_sk, principal_pk = ed25519(bytes([0x55]) * 32)
-    _, agent_pk = ed25519(bytes([0x66]) * 32)
+    agent_sk, agent_pk = ed25519(bytes([0x66]) * 32)
     v[10] = principal_pk
     v[11] = agent_pk
     mandate_id = tagged_hash("mandate", [
@@ -138,6 +138,16 @@ def compute() -> dict:
     j = journal(SUDOKU, spec4, tagged_hash("input", [puzzle]), offer_id, buyer_nonce, c, h)
     v[16] = sha256(j)
     v[17] = len(j)
+
+    # SPEC 3.2: the signed messages, over vectors 9 and 12.
+    v[18] = tagged_hash("request", [
+        VERSION, SUDOKU, spec4, input_commitment, buyer_nonce,
+        u64(2_000_000), u64(0),
+    ])
+    v[19] = tagged_hash("request-auth", [v[18], mandate_id])
+    v[20] = tagged_hash("offer-auth", [v[9], mandate_id])
+    v[21] = tagged_hash("accept-auth", [v[9], mandate_id])
+    v[22] = agent_sk.sign(v[21])
     return {n: (x if isinstance(x, int) else x.hex()) for n, x in v.items()}
 
 

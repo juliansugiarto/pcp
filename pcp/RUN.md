@@ -18,7 +18,7 @@ cd pcp
 cargo test                       # protocol, mandate and threat tests, simulated rail
 cargo test --features lnd        # adds the LND rail; tests that need real nodes are ignored here
 cargo run --bin demo             # four principals and four agents: two sales and a refusal
-python3 tools/vectors.py         # recomputes SPEC Appendix A vectors 1 to 17 in Python
+python3 tools/vectors.py         # recomputes SPEC Appendix A vectors 1 to 22 in Python
 ```
 
 `tools/vectors.py` prints one `PASS` or `FAIL` line per vector and exits nonzero if any vector differs from the table in `SPEC.md`.

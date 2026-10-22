@@ -425,6 +425,9 @@ pub enum PcpError {
     /// Seller-side: this seller serves only listed principals (an invited
     /// window), and the request's principal is not on the list.
     PrincipalNotAllowed,
+    /// The buyer's node already paid this payment hash, in flight or
+    /// settled (SPEC 9, P0).
+    PaymentHashSeen,
 }
 
 impl PcpError {
@@ -479,6 +482,7 @@ impl PcpError {
             PcpError::NoAnswer => "no_answer",
             PcpError::SellerBusy => "seller_busy",
             PcpError::PrincipalNotAllowed => "principal_not_allowed",
+            PcpError::PaymentHashSeen => "payment_hash_seen",
         };
         s.to_string()
     }
@@ -697,6 +701,9 @@ pub struct BuyerSnapshot {
     /// Held against the cap by this purchase ([`Buyer::spent_msat`]).
     pub spent_msat: u64,
     pub clock: u64,
+    /// P0 passed for this purchase's invoice (SPEC 9).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub hash_checked: bool,
     pub state: BuyerStateRecord,
 }
 
@@ -731,6 +738,9 @@ pub struct Buyer {
     seller_mandate: Option<Mandate>,
     /// Amount reserved against the cap for this purchase.
     reserved_msat: u64,
+    /// P0 passed: the node had not paid `H` before this purchase. Set
+    /// once, before any payment of ours, and never cleared.
+    hash_checked: bool,
     /// Latest time seen (for refusal records).
     clock: u64,
     state: BuyerState,
@@ -805,6 +815,7 @@ impl Buyer {
             started_at: now,
             seller_mandate: None,
             reserved_msat: 0,
+            hash_checked: false,
             clock: now,
             state: BuyerState::Requested,
         };
@@ -951,6 +962,7 @@ impl Buyer {
             started_at: self.started_at,
             seller_mandate: self.seller_mandate.clone(),
             spent_msat: self.reserved_msat,
+            hash_checked: self.hash_checked,
             clock: self.clock,
             state,
         }
@@ -1094,6 +1106,7 @@ impl Buyer {
             started_at: snap.started_at,
             seller_mandate: snap.seller_mandate,
             reserved_msat: snap.spent_msat,
+            hash_checked: snap.hash_checked,
             clock: snap.clock,
             state,
         })
@@ -1356,9 +1369,50 @@ impl Buyer {
     /// to have left means the reservation is released and the state goes
     /// back to `InvoiceAccepted`; a lookup that itself fails leaves the state
     /// `Paying` with the reservation held, for [`Buyer::recover_payment`].
+    ///
+    /// Runs P0 ([`Buyer::check_payment_hash`]) first; a `PaymentHashSeen`
+    /// refusal leaves nothing reserved.
     pub fn pay_via(&mut self, rail: &mut dyn Rail) -> Result<(), PcpError> {
+        self.check_payment_hash(rail)?;
         self.begin_pay(rail.rail_id(), rail.now())?;
         self.send_payment(rail)
+    }
+
+    /// Whether P0 has passed ([`Buyer::check_payment_hash`]).
+    pub fn payment_hash_checked(&self) -> bool {
+        self.hash_checked
+    }
+
+    /// Step P0 (SPEC 9), once per purchase and before any payment of ours:
+    /// refuse `H` if this node already paid it (in flight or settled). Paying a reused `H` would be
+    /// refused by the node, and the P1 lookup would then take the earlier
+    /// payment for ours: a receipt and a cap charge for money that never
+    /// left. A failed earlier payment does not count (its funds are back).
+    /// A lookup error changes nothing; ask again.
+    pub fn check_payment_hash(&mut self, rail: &mut dyn Rail) -> Result<(), PcpError> {
+        let BuyerState::InvoiceAccepted {
+            offer, statement, ..
+        } = &self.state
+        else {
+            return Err(PcpError::WrongState("P0 needs InvoiceAccepted"));
+        };
+        if self.hash_checked {
+            return Ok(());
+        }
+        if rail.rail_id() != offer.rail {
+            return Err(PcpError::RailNotSupported);
+        }
+        let h = statement.payment_hash;
+        let seen = matches!(
+            rail.lookup_payment(&self.node, &h)?,
+            PaymentStatus::InFlight | PaymentStatus::Settled { .. }
+        );
+        if seen {
+            self.clock = self.clock.max(rail.now());
+            return self.abort(PcpError::PaymentHashSeen);
+        }
+        self.hash_checked = true;
+        Ok(())
     }
 
     /// First half of [`Buyer::pay_via`]: reserve the price against the cap
@@ -1369,6 +1423,9 @@ impl Buyer {
         let BuyerState::InvoiceAccepted { invoice, offer, .. } = &self.state else {
             return Err(PcpError::WrongState("pay needs InvoiceAccepted"));
         };
+        if !self.hash_checked {
+            return Err(PcpError::WrongState("check_payment_hash before paying"));
+        }
         if rail_id != offer.rail {
             return Err(PcpError::RailNotSupported);
         }

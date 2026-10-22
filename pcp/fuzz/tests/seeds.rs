@@ -102,7 +102,10 @@ fn write_differential_corpus() {
             n += 1;
         }
     }
-    for c in pcp_fuzz::boundary_cases() {
+    for c in pcp_fuzz::mandate_cases()
+        .into_iter()
+        .chain(pcp_fuzz::boundary_cases())
+    {
         out.push_str(&serde_json::to_string(&c).unwrap());
         out.push('\n');
         n += 1;
