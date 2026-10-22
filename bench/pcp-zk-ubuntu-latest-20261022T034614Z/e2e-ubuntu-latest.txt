@@ -1,0 +1,16 @@
+[pcp-zk] prove: 3.921 s, peak RSS so far 571472 KiB
+ok    H = SHA256(k), checked outside the circuit with python hashlib
+ok    verify honest sale (exit 0)
+ok    wrong invoice H (exit 1)
+ok    wrong offer binding (exit 1)
+ok    wrong puzzle (exit 1)
+ok    consistent lie: other H (exit 1)
+ok    consistent lie: other binding (exit 1)
+ok    consistent lie: other puzzle (exit 1)
+ok    tampered ciphertext (exit 1)
+ok    flipped proof byte (exit 1)
+ok    truncated proof (exit 1)
+ok    decrypt with k (exit 0)
+ok    decrypted grid equals the seller's solution
+ok    decrypt with wrong key (exit 2)
+all cases as expected (work dir: /home/runner/work/_temp/e2e)
