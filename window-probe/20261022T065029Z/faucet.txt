@@ -1,0 +1,16 @@
+address: tb1qy9pn0exwpajrjharrfpzdtw3gxsrxswqkgd2qf
+POST /api/onchain -> 401: {"error":"Missing token"}
+POST /api/v1/onchain -> 404: Not found
+{
+    "total_balance": "0",
+    "confirmed_balance": "0",
+    "unconfirmed_balance": "0",
+    "locked_balance": "0",
+    "reserved_balance_anchor_chan": "0",
+    "account_balance": {
+        "default": {
+            "confirmed_balance": "0",
+            "unconfirmed_balance": "0"
+        }
+    }
+}

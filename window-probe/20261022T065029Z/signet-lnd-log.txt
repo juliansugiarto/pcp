@@ -1,0 +1,40 @@
+2026-10-22 06:48:39.412 [INF] BTCN: New valid peer 13.140.133.208:38333 (outbound) (/Satoshi:31.1.0/)
+2026-10-22 06:48:39.426 [INF] BTCN: New valid peer 13.140.133.208:38333 (outbound) (/Satoshi:31.1.0/)
+2026-10-22 06:48:39.429 [INF] BTCN: Lost peer 13.140.133.208:38333 (outbound)
+2026-10-22 06:48:39.443 [INF] BTCN: Lost peer 13.140.133.208:38333 (outbound)
+2026-10-22 06:48:39.450 [INF] BTCN: New valid peer 13.140.133.208:38333 (outbound) (/Satoshi:31.1.0/)
+2026-10-22 06:48:39.519 [INF] BTCN: Lost peer 13.140.133.208:38333 (outbound)
+2026-10-22 06:48:39.520 [INF] BTCN: New valid peer 13.140.133.208:38333 (outbound) (/Satoshi:31.1.0/)
+2026-10-22 06:48:39.527 [INF] BTCN: Lost peer 13.140.133.208:38333 (outbound)
+2026-10-22 06:48:39.549 [INF] BTCN: New valid peer 173.255.234.230:38333 (outbound) (/Satoshi:29.0.0(CustomSignet)/)
+2026-10-22 06:48:39.654 [INF] BTCN: New valid peer 45.250.254.114:38333 (outbound) (/Satoshi:29.0.0/)
+2026-10-22 06:48:39.735 [INF] BTCN: New valid peer 51.38.30.48:38333 (outbound) (/Satoshi:31.0.0/)
+2026-10-22 06:48:39.752 [INF] BTCN: New valid peer 176.9.8.81:38333 (outbound) (/Satoshi:31.1.0/)
+2026-10-22 06:48:39.826 [INF] BTCN: New valid peer 185.100.233.115:38333 (outbound) (/Satoshi:31.0.0/)
+2026-10-22 06:48:49.412 [INF] BTCN: Fetching set of checkpointed cfheaders filters from height=0, hash=0d56a463c236df12c9ef21ba12f27fa17ac4bf7792a36d1636cb231f822076f4
+2026-10-22 06:48:49.425 [INF] BTCN: Processed 222000 blocks in the last 10.05s (height 222001, 2024-11-14 12:50:10 +0000 UTC)
+2026-10-22 06:48:49.588 [INF] BTCN: Verified 1 filter header in the last 2m10.49s (height 1, 2020-09-01 00:12:01 +0000 UTC)
+2026-10-22 06:48:49.594 [INF] BTCN: Waiting for more block headers, then will start cfheaders sync from height 2000...
+2026-10-22 06:48:49.594 [INF] BTCN: Starting cfheaders sync from (block_height=2000, block_hash=0000000f98f3ecfe7bd69f4fed4a61f4a18b649a3b0c648d4e33fd015ac761d9) to (block_height=226000, block_hash=00000011c7ad07ac610f114d2eccb5955ae308721363428d0e6a8e0b67b90bf6)
+2026-10-22 06:48:59.595 [INF] BTCN: Fetching set of checkpointed cfheaders filters from height=2000, hash=f0aa6cf6e578522068d66632bc5a4866fa9df1c3c0c89db63aaae84048b0f19e
+2026-10-22 06:48:59.716 [INF] BTCN: Verified 2000 filter headers in the last 10.12s (height 2001, 2020-09-05 18:18:59 +0000 UTC)
+2026-10-22 06:49:01.422 [INF] BTCN: Waiting for more block headers, then will start cfheaders sync from height 226000...
+2026-10-22 06:49:01.422 [INF] BTCN: Starting cfheaders sync from (block_height=226000, block_hash=00000011c7ad07ac610f114d2eccb5955ae308721363428d0e6a8e0b67b90bf6) to (block_height=327444, block_hash=00000008ad94129a0722e2dc08fba396685e8a364c240d978ff0118aedd78e2d)
+2026-10-22 06:49:11.423 [INF] BTCN: Fetching set of checkpointed cfheaders filters from height=226000, hash=f9a64a88282f7c15e7b07bb53d0cc06e7e174965d924e9d47558b3ec95b82b8d
+2026-10-22 06:49:11.586 [INF] BTCN: Verified 224000 filter headers in the last 11.87s (height 226001, 2024-12-12 07:54:18 +0000 UTC)
+2026-10-22 06:49:12.367 [INF] BTCN: Fully caught up with cfheaders at height 327444, waiting at tip for new blocks
+2026-10-22 06:49:12.367 [INF] BTCN: Attempting to fetch set of un-checkpointed filters at height=327444, hash=00000008ad94129a0722e2dc08fba396685e8a364c240d978ff0118aedd78e2d
+2026-10-22 06:49:22.369 [INF] BTCN: Verified 101000 filter headers in the last 10.78s (height 327001, 2026-10-19 06:46:14 +0000 UTC)
+2026-10-22 06:49:22.569 [INF] BTWL: Started rescan from block 0000000aa0b6dcd547eb4b8048b0dce8e3c3d88495830b2adee4446f416a263a (height 327164) for 0 addrs, 0 outpoints
+2026-10-22 06:49:22.570 [INF] BTWL: Catching up block hashes to height 327165, this might take a while
+2026-10-22 06:49:22.570 [INF] BTWL: Rescanned through block 000000058f1a57a4599d26537f0ce16e2441775f6d3e3b863d2849a0d9bb9c91 (height 327165)
+2026-10-22 06:49:22.643 [INF] BTWL: Catching up block hashes to height 327444, this might take a while
+2026-10-22 06:49:22.644 [INF] BTWL: Finished rescan for 0 addresses (synced to block 00000008ad94129a0722e2dc08fba396685e8a364c240d978ff0118aedd78e2d, height 327444)
+2026-10-22 06:49:22.705 [INF] LTND: Chain backend is fully synced! rev=390b2d end_height=327444
+2026-10-22 06:49:22.706 [INF] PRNF: PeerNotifier starting
+2026-10-22 06:49:22.706 [INF] SRVR: Received initial block 00000008ad94129a0722e2dc08fba396685e8a364c240d978ff0118aedd78e2d at height 327444
+2026-10-22 06:49:22.706 [INF] CNCT: ChainArbitrator starting at height 327444 with 0 chain watchers, 0 channel arbitrators, and budget config=[tolocal=0 BTC tolocalratio=0.5 anchorcpfp=0 BTC anchorcpfpratio=0.5 deadlinehtlc=0 BTC deadlinehtlcratio=0.5 nodeadlinehtlc=0 BTC nodeadlinehtlcratio=0.5]
+2026-10-22 06:49:24.730 [INF] SRVR: Initializing peer network bootstrappers!
+2026-10-22 06:49:24.730 [INF] SRVR: Creating DNS peer bootstrapper with seeds: [[signet.nodes.lightning.wiki soa.nodes.lightning.wiki]]
+2026-10-22 06:49:25.105 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 06:49:27.536 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
