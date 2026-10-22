@@ -419,6 +419,9 @@ pub enum PcpError {
     Recorded(String),
     /// Buyer-side: no answer from the seller within the policy's wait.
     NoAnswer,
+    /// Seller-side: too many open offers (in total, or for this principal)
+    /// to quote another now. Nothing was proven or reserved; ask later.
+    SellerBusy,
 }
 
 impl PcpError {
@@ -471,6 +474,7 @@ impl PcpError {
             PcpError::RecordSignatureInvalid => "record_signature_invalid",
             PcpError::Recorded(code) => return code.clone(),
             PcpError::NoAnswer => "no_answer",
+            PcpError::SellerBusy => "seller_busy",
         };
         s.to_string()
     }
@@ -1548,6 +1552,17 @@ pub struct SellerConfig {
     /// The settlement rail named in offers. Default [`RAIL_SIM`];
     /// [`RAIL_BOLT11`] with a real node.
     pub rail: String,
+    /// Most offers open at once (issued and unexpired, or accepted, or
+    /// invoiced and not yet over). Beyond it a request gets `SellerBusy`.
+    pub max_open_offers: usize,
+    /// Most open offers per buyer principal.
+    pub max_open_per_principal: usize,
+    /// Most accepted offers waiting to be proven. An accept beyond it is
+    /// answered [`AcceptStep::Busy`] and the buyer asks again.
+    pub max_unproven: usize,
+    /// Most refusals of requests and accepts logged per minute. More are
+    /// counted, not logged, so a flood of bad requests cannot grow the log.
+    pub refusals_logged_per_minute: u32,
 }
 
 impl SellerConfig {
@@ -1581,6 +1596,10 @@ impl Default for SellerConfig {
             registry: JobRegistry::reference(),
             allow_unregistered_job_classes: false,
             rail: RAIL_SIM.to_string(),
+            max_open_offers: 8,
+            max_open_per_principal: 1,
+            max_unproven: 1,
+            refusals_logged_per_minute: 10,
         }
     }
 }
@@ -1692,6 +1711,9 @@ pub enum AcceptStep {
     Pending,
     /// Already invoiced: send these again.
     Resend(Box<ProofBundle>, Box<InvoiceBinding>),
+    /// The seller is proving for someone else: nothing changed, nothing
+    /// logged; the buyer sends the accept again later.
+    Busy,
 }
 
 /// What happened to one open sale on [`Seller::settle_paid`].
@@ -1743,6 +1765,11 @@ pub struct Seller {
     by_request: BTreeMap<Hash32, Hash32>,
     /// Sales by payment hash `H`.
     sales: BTreeMap<Hash32, SaleRecord>,
+    /// Refusal rate limit: start of the current minute and refusals logged
+    /// in it. In memory only.
+    refusal_window: (u64, u32),
+    /// Refusals not logged because of the rate limit (since start).
+    suppressed_refusals: u64,
 }
 
 impl Seller {
@@ -1761,7 +1788,74 @@ impl Seller {
             offers: BTreeMap::new(),
             by_request: BTreeMap::new(),
             sales: BTreeMap::new(),
+            refusal_window: (0, 0),
+            suppressed_refusals: 0,
         }
+    }
+
+    /// Log a refusal of a request or an accept, at most
+    /// `refusals_logged_per_minute` per minute; count the rest.
+    fn log_refusal(&mut self, subject: Hash32, cp: Option<PublicKey>, e: &PcpError, now: u64) {
+        let (start, count) = self.refusal_window;
+        let (start, count) = if now >= start.saturating_add(60) {
+            (now, 0)
+        } else {
+            (start, count)
+        };
+        if count < self.cfg.refusals_logged_per_minute {
+            self.agent.record_refusal(subject, cp, e, now);
+            self.refusal_window = (start, count + 1);
+        } else {
+            self.refusal_window = (start, count);
+            self.suppressed_refusals += 1;
+        }
+    }
+
+    /// Refusals of requests and accepts that were counted but not logged.
+    pub fn suppressed_refusals(&self) -> u64 {
+        self.suppressed_refusals
+    }
+
+    /// Is this offer still taking a place (see `max_open_offers`)?
+    fn is_open(&self, o: &IssuedOffer, now: u64) -> bool {
+        match &o.stage {
+            OfferStage::Issued => now < o.offer.offer_expires_at,
+            OfferStage::Accepted | OfferStage::Proven { .. } => true,
+            OfferStage::Invoiced { payment_hash } => self
+                .sales
+                .get(payment_hash)
+                .is_some_and(|s| !s.settled && !s.closed),
+            OfferStage::Closed { .. } => false,
+        }
+    }
+
+    /// Drop offers that can no longer matter: issued or closed offers, and
+    /// invoiced offers whose sale is over, once they expired more than an
+    /// offer lifetime ago. Sales are kept (they hold the cap and `k`).
+    /// Returns how many were dropped.
+    pub fn purge(&mut self, now: u64) -> usize {
+        let grace = self.cfg.offer_ttl_secs;
+        let gone: Vec<Hash32> = self
+            .offers
+            .iter()
+            .filter(|(_, o)| {
+                now >= o.offer.offer_expires_at.saturating_add(grace)
+                    && match &o.stage {
+                        OfferStage::Issued | OfferStage::Closed { .. } => true,
+                        OfferStage::Invoiced { payment_hash } => self
+                            .sales
+                            .get(payment_hash)
+                            .is_none_or(|s| s.settled || s.closed),
+                        OfferStage::Accepted | OfferStage::Proven { .. } => false,
+                    }
+            })
+            .map(|(id, _)| *id)
+            .collect();
+        for id in &gone {
+            self.offers.remove(id);
+        }
+        self.by_request.retain(|_, id| !gone.contains(id));
+        gone.len()
     }
 
     /// Rebuild a seller from a snapshot. The agent must already carry the
@@ -1848,7 +1942,25 @@ impl Seller {
                 return Ok(o.offer.clone());
             }
         }
-        let r = self.check_request(req, now);
+        let r = self.check_request(req, now).and_then(|offer| {
+            // Caps, after the request checked out: a place per principal
+            // and in total, so one requester cannot crowd out the rest.
+            let principal = req.mandate.as_ref().map(|m| m.principal_key);
+            let open: Vec<&IssuedOffer> = self
+                .offers
+                .values()
+                .filter(|o| self.is_open(o, now))
+                .collect();
+            let mine = open
+                .iter()
+                .filter(|o| o.request.mandate.as_ref().map(|m| m.principal_key) == principal)
+                .count();
+            if open.len() >= self.cfg.max_open_offers || mine >= self.cfg.max_open_per_principal {
+                Err(PcpError::SellerBusy)
+            } else {
+                Ok(offer)
+            }
+        });
         match &r {
             Ok(offer) => {
                 let id = offer.offer_id();
@@ -1864,7 +1976,7 @@ impl Seller {
             }
             Err(e) => {
                 let cp = req.mandate.as_ref().map(|m| m.agent_key);
-                self.agent.record_refusal(req.request_id(), cp, e, now);
+                self.log_refusal(req.request_id(), cp, e, now);
             }
         }
         r
@@ -1952,7 +2064,7 @@ impl Seller {
         let r = self.check_accept(acc, now);
         if let Err(e) = &r {
             let cp = acc.mandate.as_ref().map(|m| m.agent_key);
-            self.agent.record_refusal(acc.offer_id, cp, e, now);
+            self.log_refusal(acc.offer_id, cp, e, now);
         }
         r
     }
@@ -1995,6 +2107,10 @@ impl Seller {
         if now >= issued.offer.offer_expires_at {
             self.close_offer(&acc.offer_id, &PcpError::OfferExpired);
             return Err(PcpError::OfferExpired);
+        }
+        // One proof at a time (configurable): the next accept waits.
+        if self.unfinished().len() >= self.cfg.max_unproven {
+            return Ok(AcceptStep::Busy);
         }
         self.offers
             .get_mut(&acc.offer_id)

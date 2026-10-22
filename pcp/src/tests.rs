@@ -821,10 +821,7 @@ fn offer_checks() {
         &sp.agent,
         Box::new(job),
         Box::new(InsecureDevTransparentBackend),
-        SellerConfig {
-            price_msat: PRICE,
-            ..Default::default()
-        },
+        sell_cfg(PRICE),
     );
     let (_, req) = mk();
     let good = s.make_offer(&req, 0).unwrap();
@@ -1087,9 +1084,14 @@ fn open(ledger: &mut Ledger, p: &Party, funds: u64) {
     ledger.open_principal_node(&p.agent.mandate().payout_node, p.principal_key(), funds);
 }
 
+/// A seller for the mandate and threat tests, which quote one buyer
+/// principal many times: the per-principal and total caps on open offers
+/// are lifted here and tested on their own (`request_flood_is_bounded`).
 fn sell_cfg(price: u64) -> SellerConfig {
     SellerConfig {
         price_msat: price,
+        max_open_offers: usize::MAX,
+        max_open_per_principal: usize::MAX,
         ..SellerConfig::default()
     }
 }
@@ -2819,4 +2821,122 @@ fn a_repeat_accept_for_a_closed_offer_is_answered_not_logged_again() {
         .buyer
         .refused_by_seller(&PcpError::Recorded("seller_result_invalid".into()));
     assert_eq!(e.code(), "refused_by_counterparty.seller_result_invalid");
+}
+
+// ---------------------------------------------------------------------------
+// S-A: a seller that strangers can reach must stay bounded
+
+/// A fresh principal with its own buyer agent, and a signed request.
+fn stranger_request(now: u64) -> (Party, Buyer, Request) {
+    let bp = party(terms(Role::Buyer, "x"));
+    let (b, req) = Buyer::new(
+        &bp.agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        clamp_suite(),
+        2 * PRICE,
+        now,
+        &mut OsRng,
+    )
+    .unwrap();
+    (bp, b, req)
+}
+
+#[test]
+fn request_flood_is_bounded() {
+    // 200 requests (25 times the cap), each from a fresh principal (keys are free, so the
+    // requester can be the attacker). The seller keeps at most
+    // max_open_offers open, logs at most refusals_logged_per_minute
+    // refusals, its saved state stays small, and only one offer at a time
+    // can be in proving.
+    let sp = party(terms(Role::Seller, "seller"));
+    let cfg = sim_seller_cfg();
+    let (max_open, max_log) = (cfg.max_open_offers, cfg.refusals_logged_per_minute as usize);
+    let mut seller = Seller::new(
+        &sp.agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        cfg,
+    );
+    let mut accepted = Vec::new();
+    let mut busy = 0;
+    const N: usize = 200;
+    for _ in 0..N {
+        let (_bp, mut b, req) = stranger_request(0);
+        match seller.make_offer(&req, 0) {
+            Ok(offer) => {
+                b.accept_offer(&offer, 0).unwrap();
+                accepted.push(b.accept_message().unwrap());
+            }
+            Err(PcpError::SellerBusy) => busy += 1,
+            Err(e) => panic!("{e:?}"),
+        }
+    }
+    assert_eq!(accepted.len(), max_open);
+    assert_eq!(busy, N - max_open);
+    let log = seller.agent().log();
+    assert_eq!(log.refusals().count(), max_log);
+    assert_eq!(seller.suppressed_refusals() as usize, busy - max_log);
+    let snap_bytes = serde_json::to_vec(&seller.snapshot()).unwrap().len() + log.to_jsonl().len();
+    assert!(snap_bytes < 1_000_000, "state {snap_bytes} bytes");
+    // All open offers accepted at once: exactly one goes to proving.
+    let steps: Vec<_> = accepted
+        .iter()
+        .map(|a| seller.accept(a, 0).unwrap())
+        .collect();
+    assert_eq!(steps.iter().filter(|s| **s == AcceptStep::Prove).count(), 1);
+    assert_eq!(
+        steps.iter().filter(|s| **s == AcceptStep::Busy).count(),
+        max_open - 1
+    );
+    assert_eq!(seller.unfinished().len(), 1);
+    // Busy accepts were not refusals: nothing new in the log.
+    assert_eq!(seller.agent().log().refusals().count(), max_log);
+}
+
+#[test]
+fn one_open_offer_per_buyer_principal() {
+    let mut w = wire();
+    // The same principal asks again with a new request (new nonce).
+    let (_b2, req2) = Buyer::new(
+        &w.bp.agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        clamp_suite(),
+        2 * PRICE,
+        w.ledger.now(),
+        &mut OsRng,
+    )
+    .unwrap();
+    assert_eq!(
+        w.seller.make_offer(&req2, w.ledger.now()),
+        Err(PcpError::SellerBusy)
+    );
+    // The same request again still gets its offer (idempotent, not a new place).
+    let req = w.buyer.request().clone();
+    assert_eq!(
+        w.seller.make_offer(&req, w.ledger.now()),
+        Ok(w.offer.clone())
+    );
+    // Once the first offer has expired, the principal may ask again.
+    let later = w.offer.offer_expires_at;
+    assert!(w.seller.make_offer(&req2, later).is_ok());
+}
+
+#[test]
+fn expired_offers_are_purged_and_live_sales_are_kept() {
+    let (mut w, _bundle, _binding) = wire_invoiced();
+    // Another principal's offer that is never accepted.
+    let (_bp, _b, req) = stranger_request(w.ledger.now());
+    let idle = w.seller.make_offer(&req, w.ledger.now()).unwrap();
+    let grace = SellerConfig::default().offer_ttl_secs;
+    let t = idle.offer_expires_at + grace;
+    assert_eq!(w.seller.purge(t - 1), 0);
+    // The idle offer goes; the invoiced one stays while its sale is open.
+    assert_eq!(w.seller.purge(t), 1);
+    assert!(w.seller.issued(&idle.offer_id()).is_none());
+    assert!(w.seller.issued(&w.offer.offer_id()).is_some());
+    assert_eq!(w.seller.snapshot().offers.len(), 1);
 }

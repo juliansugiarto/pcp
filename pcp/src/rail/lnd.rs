@@ -15,7 +15,7 @@
 //! | `settle_invoice` | `POST /v2/invoices/settle` (SettleInvoice) |
 //! | `lookup_invoice` | `GET /v1/invoice/{hash_hex}` (LookupInvoice) and `GET /v1/getinfo` for the block height |
 //! | `find_invoice` | `GET /v1/invoice/{hash_hex}`, then `GET /v1/payreq/{bolt11}` on its `payment_request` |
-//! | `lookup_payment` | `GET /v1/payments?include_incomplete=true` (ListPayments) |
+//! | `lookup_payment` | `GET /v2/router/track/{hash}` (TrackPaymentV2: first update only, then the stream is dropped); "payment isn't initiated" means the node never sent it. Falls back to `GET /v1/payments` (ListPayments, last 1,000) only if the track endpoint itself is missing |
 //!
 //! Why hold invoices: an ordinary LND invoice is created with its preimage
 //! and settles by itself. PCP needs the seller to keep `k` until the
@@ -43,6 +43,7 @@ use std::path::Path;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use base64::engine::general_purpose::STANDARD as B64;
+use base64::engine::general_purpose::URL_SAFE as B64URL;
 use base64::Engine as _;
 use serde_json::{json, Value};
 
@@ -395,6 +396,17 @@ impl Rail for LndRail {
         payment_hash: &Hash32,
     ) -> Result<PaymentStatus, RailError> {
         self.check_node(payer)?;
+        match self.track_payment(payment_hash)? {
+            Track::Found(p) => {
+                return Ok(payment_status(
+                    &json!({ "payments": [p] }),
+                    payment_hash,
+                    self.now(),
+                ))
+            }
+            Track::NeverSent => return Ok(PaymentStatus::Unknown),
+            Track::NoEndpoint => {}
+        }
         let v = self.get("/v1/payments?include_incomplete=true&reversed=true&max_payments=1000")?;
         Ok(payment_status(&v, payment_hash, self.now()))
     }
@@ -404,6 +416,88 @@ impl Rail for LndRail {
 // Pure helpers (unit-tested without a node)
 
 /// An LND JSON integer: grpc-gateway writes 64-bit integers as strings.
+/// What `TrackPaymentV2` said about one payment hash.
+#[derive(Debug, PartialEq)]
+pub enum Track {
+    /// The payment as the node records it (the `result` object).
+    Found(Value),
+    /// The node has no payment to this hash: it was never sent.
+    NeverSent,
+    /// The endpoint does not exist on this node (old LND, or a proxy).
+    NoEndpoint,
+}
+
+impl LndRail {
+    /// `TrackPaymentV2` for one hash: read the first update, drop the
+    /// stream. Unlike ListPayments this is a lookup by hash, so "not
+    /// initiated" is an answer, not a page that ran out.
+    pub fn track_payment(&self, payment_hash: &Hash32) -> Result<Track, RailError> {
+        let path = format!("/v2/router/track/{}", B64URL.encode(payment_hash));
+        let resp = self
+            .http
+            .get(self.url(&path))
+            .header("Grpc-Metadata-macaroon", &self.cfg.macaroon_hex)
+            .send()
+            .map_err(|e| RailError::Node(format!("GET {path}: {e}")))?;
+        let status = resp.status();
+        if !status.is_success() {
+            let text = resp.text().unwrap_or_default();
+            return track_error(status.as_u16(), &text, &path);
+        }
+        let mut line = String::new();
+        let mut r = BufReader::new(resp);
+        loop {
+            line.clear();
+            let n = r
+                .read_line(&mut line)
+                .map_err(|e| RailError::Node(format!("{path}: {e}")))?;
+            if n == 0 {
+                return Err(RailError::Node(format!(
+                    "{path}: stream ended without an update"
+                )));
+            }
+            if !line.trim().is_empty() {
+                break;
+            }
+        }
+        track_line(&line, &path)
+    }
+}
+
+/// A non-200 answer from the track endpoint.
+fn track_error(status: u16, text: &str, path: &str) -> Result<Track, RailError> {
+    if never_sent(text) {
+        return Ok(Track::NeverSent);
+    }
+    if status == 404 || status == 501 {
+        // No gRPC error body: the route itself is missing.
+        return Ok(Track::NoEndpoint);
+    }
+    Err(RailError::Node(format!("{path}: HTTP {status}: {text}")))
+}
+
+/// One line of the track stream: `{"result": Payment}` or `{"error": ...}`.
+fn track_line(line: &str, path: &str) -> Result<Track, RailError> {
+    let v: Value = serde_json::from_str(line.trim())
+        .map_err(|e| RailError::Node(format!("{path}: bad JSON: {e}")))?;
+    if let Some(err) = v.get("error") {
+        if never_sent(&err.to_string()) {
+            return Ok(Track::NeverSent);
+        }
+        return Err(RailError::Node(format!("{path}: {err}")));
+    }
+    Ok(Track::Found(v.get("result").cloned().unwrap_or(v)))
+}
+
+/// LND's answer for a hash it never paid: gRPC NotFound, "payment isn't
+/// initiated" (`channeldb.ErrPaymentNotInitiated`).
+fn never_sent(text: &str) -> bool {
+    text.contains("isn't initiated")
+        || text.contains("not initiated")
+        || text.contains("\"code\":5,")
+        || text.contains("\"code\": 5,")
+}
+
 fn num(v: &Value) -> Option<u64> {
     match v {
         Value::String(s) => s.parse().ok(),
@@ -748,6 +842,26 @@ mod tests {
         assert_eq!(num(&json!("18")), Some(18));
         assert_eq!(num(&json!(18)), Some(18));
         assert_eq!(num(&json!("x")), None);
+    }
+
+    #[test]
+    fn track_answers_are_read_as_found_never_sent_or_missing() {
+        let p = "/v2/router/track/x";
+        let found =
+            format!(r#"{{"result":{{"payment_hash":"{H}","status":"IN_FLIGHT","htlcs":[]}}}}"#);
+        match track_line(&found, p) {
+            Ok(Track::Found(v)) => assert_eq!(v["status"], "IN_FLIGHT"),
+            other => panic!("{other:?}"),
+        }
+        // In the stream, or as the HTTP error body: gRPC NotFound.
+        let nf = r#"{"error":{"code":5,"message":"payment isn't initiated","details":[]}}"#;
+        assert_eq!(track_line(nf, p), Ok(Track::NeverSent));
+        assert_eq!(track_error(404, nf, p), Ok(Track::NeverSent));
+        // A route that does not exist has no gRPC body.
+        assert_eq!(track_error(404, "Not Found", p), Ok(Track::NoEndpoint));
+        // Anything else is an error, never "never sent": the payment may be out.
+        assert!(track_error(500, "upstream connect error", p).is_err());
+        assert!(track_line(r#"{"error":{"code":14,"message":"unavailable"}}"#, p).is_err());
     }
 
     #[test]

@@ -455,6 +455,11 @@ impl Agent {
             .saturating_sub(self.committed_msat())
     }
 
+    /// Number of entries in the principal log (cheap; no copy).
+    pub fn log_len(&self) -> usize {
+        self.book().log.entries.len()
+    }
+
     /// A copy of the principal-readable log.
     pub fn log(&self) -> PrincipalLog {
         self.book().log.clone()

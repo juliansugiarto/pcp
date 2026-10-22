@@ -211,6 +211,7 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
         // 1. Messages.
         for (name, msg) in run.wire.receive()? {
             last_msg = Instant::now();
+            let log_len = seller.agent().log_len();
             let msg = match msg {
                 Ok(m) => m,
                 Err(e) => {
@@ -230,7 +231,12 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                         (run.log)(&format!("offer {} sent", short(&offer.offer_id())));
                     }
                     Err(e) => {
-                        save(&seller)?;
+                        // Save only if the refusal was logged (refusals are
+                        // rate-limited): a flood of bad requests must not
+                        // rewrite the state file per message.
+                        if seller.agent().log_len() != log_len {
+                            save(&seller)?;
+                        }
                         summary.refused += 1;
                         run.wire.send(&WireMsg::Refused {
                             subject_id: request.request_id(),
@@ -246,7 +252,7 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                         crash_point("seller:accept:post");
                         (run.log)(&format!("accept {} : proving", short(&accept.offer_id)));
                     }
-                    Ok(AcceptStep::Pending) => {}
+                    Ok(AcceptStep::Pending) | Ok(AcceptStep::Busy) => {}
                     Ok(AcceptStep::Resend(bundle, binding)) => {
                         run.wire.send(&WireMsg::Bundle {
                             bundle: *bundle,
@@ -255,7 +261,9 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                         (run.log)(&format!("bundle {} sent again", short(&accept.offer_id)));
                     }
                     Err(e) => {
-                        save(&seller)?;
+                        if seller.agent().log_len() != log_len {
+                            save(&seller)?;
+                        }
                         summary.refused += 1;
                         run.wire.send(&WireMsg::Refused {
                             subject_id: accept.offer_id,
@@ -357,7 +365,8 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                 SaleOutcome::NotPaid { .. } => {}
             }
         }
-        if !seller.expire_unproven(run.rail.now()).is_empty() {
+        let expired = seller.expire_unproven(run.rail.now()).len();
+        if expired + seller.purge(run.rail.now()) > 0 {
             save(&seller)?;
         }
 
@@ -484,6 +493,8 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
     // After a restart in Paying: find out from the node whether the money
     // left. A lookup error keeps Paying and is retried below.
     let mut last_resend = Instant::now();
+    // The offer id named in the accept this process sent, if any.
+    let mut sent_accept: Option<crate::encoding::Hash32> = None;
     loop {
         let now = run.rail.now();
         // 1. Messages.
@@ -502,7 +513,7 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
                             Ok(()) => {
                                 crash_point("buyer:offer:pre");
                                 save(&buyer)?;
-                                send_accept(&run, &buyer)?;
+                                sent_accept = Some(send_accept(&run, &buyer)?);
                                 crash_point("buyer:accept:post");
                                 (run.log)(&format!(
                                     "offer accepted: {} msat, backend {}",
@@ -538,7 +549,16 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
                         }
                     }
                 }
-                WireMsg::Refused { reason, .. } => {
+                WireMsg::Refused { subject_id, reason } => {
+                    // Only a refusal of this purchase's request or offer.
+                    let ours = subject_id == buyer.request().request_id()
+                        || buyer_offer_id(&buyer) == Some(subject_id)
+                        || sent_accept == Some(subject_id);
+                    if !ours {
+                        (run.log)(&format!("ignored a refusal of {}", short(&subject_id)));
+                        run.wire.ack(&name)?;
+                        continue;
+                    }
                     let e = buyer.refused_by_seller(&PcpError::Recorded(reason.clone()));
                     if !matches!(e, PcpError::WrongState(_)) {
                         save(&buyer)?;
@@ -561,7 +581,7 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
                         request: buyer.request().clone(),
                     })?;
                 } else {
-                    send_accept(&run, &buyer)?;
+                    sent_accept = Some(send_accept(&run, &buyer)?);
                 }
             }
             BuyerState::InvoiceAccepted { .. } => {
@@ -640,15 +660,30 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
     }
 }
 
-fn send_accept(run: &BuyerRun, buyer: &Buyer) -> Result<(), NodeError> {
+/// Send the accept; returns the offer id it names (what a refusal of it
+/// will name).
+fn send_accept(run: &BuyerRun, buyer: &Buyer) -> Result<crate::encoding::Hash32, NodeError> {
     let mut accept = buyer.accept_message()?;
     if run.tamper_accept {
         // Test only: an accept for an offer the seller never issued, as if
         // the buyer had changed a term (any term changes offer_id).
         accept.offer_id[0] ^= 1;
     }
+    let id = accept.offer_id;
     run.wire.send(&WireMsg::Accept { accept })?;
-    Ok(())
+    Ok(id)
+}
+
+/// The offer this purchase accepted, if any.
+fn buyer_offer_id(b: &Buyer) -> Option<crate::encoding::Hash32> {
+    match b.state() {
+        BuyerState::OfferAccepted { offer }
+        | BuyerState::BundleVerified { offer, .. }
+        | BuyerState::InvoiceAccepted { offer, .. }
+        | BuyerState::Paying { offer, .. }
+        | BuyerState::Paid { offer, .. } => Some(offer.offer_id()),
+        _ => None,
+    }
 }
 
 fn short(h: &[u8; 32]) -> String {

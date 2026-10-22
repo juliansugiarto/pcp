@@ -16,7 +16,7 @@ use std::time::Duration;
 
 use pcp::encoding::sha256;
 use pcp::lightning::LedgerError;
-use pcp::rail::lnd::{LndConfig, LndRail, LND_MIN_FINAL_CLTV};
+use pcp::rail::lnd::{LndConfig, LndRail, Track, LND_MIN_FINAL_CLTV};
 use pcp::rail::{IncomingState, InvoiceRequest, PaymentStatus, Rail, RailError};
 use rand::RngCore;
 
@@ -164,6 +164,14 @@ fn a_cancelled_hold_invoice_refunds_the_buyer() {
         buyer.lookup_payment(&buyer_id, &h),
         Ok(PaymentStatus::InFlight)
     );
+    // The lookup above came from TrackPaymentV2, not the ListPayments
+    // fallback: the track endpoint answers for this hash, and says
+    // "never sent" for a hash the buyer never paid.
+    match buyer.track_payment(&h) {
+        Ok(Track::Found(p)) => assert_eq!(p["status"].as_str(), Some("IN_FLIGHT"), "{p}"),
+        other => panic!("track_payment: {other:?}"),
+    }
+    assert_eq!(buyer.track_payment(&fresh_key()), Ok(Track::NeverSent));
 
     // A wrong preimage never reaches the node.
     assert_eq!(

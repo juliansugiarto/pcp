@@ -67,6 +67,10 @@ pub struct ProveStats {
     pub receipt_bytes: usize,
 }
 
+/// Largest receipt the verifier will deserialise (a succinct receipt is
+/// about 224 KB; see ../COSTS.md).
+const MAX_RECEIPT_BYTES: usize = 1 << 20;
+
 /// The RISC Zero proof backend. Local proving only.
 pub struct Risc0Backend {
     image_id: Digest,
@@ -171,6 +175,11 @@ impl ProofBackend for Risc0Backend {
         bundle: &ProofBundle,
     ) -> Result<(), VerifyError> {
         check_bundle_public(self.backend_id, job, statement, bundle)?;
+        // A succinct receipt is about 224 KB. Refuse anything far larger
+        // before deserialising bytes from a stranger.
+        if bundle.proof.len() > MAX_RECEIPT_BYTES {
+            return Err(VerifyError::ProofMalformed);
+        }
         let receipt: Receipt =
             bincode::deserialize(&bundle.proof).map_err(|_| VerifyError::ProofMalformed)?;
         if matches!(receipt.inner, InnerReceipt::Fake(_)) {
