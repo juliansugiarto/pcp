@@ -1,0 +1,8 @@
+sale: success
+rail tests: success
+crash matrix: success
+rail=lnd wire=dir cases=24 failed=0
+crash matrix http: success
+rail=lnd wire=http cases=24 failed=0
+LND_IMAGE=lightninglabs/lnd:v0.21.4-beta
+BTC_IMAGE=polarlightning/bitcoind:28.0
