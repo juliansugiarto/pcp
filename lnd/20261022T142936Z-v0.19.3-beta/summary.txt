@@ -1,0 +1,12 @@
+sale: failure
+rail tests: failure
+crash matrix: failure
+rail=lnd wire=dir cases=24 failed=24
+crash matrix http: failure
+rail=lnd wire=http cases=24 failed=24
+least privilege: failure
+rail=lnd wire=http cases=4 failed=4
+empty node, inbound channel: success
+active: yes
+LND_IMAGE=lightninglabs/lnd:v0.19.3-beta@sha256:b175f136c01ffe01e75eee836273dd15b21a7e2cea2bd316ea98ad3640743aaa
+BTC_IMAGE=polarlightning/bitcoind:28.0@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010

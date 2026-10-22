@@ -1,0 +1,12 @@
+error: No such file or directory (os error 2)
+pcp-sell --state DIR (--listen ADDR | --inbox DIR --peer-inbox DIR)
+         --rail (sim:FILE:NODE|lnd) [--allow-public-bind] [--job sudoku9|sudoku4] [--price-msat N] [--sales N]
+         [--quiet-exit-secs N] [--deadline-secs N] [--poll-ms N] [--allow-sim]
+         [--work-delay-ms N] [--invoice-expiry-secs N]
+
+Proof backend: InsecureDevTransparentBackend (NO zero knowledge; tests only).
+Exit 0 when --sales sales are over and nothing is pending, or when nothing
+is pending and no message came for --quiet-exit-secs. --work-delay-ms (tests)
+makes each job take at least that long, so messages arrive during the work.
+--listen serves the HTTP binding (feature http, SPEC 5.5) on a loopback
+address; put a TLS proxy in front. --allow-public-bind permits other addresses.

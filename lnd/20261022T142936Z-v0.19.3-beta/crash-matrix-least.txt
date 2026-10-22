@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-least/clean/seller/state.json'
+clean                  FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-least/seller_invoice_post/seller/state.json'
+seller:invoice:post    FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-least/buyer_pay_pre/seller/state.json'
+buyer:pay:pre          FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-least/buyer-gone/seller/state.json'
+buyer-gone             FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-seller no-seller-state
+rail=lnd wire=http cases=4 failed=4

@@ -1,0 +1,25 @@
+clean                  FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+repeat-accept          FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+tampered-accept        FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer-gone             FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-seller no-seller-state
+seller:offer:pre       FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:offer:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:accept:pre      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:accept:post     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:k:pre           FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:k:post          FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:invoice:pre     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:invoice:post    FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:settle:pre      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:settle:post     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:request:post     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:offer:pre        FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:accept:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:invoice:pre      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:paying:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:pay:pre          FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:pay:post         FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:settle:pre       FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:settle:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer-node-down        FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller node-down-not-seen no-seller-state
+rail=lnd wire=dir cases=24 failed=24

@@ -1,0 +1,5 @@
+clean                  FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+seller:invoice:post    FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer:pay:pre          FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+buyer-gone             FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-seller no-seller-state
+rail=lnd wire=http cases=4 failed=4

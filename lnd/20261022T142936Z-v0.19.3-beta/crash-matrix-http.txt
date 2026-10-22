@@ -1,0 +1,97 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/clean/seller/state.json'
+clean                  FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/repeat-accept/seller/state.json'
+repeat-accept          FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/tampered-accept/seller/state.json'
+tampered-accept        FAIL  buyer exits [2] seller exits [2] seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer-gone/seller/state.json'
+buyer-gone             FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_offer_pre/seller/state.json'
+seller:offer:pre       FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_offer_post/seller/state.json'
+seller:offer:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_accept_pre/seller/state.json'
+seller:accept:pre      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_accept_post/seller/state.json'
+seller:accept:post     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_k_pre/seller/state.json'
+seller:k:pre           FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_k_post/seller/state.json'
+seller:k:post          FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_invoice_pre/seller/state.json'
+seller:invoice:pre     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_invoice_post/seller/state.json'
+seller:invoice:post    FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_settle_pre/seller/state.json'
+seller:settle:pre      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/seller_settle_post/seller/state.json'
+seller:settle:post     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_request_post/seller/state.json'
+buyer:request:post     FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_offer_pre/seller/state.json'
+buyer:offer:pre        FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_accept_post/seller/state.json'
+buyer:accept:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_invoice_pre/seller/state.json'
+buyer:invoice:pre      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_paying_post/seller/state.json'
+buyer:paying:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_pay_pre/seller/state.json'
+buyer:pay:pre          FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_pay_post/seller/state.json'
+buyer:pay:post         FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_settle_pre/seller/state.json'
+buyer:settle:pre       FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer_settle_post/seller/state.json'
+buyer:settle:post      FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller no-seller-state
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pcp/pcp/matrix-http/buyer-node-down/seller/state.json'
+buyer-node-down        FAIL  buyer exits [2] seller exits [2] point-missed seller-exit buyer-exit audit-buyer audit-seller node-down-not-seen no-seller-state
+rail=lnd wire=http cases=24 failed=24

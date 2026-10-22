@@ -1,0 +1,18 @@
+k=7152c5cd319984bc2bd8fb8e7b5fe2004690108af62c15822924df79a1fa28ea H=c0fdac297d8bc4274f964f55ddbd6e493cf7ace1ea8bb1ffe1927e2d883fd1f8
+xxd: creds/bob/admin.macaroon: No such file or directory
+curl: (77) error setting certificate file: creds/bob/tls.cert
+
+xxd: creds/alice/admin.macaroon: No such file or directory
+curl: (77) error setting certificate file: creds/alice/tls.cert
+stream lines: 0
+xxd: creds/bob/admin.macaroon: No such file or directory
+curl: (77) error setting certificate file: creds/bob/tls.cert
+xxd: creds/alice/admin.macaroon: No such file or directory
+curl: (77) error setting certificate file: creds/alice/tls.cert
+xxd: creds/bob/admin.macaroon: No such file or directory
+curl: (77) error setting certificate file: creds/bob/tls.cert
+
+xxd: creds/alice/admin.macaroon: No such file or directory
+curl: (77) error setting certificate file: creds/alice/tls.cert
+xxd: creds/bob/admin.macaroon: No such file or directory
+curl: (77) error setting certificate file: creds/bob/tls.cert

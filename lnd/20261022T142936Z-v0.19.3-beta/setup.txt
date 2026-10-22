@@ -1,0 +1,10 @@
+docker.io/polarlightning/bitcoind:28.0@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010
+docker.io/lightninglabs/lnd:v0.19.3-beta@sha256:b175f136c01ffe01e75eee836273dd15b21a7e2cea2bd316ea98ad3640743aaa
+[14:29:11] bitcoind image polarlightning/bitcoind:28.0@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010 polarlightning/bitcoind@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010
+[14:29:11] lnd image      lightninglabs/lnd:v0.19.3-beta@sha256:b175f136c01ffe01e75eee836273dd15b21a7e2cea2bd316ea98ad3640743aaa lightninglabs/lnd@sha256:b175f136c01ffe01e75eee836273dd15b21a7e2cea2bd316ea98ad3640743aaa
+[14:29:13] bitcoind /Satoshi:28.0.0/
+[14:29:17] lnd 0.19.3-beta commit=v0.19.3-beta
+[14:29:18] alice wallet {"confirmed_balance":"100000000"}
+[14:29:18] alice 03af07bf865465ce1ba5e3eded7d719c45ad74b2b1f658987afbbcef328bf698dc
+[14:29:18] bob   026953e8ccb69356a4b8bbd67b098188dd021eb868685d9c59533fde201070bbeb
+[lncli] rpc error: code = Unknown desc = server is still in the process of starting

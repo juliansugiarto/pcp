@@ -1,0 +1,34 @@
+== bob channelbalance
+{
+    "balance": "0",
+    "pending_open_balance": "0",
+    "local_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "remote_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "unsettled_local_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "unsettled_remote_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "pending_open_local_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "pending_open_remote_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "custom_channel_data": "0000"
+}
+== bob listchannels
+{
+    "channels": []
+}

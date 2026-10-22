@@ -1,0 +1,42 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/lnd_regtest.rs (target/debug/deps/lnd_regtest-a97aa5c763a84ecd)
+
+running 4 tests
+test a_cancelled_hold_invoice_refunds_the_buyer ... FAILED
+test a_reused_payment_hash_is_refused ... FAILED
+test the_buyer_node_refuses_a_presented_invoice_with_other_terms ... FAILED
+test the_hold_invoice_reads_back_with_the_requested_terms ... FAILED
+
+failures:
+
+---- a_cancelled_hold_invoice_refunds_the_buyer stdout ----
+
+thread 'a_cancelled_hold_invoice_refunds_the_buyer' (5656) panicked at tests/lnd_regtest.rs:24:63:
+LND env vars: "No such file or directory (os error 2)"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- a_reused_payment_hash_is_refused stdout ----
+
+thread 'a_reused_payment_hash_is_refused' (5657) panicked at tests/lnd_regtest.rs:24:63:
+LND env vars: "No such file or directory (os error 2)"
+
+---- the_buyer_node_refuses_a_presented_invoice_with_other_terms stdout ----
+
+thread 'the_buyer_node_refuses_a_presented_invoice_with_other_terms' (5658) panicked at tests/lnd_regtest.rs:24:63:
+LND env vars: "No such file or directory (os error 2)"
+
+---- the_hold_invoice_reads_back_with_the_requested_terms stdout ----
+
+thread 'the_hold_invoice_reads_back_with_the_requested_terms' (5659) panicked at tests/lnd_regtest.rs:24:63:
+LND env vars: "No such file or directory (os error 2)"
+
+
+failures:
+    a_cancelled_hold_invoice_refunds_the_buyer
+    a_reused_payment_hash_is_refused
+    the_buyer_node_refuses_a_presented_invoice_with_other_terms
+    the_hold_invoice_reads_back_with_the_requested_terms
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test lnd_regtest`
