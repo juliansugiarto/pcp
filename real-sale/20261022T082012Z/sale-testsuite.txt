@@ -1,0 +1,35 @@
+[08:11:47] guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+[08:11:47]   [1 request sent]
+[08:11:47]   [2 offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328, rail lightning-bolt11/0]
+[08:13:26]   [3 seller proved and invoiced in 99.233 s: C 49 bytes, proof 223770 bytes]
+[08:13:26]   [4 buyer verified the proof in 0.013 s, before paying]
+[08:13:26]   [5 invoice checked: hash, amount, payee, description, expiry]
+[08:13:26]   [6 paid: HTLC to H on its way]
+[08:13:27]   [7 seller settled: revealed k, 1000000 msat received]
+[08:13:27]   [8 buyer has k, decrypted C and re-checked R (0.526 s after paying)]
+[08:13:27] SETTLED. Result R:
+[08:13:27] f(x) = if(x < 0, 0, if(x > 100, 100, x))
+[08:13:27] cost-row,job=testsuite,backend=risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328,segments=1,user_cycles=106862,total_cycles=262144,prove_s=99.228,verify_s=0.013,receipt_bytes=223770,settle_s=0.526,peak_rss_mib=2359
+[08:13:27] 	Command being timed: "./pcp-risc0/target/release/pcp-risc0 --job testsuite --rail lnd"
+[08:13:27] 	User time (seconds): 385.08
+[08:13:27] 	System time (seconds): 1.46
+[08:13:27] 	Percent of CPU this job got: 387%
+[08:13:27] 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:39.84
+[08:13:27] 	Average shared text size (kbytes): 0
+[08:13:27] 	Average unshared data size (kbytes): 0
+[08:13:27] 	Average stack size (kbytes): 0
+[08:13:27] 	Average total size (kbytes): 0
+[08:13:27] 	Maximum resident set size (kbytes): 2415916
+[08:13:27] 	Average resident set size (kbytes): 0
+[08:13:27] 	Major (requiring I/O) page faults: 0
+[08:13:27] 	Minor (reclaiming a frame) page faults: 962745
+[08:13:27] 	Voluntary context switches: 1172
+[08:13:27] 	Involuntary context switches: 60768
+[08:13:27] 	Swaps: 0
+[08:13:27] 	File system inputs: 0
+[08:13:27] 	File system outputs: 256
+[08:13:27] 	Socket messages sent: 0
+[08:13:27] 	Socket messages received: 0
+[08:13:27] 	Signals delivered: 0
+[08:13:27] 	Page size (bytes): 4096
+[08:13:27] 	Exit status: 0

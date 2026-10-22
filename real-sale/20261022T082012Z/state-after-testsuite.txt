@@ -1,0 +1,56 @@
+== after-testsuite at 2026-10-22T08:13:27Z, block height 113
+== alice channelbalance
+{"local_balance":{"sat":"994529","msat":"994529000"},"remote_balance":{"sat":"2001","msat":"2001000"}}
+== alice walletbalance
+{"confirmed_balance":"98995882","unconfirmed_balance":"0"}
+== bob channelbalance
+{"local_balance":{"sat":"2001","msat":"2001000"},"remote_balance":{"sat":"994529","msat":"994529000"}}
+== bob walletbalance
+{"confirmed_balance":"0","unconfirmed_balance":"0"}
+== sale payment hash 297dbda86c47b22af56e0c790682fc0b60483fc8d0e760b20209c42f7b42aa04
+== bob lookupinvoice
+{
+  "state": "SETTLED",
+  "is_keysend": false,
+  "value_msat": "1000000",
+  "amt_paid_msat": "1000000",
+  "creation_date": "1792656806",
+  "settle_date": "1792656807",
+  "expiry": "600",
+  "cltv_expiry": "24",
+  "description_hash": "e79489e1106a76cbd53effb00eb60cfe6228ce5324d8cf5238677b10a511b4df",
+  "r_preimage": "9fd582059ab42d722a08d188be5094883f50c2202aea3db3345790902d93a6a6",
+  "htlcs": [
+    {
+      "state": "SETTLED",
+      "amt_msat": "1000000",
+      "accept_height": 113,
+      "resolve_height": null,
+      "expiry_height": 140
+    }
+  ]
+}
+== alice decodepayreq
+{"destination":"02637a2d1a9fda564f05e1a7227d6f0c46c5cd95802a6664c86a52023ea1568cd7","payment_hash":"297dbda86c47b22af56e0c790682fc0b60483fc8d0e760b20209c42f7b42aa04","num_satoshis":"1000","timestamp":"1792656806","expiry":"600","description":"","description_hash":"e79489e1106a76cbd53effb00eb60cfe6228ce5324d8cf5238677b10a511b4df","fallback_addr":"","cltv_expiry":"24","route_hints":[],"payment_addr":"c722e17eac789d7f84b69200e981dc210fe4387d4760083186f409b2e8101cf7","num_msat":"1000000","features":{"8":{"name":"tlv-onion","is_required":true,"is_known":true},"14":{"name":"payment-addr","is_required":true,"is_known":true},"17":{"name":"multi-path-payments","is_required":false,"is_known":true},"25":{"name":"route-blinding","is_required":false,"is_known":true}},"blinded_paths":[]}
+== alice payment to this hash
+[
+  {
+    "status": "SUCCEEDED",
+    "value_msat": "1000000",
+    "fee_msat": "0",
+    "payment_preimage": "9fd582059ab42d722a08d188be5094883f50c2202aea3db3345790902d93a6a6",
+    "creation_time_ns": "1792656806637634855",
+    "failure_reason": "FAILURE_REASON_NONE",
+    "htlcs": [
+      {
+        "status": "SUCCEEDED",
+        "attempt_time_ns": "1792656806642491672",
+        "resolve_time_ns": "1792656807155116109",
+        "route": {
+          "total_time_lock": 140
+        }
+      }
+    ]
+  }
+]
+== sha256(preimage) = 297dbda86c47b22af56e0c790682fc0b60483fc8d0e760b20209c42f7b42aa04 (hash 297dbda86c47b22af56e0c790682fc0b60483fc8d0e760b20209c42f7b42aa04)
