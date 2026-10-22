@@ -90,6 +90,8 @@ jobs:
           # (risc0-zkvm 3.0.6), instead of "latest".
           curl -sSfL https://risczero.com/install -o rzup-install.sh
           sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
+          # The installer every recorded run fetched (22 October); a changed one fails here.
+          echo "5699878af779351ec0f931fa84c3d5e35263279f66bd915af225f530a77341bf  rzup-install.sh" | sha256sum -c -
           bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
           ok=""

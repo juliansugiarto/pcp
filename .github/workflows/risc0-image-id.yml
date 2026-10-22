@@ -38,6 +38,8 @@ jobs:
           # Pinned components (the versions CI used on 22 October 2026).
           curl -sSfL https://risczero.com/install -o rzup-install.sh
           sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
+          # The installer every recorded run fetched (22 October); a changed one fails here.
+          echo "5699878af779351ec0f931fa84c3d5e35263279f66bd915af225f530a77341bf  rzup-install.sh" | sha256sum -c -
           bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
           { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.0.6 && rzup install cargo-risczero 3.0.6; } 2>&1 | tail -n 20
@@ -51,6 +53,10 @@ jobs:
           echo "RISC0_USE_DOCKER=${RISC0_USE_DOCKER:-}" | tee ../out/build-mode.txt
           curl -fsS "https://hub.docker.com/v2/repositories/risczero/risc0-guest-builder/tags?page_size=30&ordering=last_updated" \
             | jq -r '.results[] | "\(.name) \(.last_updated)"' > ../out/guest-builder-tags.txt || true
+          # The digest behind the pinned tag, recorded so it can be pinned too
+          # (SUPPLY-CHAIN.md, "Not pinned yet").
+          curl -fsS "https://hub.docker.com/v2/repositories/risczero/risc0-guest-builder/tags/r0.1.97.0" \
+            | jq -r '"r0.1.97.0 \(.digest) \(.last_updated)"' | tee ../out/guest-builder-digest.txt || true
           set -o pipefail
           # The guest first (fails fast), then the host. Full output kept.
           cargo build --locked --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }

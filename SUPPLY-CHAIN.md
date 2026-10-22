@@ -16,7 +16,7 @@ Everything that runs in CI or in a sale window comes from somewhere. This file l
 
 ## Not pinned yet
 
-- The rzup installer and the `rzup` binary itself (the installer's hash is recorded, not checked), and the toolchain archives rzup downloads. The pinned image id catches a tampered guest build; it does not catch a tampered `r0vm` or `cargo-risczero` on the seller's machine.
-- The guest builder image `risczero/risc0-guest-builder:r0.1.97.0` is pinned by tag, not digest (`pcp-risc0/methods/build.rs`). The image id is the compensating check.
+- The `rzup` binary the installer fetches, and the toolchain archives rzup downloads. (The installer script itself is now checked against the hash every recorded run fetched (22 October 2026), `5699878a…41bf`.) The pinned image id catches a tampered guest build; it does not catch a tampered `r0vm` or `cargo-risczero` on the seller's machine.
+- The guest builder image `risczero/risc0-guest-builder:r0.1.97.0` is pinned by tag, not digest (`pcp-risc0/methods/build.rs`); the digest behind the tag is now recorded by `risc0-image-id` (`guest-builder-digest.txt`). The image id is the compensating check.
 - The host Rust toolchain (`rust-toolchain.toml` says `stable`) and the runner image (`ubuntu-latest`).
 - nginx in the HTTPS test comes from Ubuntu's signed apt archive.
