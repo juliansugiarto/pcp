@@ -48,10 +48,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
-      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta
+      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
       OUT: out
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Window parameters
         id: p
         run: |
@@ -69,19 +69,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          curl -L https://risczero.com/install | bash
+          # The installer is fetched, hashed and kept with the results; the
+          # components are pinned to the versions CI used on 22 October 2026
+          # (risc0-zkvm 3.0.6), instead of "latest".
+          curl -sSfL https://risczero.com/install -o rzup-install.sh
+          sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
+          bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
           ok=""
           for i in 1 2 3 4; do
-            rzup install > out/rzup-install-$i.txt 2>&1 || true
+            { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.0.6 && rzup install cargo-risczero 3.0.6; } > out/rzup-install-$i.txt 2>&1 || true
             rzup show 2>&1 | tee out/rzup-show.txt
-            if grep -qx rust out/rzup-show.txt && grep -qx r0vm out/rzup-show.txt; then ok=1; break; fi
+            if grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.0\.6' && grep -A1 -x rust out/rzup-show.txt | grep -q '1\.97\.0'; then ok=1; break; fi
             sleep $((i * 20))
           done
           [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
       # The real-sale cache: the same build.
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ~/.cargo/registry
@@ -95,11 +100,11 @@ jobs:
           cd pcp-risc0
           expected=$(grep -A1 'pub const PINNED_IMAGE_ID' verify/src/lib.rs | grep -oE '[0-9a-f]{64}')
           export RISC0_USE_DOCKER=1
-          cargo build --release -p pcp-risc0-host --features lnd,http > ../out/build-host.txt 2>&1 || { tail -n 100 ../out/build-host.txt; exit 1; }
+          cargo build --locked --release -p pcp-risc0-host --features lnd,http > ../out/build-host.txt 2>&1 || { tail -n 100 ../out/build-host.txt; exit 1; }
           id=$(./target/release/pcp-risc0 --job sudoku9 --execute-only | grep -oE "guest image id [0-9a-f]{64}" | awk '{print $4}')
           { echo "image_id: $id"; echo "pinned:   $expected"; } | tee ../out/image-id.txt
           [ -n "$id" ] && [ "$id" = "$expected" ] || { echo "the guest is not the pinned one: no window"; exit 1; }
-          cd ../pcp && cargo build --features lnd --bin pcp-setup --bin pcp-audit 2>&1 | tail -n 2
+          cd ../pcp && cargo build --locked --features lnd --bin pcp-setup --bin pcp-audit 2>&1 | tail -n 2
       - name: Start LND on signet (neutrino)
         run: |
           docker run -d --name window -p 127.0.0.1:8080:8080 -p 127.0.0.1:9735:9735 \
@@ -131,6 +136,8 @@ jobs:
           ./pcp/target/debug/pcp-setup --root win --seller-node from-env:PCP_SELLER_LND_ --seller-only | tee out/setup.txt
       - name: Open the window
         id: open
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           minutes=${{ steps.p.outputs.minutes }}
           secs=$((minutes * 60))
@@ -145,8 +152,19 @@ jobs:
           # HTTPS: Cloudflare quick tunnel (no account; the hostname changes every run).
           # Pinned versions (the ones window-probe ran); the hash is recorded.
           curl -sSfL -o cloudflared https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-linux-amd64
+          # The hash both dry runs downloaded (22 October 2026). A release
+          # replaced after the fact (the OVHcloud CLI case, 19 October) fails here.
+          echo "053b80b0a23031a038fdbf3c073f59f82b8f1f152aa67971d7383ffafc0dbab0  cloudflared" | sha256sum -c - \
+            || { echo "cloudflared does not match the pinned hash: no window"; exit 1; }
+          # Second source: the digest GitHub records for the release asset.
+          gh api repos/cloudflare/cloudflared/releases/tags/2026.10.3 \
+            --jq '.assets[] | select(.name == "cloudflared-linux-amd64") | .digest' > cf-digest.txt 2>/dev/null || true
+          echo "release asset digest: $(cat cf-digest.txt)" | tee -a out/cloudflared-version.txt
+          if grep -q '^sha256:' cf-digest.txt; then
+            [ "$(cat cf-digest.txt)" = "sha256:053b80b0a23031a038fdbf3c073f59f82b8f1f152aa67971d7383ffafc0dbab0" ] \
+              || { echo "GitHub's asset digest differs from the pinned hash: no window"; exit 1; }
+          fi
           chmod +x cloudflared && ./cloudflared --version | tee out/cloudflared-version.txt
-          sha256sum cloudflared | tee -a out/cloudflared-version.txt
           nohup ./cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8650 > cf.log 2>&1 &
           echo $! > cf.pid
           # Lightning P2P: bore (plain TCP; Lightning's own transport is encrypted and authenticated).
@@ -285,7 +303,7 @@ jobs:
           printf '# PCP sale window\n\nClosed at %s. No window is open. Results: branch ci-results-lnd, folder window/.\n' "$(date -u +%FT%TZ)" > WINDOW.md
           git add WINDOW.md && git commit -qm "window closed" && git push origin window
           git checkout -f "$GITHUB_SHA"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: sale-window-${{ github.run_id }}

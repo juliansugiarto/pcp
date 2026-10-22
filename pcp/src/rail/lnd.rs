@@ -156,6 +156,13 @@ impl LndRail {
     /// Decode a BOLT11 string with this node (`GET /v1/payreq/{bolt11}`).
     /// The payer trusts its own node's decoding, not the payee's word.
     pub fn decode(&self, bolt11: &str) -> Result<Invoice, RailError> {
+        // The string comes from the seller and goes into a URL path on the
+        // buyer's own node: only what a BOLT11 string can hold (bech32 is
+        // alphanumeric) and of sane length, or `../payments` would reach
+        // another endpoint with the buyer's macaroon.
+        if !plausible_bolt11(bolt11) {
+            return Err(RailError::InvoiceMissing);
+        }
         let v = self.get(&format!("/v1/payreq/{bolt11}"))?;
         invoice_from_payreq(&v, bolt11, self.cfg.secs_per_block)
     }
@@ -510,6 +517,37 @@ fn hex32(v: &Value) -> Option<Hash32> {
     hex::decode(v.as_str()?).ok()?.try_into().ok()
 }
 
+/// The parsers of node answers, for the fuzz harnesses (`pcp/fuzz`). Each
+/// takes what an LND node (or anything between it and us) sends back.
+#[cfg(feature = "fuzzing")]
+#[doc(hidden)]
+pub mod fuzzing {
+    use super::*;
+
+    /// Run every parser on `text` as JSON (and as a line); never panics.
+    pub fn parse_all(text: &str, h: &Hash32) {
+        let _ = plausible_bolt11(text);
+        let _ = track_line(text, "/v2/router/track/x");
+        let _ = track_error(400, text, "/v2/router/track/x");
+        let _ = send_update(text);
+        if let Ok(v) = serde_json::from_str::<Value>(text) {
+            let _ = invoice_from_payreq(&v, "lnbcrt1fuzz", 600);
+            let _ = incoming_from_invoice(&v, "node", 800_000, 1_800_000_000, 600);
+            let _ = payment_status(&v, h, 1_800_000_000);
+            let _ = num(&v);
+            let _ = hex32(&v);
+        }
+    }
+}
+
+/// Alphanumeric, starts with `ln` (any case), 8 to 7,089 characters (LND's
+/// own limit for a BOLT11 string).
+fn plausible_bolt11(s: &str) -> bool {
+    (8..=7089).contains(&s.len())
+        && s.get(..2).is_some_and(|p| p.eq_ignore_ascii_case("ln"))
+        && s.bytes().all(|c| c.is_ascii_alphanumeric())
+}
+
 fn secs_to_blocks(secs: u64, secs_per_block: u64) -> u64 {
     secs.div_ceil(secs_per_block.max(1))
 }
@@ -672,6 +710,24 @@ mod tests {
     const H: &str = "02d449a31fbb267c8f352e9968a79e3e5fc95c1bbeaa502fd6454ebde5a4bedc";
     const D: &str = "48b2ecc5eccf1ec9f13e74019ff6a45aa7aae444a3cae5f4338f28aff28e39b8";
     const NODE: &str = "03aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+    #[test]
+    fn only_plausible_bolt11_strings_reach_the_node() {
+        assert!(plausible_bolt11("lnbcrt10u1pjexample0qqq"));
+        assert!(plausible_bolt11("LNTBS1EXAMPLE"));
+        for bad in [
+            "",
+            "lnbc",
+            "../payments",
+            "lnbc1/../../v1/payments",
+            "lnbc1?x=1",
+            "lnbc1 abc",
+            "xxbc1abc",
+            &format!("lnbc1{}", "q".repeat(7100)),
+        ] {
+            assert!(!plausible_bolt11(bad), "{bad}");
+        }
+    }
 
     fn h() -> Hash32 {
         hex32(&json!(H)).unwrap()

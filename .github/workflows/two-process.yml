@@ -13,6 +13,7 @@ on:
     paths:
       - "pcp/src/**"
       - "pcp/Cargo.*"
+      - "pcp/fuzz/**"
       - "pcp/tools/crash-matrix.sh"
       - ".github/workflows/two-process.yml"
 
@@ -28,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Machine
         run: |
           mkdir -p out
@@ -40,18 +41,20 @@ jobs:
           cd pcp
           set -o pipefail
           echo "## cargo test" | tee ../out/cargo-test.txt
-          cargo test 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee -a ../out/cargo-test.txt
-          echo "## cargo test --features http" | tee -a ../out/cargo-test.txt
-          cargo test --features http 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee -a ../out/cargo-test.txt
+          cargo test --locked 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee -a ../out/cargo-test.txt
+          echo "## fuzz harnesses on seeds (pcp/fuzz/tests/seeds.rs)" | tee -a ../out/cargo-test.txt
+          (cd fuzz && cargo test --locked --release 2>&1 | grep -E "^test result|FAILED|panicked|^error") | tee -a ../out/cargo-test.txt
+          echo "## cargo test --locked --features http" | tee -a ../out/cargo-test.txt
+          cargo test --locked --features http 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee -a ../out/cargo-test.txt
           # Last, so target/debug holds the binaries with HTTP for the matrices.
-          cargo build --bins --features http 2>&1 | tail -n 3
+          cargo build --locked --bins --features http 2>&1 | tail -n 3
       - name: Clippy
         id: clippy
         continue-on-error: true
         run: |
           cd pcp
           set -o pipefail
-          cargo clippy --version | tee ../out/clippy.txt
+          cargo clippy --locked --version | tee ../out/clippy.txt
           # chunks_exact_to_as_chunks (clippy 1.99) flags job::testsuite::decode_suite.
           # That file is compiled into the zkVM guest, where any edit, even a
           # moved line, changes the binary (panic locations are embedded) and
@@ -59,7 +62,7 @@ jobs:
           # cc6e7b82... to 73ad16c1... on 22 October. So it is allowed here.
           for f in "" "--features http"; do
             echo "## clippy $f" | tee -a ../out/clippy.txt
-            cargo clippy --all-targets $f -- -D warnings -A unknown-lints -A clippy::chunks_exact_to_as_chunks 2>&1 \
+            cargo clippy --locked --all-targets $f -- -D warnings -A unknown-lints -A clippy::chunks_exact_to_as_chunks 2>&1 \
               | grep -v "^ *Compiling\|^ *Checking" | tail -n 80 | tee -a ../out/clippy.txt
           done
       - name: Dependency audit (RustSec)
@@ -67,7 +70,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          cargo install --locked cargo-audit 2>&1 | tail -n 1
+          cargo install --locked cargo-audit --version 0.22.2 2>&1 | tail -n 1
           cd pcp && cargo audit 2>&1 | tee ../out/cargo-audit.txt
       - name: Crash matrix (sim, directory wire)
         id: matrix
@@ -103,7 +106,7 @@ jobs:
               cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "$d"/setup.txt "out/${m##*:}/$n"/ 2>/dev/null || true
             done
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: two-process-${{ github.run_id }}

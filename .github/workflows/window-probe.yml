@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta
+      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
       MUTINY_CHALLENGE: 512102f7561d208dd9ae99bf497273e16f389bdbd6c4742ddb8e6b216e64fa2928ad8f51ae
       MUTINY_PEER: 45.79.52.207:38333
     steps:
@@ -89,7 +89,8 @@ jobs:
       - name: 4. Cloudflare quick tunnel
         continue-on-error: true
         run: |
-          curl -sSL -o cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          curl -sSfL -o cloudflared https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-linux-amd64
+          echo "053b80b0a23031a038fdbf3c073f59f82b8f1f152aa67971d7383ffafc0dbab0  cloudflared" | sha256sum -c -
           chmod +x cloudflared && ./cloudflared --version | tee out/tunnel.txt
           mkdir -p www && echo "pcp window probe" > www/index.html
           (cd www && python3 -m http.server 8650 >/dev/null 2>&1 &)
@@ -103,7 +104,7 @@ jobs:
       - name: 5. bore TCP tunnel
         continue-on-error: true
         run: |
-          cargo install --locked bore-cli 2>&1 | tail -n 1
+          cargo install --locked bore-cli --version 0.6.0 2>&1 | tail -n 1
           bore --version | tee out/bore.txt
           (python3 -c 'import socket;s=socket.socket();s.bind(("127.0.0.1",9735));s.listen();c,_=s.accept();c.sendall(b"pcp-bore-ok\n")' &)
           bore local 9735 --to bore.pub > bore.log 2>&1 &
@@ -121,7 +122,7 @@ jobs:
             echo "faucet: $(grep POST out/faucet.txt 2>/dev/null | cut -c1-120 | tr '\n' ' ')";
             echo "tunnel: $(grep -c 'pcp window probe' out/tunnel.txt 2>/dev/null) page(s) fetched";
             echo "bore: $(grep -c pcp-bore-ok out/bore.txt 2>/dev/null) line(s) read"; } | tee out/summary.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: window-probe-${{ github.run_id }}

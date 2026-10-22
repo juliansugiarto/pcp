@@ -71,6 +71,8 @@ lnd = ["std", "dep:reqwest", "dep:base64"]
 # The HTTP binding of the wire (SPEC 5.5): an axum server for the seller,
 # a reqwest client for the buyer. Off by default.
 http = ["std", "dep:axum", "dep:tokio", "dep:reqwest"]
+# Exposes internal parsers to the fuzz harnesses (pcp/fuzz). Not for use.
+fuzzing = []
 
 [dependencies]
 sha2 = { version = "0.10", default-features = false }

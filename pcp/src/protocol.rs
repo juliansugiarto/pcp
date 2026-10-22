@@ -1030,6 +1030,52 @@ impl Buyer {
             BuyerStateRecord::Refunded => BuyerState::Refunded,
             BuyerStateRecord::Aborted { reason } => BuyerState::Aborted(PcpError::Recorded(reason)),
         };
+        // Cross-references a valid run always leaves; a snapshot without
+        // them (corrupt or edited) would only panic later, possibly after
+        // the money left.
+        let (offer, statement, invoice) = match &state {
+            BuyerState::OfferAccepted { offer } => (Some(offer), None, None),
+            BuyerState::BundleVerified {
+                offer, statement, ..
+            } => (Some(offer), Some(statement), None),
+            BuyerState::InvoiceAccepted {
+                offer,
+                statement,
+                invoice,
+                ..
+            }
+            | BuyerState::Paying {
+                offer,
+                statement,
+                invoice,
+                ..
+            }
+            | BuyerState::Paid {
+                offer,
+                statement,
+                invoice,
+                ..
+            } => (Some(offer), Some(statement), Some(invoice)),
+            _ => (None, None, None),
+        };
+        if let Some(offer) = offer {
+            let seller_ok = snap.seller_mandate.as_ref().is_some_and(|m| {
+                m.agent_key == offer.mandate.as_ref().map_or([0; 32], |o| o.agent_key)
+            });
+            if !seller_ok || offer.buyer_nonce != req.buyer_nonce {
+                return Err(PcpError::RecordNotBound);
+            }
+            if let Some(st) = statement {
+                if st.offer_id != offer.offer_id() || st.buyer_nonce != req.buyer_nonce {
+                    return Err(PcpError::RecordNotBound);
+                }
+                if let Some(inv) = invoice {
+                    if inv.payment_hash != st.payment_hash {
+                        return Err(PcpError::RecordNotBound);
+                    }
+                }
+            }
+        }
         Ok(Buyer {
             agent: agent.clone(),
             node: agent.mandate().payout_node.clone(),
@@ -1886,7 +1932,24 @@ impl Seller {
             s.offers.insert(id, o);
         }
         for r in snap.sales {
-            s.sales.insert(r.bundle.statement.payment_hash, r);
+            // `k` must open the hash it is filed under, and the sale must
+            // belong to an offer of this snapshot.
+            let h = r.bundle.statement.payment_hash;
+            if crypto::payment_hash(&r.key) != h || r.bundle.statement.offer_id != r.offer_id {
+                return Err(PcpError::RecordNotBound);
+            }
+            s.sales.insert(h, r);
+        }
+        // Every proven or invoiced offer has its sale: otherwise the next
+        // repeated Accept would look up a sale that is not there.
+        for (id, o) in &s.offers {
+            if let OfferStage::Proven { payment_hash } | OfferStage::Invoiced { payment_hash } =
+                &o.stage
+            {
+                if s.sales.get(payment_hash).is_none_or(|r| r.offer_id != *id) {
+                    return Err(PcpError::RecordNotBound);
+                }
+            }
         }
         Ok(s)
     }

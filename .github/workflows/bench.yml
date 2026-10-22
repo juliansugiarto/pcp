@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Machine
         run: |
           mkdir -p out
@@ -40,20 +40,24 @@ jobs:
       - name: pcp tests
         run: |
           cd pcp
-          cargo test 2>&1 | tail -n 30 | tee ../out/pcp-test.txt
-          cargo test --features lnd 2>&1 | tail -n 15 | tee ../out/pcp-test-lnd.txt
-          cargo run --bin demo 2>&1 | tail -n 5 | tee ../out/pcp-demo.txt
+          cargo test --locked 2>&1 | tail -n 30 | tee ../out/pcp-test.txt
+          cargo test --locked --features lnd 2>&1 | tail -n 15 | tee ../out/pcp-test-lnd.txt
+          cargo run --locked --bin demo 2>&1 | tail -n 5 | tee ../out/pcp-demo.txt
       - name: Install RISC Zero toolchain
         run: |
-          curl -L https://risczero.com/install | bash
+          # Pinned components (the versions CI used on 22 October 2026).
+          curl -sSfL https://risczero.com/install -o rzup-install.sh
+          sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
+          bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
-          rzup install 2>&1 | tail -n 20
+          { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.0.6 && rzup install cargo-risczero 3.0.6; } 2>&1 | tail -n 20
           rzup show 2>&1 | tee out/rzup-show.txt
+          grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.0\.6' || { echo "r0vm 3.0.6 not installed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
       - name: Build pcp-risc0
         run: |
           cd pcp-risc0
-          cargo build --release 2>&1 | tail -n 40 | tee ../out/risc0-build.txt
+          cargo build --locked --release 2>&1 | tail -n 40 | tee ../out/risc0-build.txt
       - name: Execute only (cycle counts)
         continue-on-error: true
         run: |
@@ -96,12 +100,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Build and fingerprint
         run: |
           mkdir -p out
           cd pcp-zk
-          cargo build --release --bin pcp-zk
+          cargo build --locked --release --bin pcp-zk
           { echo "os: ${{ matrix.os }} $(uname -sm)"; echo "commit: $GITHUB_SHA";
             echo "vk_fingerprint: $(./target/release/pcp-zk vk-fingerprint)"; } | tee ../out/fingerprint-${{ matrix.os }}.txt
       - name: CLI end to end

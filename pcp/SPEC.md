@@ -523,5 +523,6 @@ Vectors 14 to 17 are checked by `statement_core_conformance_vectors` in `src/sta
 - Bitcoin wiki, zero-knowledge contingent payment (2011).
 - Maxwell and Bowe, first ZKCP on Bitcoin mainnet: a sudoku solution for 0.10 BTC, 26 February 2016.
 - Campanelli, Gennaro, Goldfeder, Nizzardo, "Zero-Knowledge Contingent Payments Revisited: Attacks and Payments for Services", ACM CCS 2017 (IACR ePrint 2017/566).
+- Conduition, "Verifiably Buy Solutions to NP Problems with Bitcoin", 2 November 2024 (https://conduition.io/bitcoin/zkpreimage/): the same construction over Lightning, with the HTLC preimage as the decryption key and a zero-knowledge proof that the ciphertext decrypts to a valid solution; RISC Zero timings for a related statement; pseudocode, no implementation. Found by desk research on 22 October 2026, after this specification was written; PCP/0 should have cited it from the start.
 - Lightning BOLT11 invoices; hash time-locked contracts.
 - Google AP2 (2025): user-signed intent mandates for agent payments, with an identity root and rails owned by its operators. PCP/0's mandate has the same shape and no root.

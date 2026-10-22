@@ -1974,6 +1974,8 @@ struct FlakyRail<'a> {
     lookup_fails: bool,
     /// How many times `cancel_invoice` was called.
     cancels: u32,
+    /// Report another rail id than the ledger's.
+    rail_id: Option<&'static str>,
 }
 
 impl<'a> FlakyRail<'a> {
@@ -1984,13 +1986,14 @@ impl<'a> FlakyRail<'a> {
             pay_fails: false,
             lookup_fails: false,
             cancels: 0,
+            rail_id: None,
         }
     }
 }
 
 impl crate::rail::Rail for FlakyRail<'_> {
     fn rail_id(&self) -> &'static str {
-        self.inner.rail_id()
+        self.rail_id.unwrap_or_else(|| self.inner.rail_id())
     }
     fn now(&self) -> u64 {
         crate::rail::Rail::now(self.inner)
@@ -2939,4 +2942,466 @@ fn expired_offers_are_purged_and_live_sales_are_kept() {
     assert!(w.seller.issued(&idle.offer_id()).is_none());
     assert!(w.seller.issued(&w.offer.offer_id()).is_some());
     assert_eq!(w.seller.snapshot().offers.len(), 1);
+}
+
+// ---------------------------------------------------------------------------
+// Fable review 18, finding D: restore refuses snapshots whose
+// cross-references do not hold, instead of panicking later.
+
+#[test]
+fn corrupt_snapshots_are_refused_at_restore() {
+    // Buyer at InvoiceAccepted, seller with an invoiced offer.
+    let (w, _bundle, _binding) = wire_invoiced();
+    let restore_seller = |snap: SellerSnapshot| {
+        Seller::restore(
+            &w.sp.agent,
+            Box::new(TestSuiteJob),
+            Box::new(InsecureDevTransparentBackend),
+            sim_seller_cfg(),
+            snap,
+        )
+    };
+    // The untouched snapshot restores.
+    assert!(restore_seller(w.seller.snapshot()).is_ok());
+    // An invoiced offer without its sale.
+    let mut snap = w.seller.snapshot();
+    snap.sales.clear();
+    assert!(matches!(
+        restore_seller(snap),
+        Err(PcpError::RecordNotBound)
+    ));
+    // A sale whose k does not open its hash.
+    let mut snap = w.seller.snapshot();
+    snap.sales[0].key[0] ^= 1;
+    assert!(matches!(
+        restore_seller(snap),
+        Err(PcpError::RecordNotBound)
+    ));
+    // A sale filed under another offer.
+    let mut snap = w.seller.snapshot();
+    snap.sales[0].offer_id[0] ^= 1;
+    assert!(matches!(
+        restore_seller(snap),
+        Err(PcpError::RecordNotBound)
+    ));
+
+    let restore_buyer = |snap: BuyerSnapshot| {
+        Buyer::restore(
+            &w.bp.agent,
+            Box::new(TestSuiteJob),
+            Box::new(InsecureDevTransparentBackend),
+            dev_policy(),
+            snap,
+        )
+    };
+    assert!(restore_buyer(w.buyer.snapshot()).is_ok());
+    // An accepted invoice without the seller's mandate (poll would panic
+    // after paying).
+    let mut snap = w.buyer.snapshot();
+    snap.seller_mandate = None;
+    assert!(matches!(restore_buyer(snap), Err(PcpError::RecordNotBound)));
+}
+
+// ---------------------------------------------------------------------------
+// Fable review 18, part 5: checks that no test turned red when disabled.
+
+#[test]
+fn offer_field_checks_each_refuse() {
+    let job = SudokuJob::four();
+    let input = job.parse_grid("1..4 ..1. .1.. 4..1").unwrap();
+    let bp = party(terms(Role::Buyer, "buyer"));
+    let sp = party(terms(Role::Seller, "seller"));
+    let mk = || {
+        Buyer::new(
+            &bp.agent,
+            Box::new(job),
+            Box::new(InsecureDevTransparentBackend),
+            dev_policy(),
+            input.clone(),
+            PRICE,
+            0,
+            &mut OsRng,
+        )
+        .unwrap()
+    };
+    let mut s = Seller::new(
+        &sp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        sell_cfg(PRICE),
+    );
+    type Edit = fn(&mut Offer);
+    let cases: [(Edit, PcpError); 4] = [
+        (|o| o.version = "PCP/1".into(), PcpError::Version),
+        (
+            |o| o.input_commitment[0] ^= 1,
+            PcpError::InputCommitmentMismatch,
+        ),
+        (
+            |o| o.backend_id = "other/0".into(),
+            PcpError::BackendNotAccepted,
+        ),
+        (
+            |o| o.enc_scheme = "other/0".into(),
+            PcpError::EncSchemeNotSupported,
+        ),
+    ];
+    for (edit, want) in cases {
+        let (mut b, req) = mk();
+        let mut o = s.make_offer(&req, 0).unwrap();
+        edit(&mut o);
+        let o = resign_offer(&sp.agent, o);
+        assert_eq!(b.accept_offer(&o, 0), Err(want.clone()), "{want:?}");
+    }
+}
+
+#[test]
+fn request_field_checks_each_refuse() {
+    let job = SudokuJob::four();
+    let input = job.parse_grid("1..4 ..1. .1.. 4..1").unwrap();
+    let bp = party(terms(Role::Buyer, "buyer"));
+    let sp = party(terms(Role::Seller, "seller"));
+    let (_, req) = Buyer::new(
+        &bp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        input,
+        PRICE,
+        0,
+        &mut OsRng,
+    )
+    .unwrap();
+    type Edit = fn(&mut Request);
+    type Want = fn(&PcpError) -> bool;
+    let cases: [(Edit, Want); 4] = [
+        (|r| r.version = "PCP/1".into(), |e| *e == PcpError::Version),
+        (
+            |r| r.job_id = "pcp/other/v0".into(),
+            |e| *e == PcpError::JobMismatch,
+        ),
+        (
+            |r| r.input_commitment[0] ^= 1,
+            |e| *e == PcpError::InputCommitmentMismatch,
+        ),
+        (
+            |r| r.max_price_msat = PRICE - 1,
+            |e| matches!(e, PcpError::PriceTooHigh { .. }),
+        ),
+    ];
+    for (i, (edit, want)) in cases.into_iter().enumerate() {
+        let mut s = Seller::new(
+            &sp.agent,
+            Box::new(job),
+            Box::new(InsecureDevTransparentBackend),
+            sell_cfg(PRICE),
+        );
+        let mut r = req.clone();
+        edit(&mut r);
+        let r = resign_request(&bp.agent, r);
+        let got = s.make_offer(&r, 0);
+        assert!(got.as_ref().is_err_and(want), "case {i}: {got:?}");
+        assert!(s.unfinished().is_empty());
+    }
+}
+
+#[test]
+fn accept_version_and_expiry_are_checked() {
+    let mut w = wire();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    let mut other = acc.clone();
+    other.version = "PCP/1".into();
+    assert_eq!(
+        w.seller.accept(&other, w.ledger.now()).err(),
+        Some(PcpError::Version)
+    );
+    // A valid Accept that arrives when the offer is void starts nothing.
+    assert_eq!(
+        w.seller.accept(&acc, w.offer.offer_expires_at).err(),
+        Some(PcpError::OfferExpired)
+    );
+    assert!(w.seller.unfinished().is_empty());
+}
+
+// ---------------------------------------------------------------------------
+// Mutation table, first run (22 October 2026): checks that survived.
+
+/// The same job class, except that its check refuses everything.
+struct RefusingSudoku(SudokuJob);
+impl JobClass for RefusingSudoku {
+    fn job_id(&self) -> &'static str {
+        self.0.job_id()
+    }
+    fn params(&self) -> Vec<u8> {
+        self.0.params()
+    }
+    fn check(&self, _: &[u8], _: &[u8]) -> bool {
+        false
+    }
+}
+
+#[test]
+fn receipt_reverification_checks_each_field() {
+    let job = SudokuJob::nine();
+    let input = puzzle9();
+    let solution = job.solve(&input).unwrap();
+    let fx = run_happy(fixture(job, input.clone()), solution.clone());
+    let receipt = fx.buyer.receipt().unwrap().clone();
+    let BuyerState::Delivered { bundle, .. } = fx.buyer.state() else {
+        panic!()
+    };
+    assert_eq!(receipt.verify(&job, &input, bundle).unwrap(), solution);
+    let mut r = receipt.clone();
+    r.version = "PCP/1".into();
+    assert_eq!(r.verify(&job, &input, bundle), Err(PcpError::Version));
+    let mut b = bundle.clone();
+    b.statement.version = "PCP/1".into();
+    assert_eq!(receipt.verify(&job, &input, &b), Err(PcpError::Version));
+    assert_eq!(
+        receipt.verify(&SudokuJob::four(), &input, bundle),
+        Err(PcpError::JobMismatch)
+    );
+    let mut other = input.clone();
+    other[1] = if other[1] == 0 { 1 } else { 0 };
+    assert_eq!(
+        receipt.verify(&job, &other, bundle),
+        Err(PcpError::InputCommitmentMismatch)
+    );
+    assert_eq!(
+        receipt.verify(&RefusingSudoku(job), &input, bundle),
+        Err(PcpError::PostPaymentCheckFailed)
+    );
+}
+
+#[test]
+fn buyer_restore_checks_schema_job_and_references() {
+    let (w, _, _) = wire_invoiced();
+    let restore = |job: Box<dyn JobClass>, snap: BuyerSnapshot| {
+        Buyer::restore(
+            &w.bp.agent,
+            job,
+            Box::new(InsecureDevTransparentBackend),
+            dev_policy(),
+            snap,
+        )
+    };
+    let mut snap = w.buyer.snapshot();
+    snap.schema = 2;
+    assert!(matches!(
+        restore(Box::new(TestSuiteJob), snap),
+        Err(PcpError::Version)
+    ));
+    assert!(matches!(
+        restore(Box::new(SudokuJob::four()), w.buyer.snapshot()),
+        Err(PcpError::JobMismatch)
+    ));
+    let mut snap = w.buyer.snapshot();
+    let BuyerStateRecord::InvoiceAccepted { statement, .. } = &mut snap.state else {
+        panic!("wire_invoiced leaves the buyer at InvoiceAccepted")
+    };
+    statement.offer_id[0] ^= 1;
+    assert!(matches!(
+        restore(Box::new(TestSuiteJob), snap),
+        Err(PcpError::RecordNotBound)
+    ));
+    let mut snap = w.buyer.snapshot();
+    let BuyerStateRecord::InvoiceAccepted { invoice, .. } = &mut snap.state else {
+        panic!()
+    };
+    invoice.payment_hash[0] ^= 1;
+    assert!(matches!(
+        restore(Box::new(TestSuiteJob), snap),
+        Err(PcpError::RecordNotBound)
+    ));
+}
+
+/// A wire sale with the bundle and invoice made, the buyer still at
+/// OfferAccepted.
+fn wire_proven() -> (Wire, ProofBundle, InvoiceBinding) {
+    let mut w = wire();
+    let id = w.offer.offer_id();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    w.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    let (bundle, binding) = w.seller.invoice(&id, &mut w.ledger).unwrap();
+    (w, bundle, binding)
+}
+
+#[test]
+fn bundle_field_checks_each_refuse_with_their_own_code() {
+    type Edit = fn(&mut ProofBundle);
+    let cases: [(Edit, PcpError); 4] = [
+        (
+            |b| b.backend_id = "other/0".into(),
+            PcpError::BackendNotAccepted,
+        ),
+        (|b| b.statement.offer_id[0] ^= 1, PcpError::OfferMismatch),
+        (
+            |b| b.statement.job_id = "pcp/other/v0".into(),
+            PcpError::JobMismatch,
+        ),
+        (
+            |b| b.statement.input_commitment[0] ^= 1,
+            PcpError::InputCommitmentMismatch,
+        ),
+    ];
+    for (edit, want) in cases {
+        let (mut w, mut bundle, _) = wire_proven();
+        edit(&mut bundle);
+        assert_eq!(
+            w.buyer.verify_bundle(&bundle),
+            Err(want.clone()),
+            "{want:?}"
+        );
+    }
+}
+
+#[test]
+fn public_bundle_checks_each_refuse() {
+    let (_, bundle, _) = wire_proven();
+    let id = InsecureDevTransparentBackend.backend_id();
+    let job = TestSuiteJob;
+    let st = bundle.statement.clone();
+    assert_eq!(
+        crate::proof::check_bundle_public(id, &job, &st, &bundle),
+        Ok(())
+    );
+    let mut b = bundle.clone();
+    b.version = "PCP/1".into();
+    assert_eq!(
+        crate::proof::check_bundle_public(id, &job, &st, &b),
+        Err(VerifyError::Version)
+    );
+    assert_eq!(
+        crate::proof::check_bundle_public("other/0", &job, &st, &bundle),
+        Err(VerifyError::BackendMismatch)
+    );
+    assert_eq!(
+        crate::proof::check_bundle_public(id, &SudokuJob::four(), &st, &bundle),
+        Err(VerifyError::SpecMismatch)
+    );
+    let mut b = bundle.clone();
+    b.ciphertext.push(0);
+    assert_eq!(
+        crate::proof::check_bundle_public(id, &job, &st, &b),
+        Err(VerifyError::CiphertextHashMismatch)
+    );
+}
+
+#[test]
+fn the_dev_prover_refuses_a_ciphertext_the_statement_does_not_name() {
+    let (w, bundle, _) = wire_proven();
+    let sale = &w.seller.snapshot().sales[0];
+    let witness = Witness {
+        input: sale.input.clone(),
+        result: CLAMP_OK.as_bytes().to_vec(),
+        key: sale.key,
+    };
+    let mut c = bundle.ciphertext.clone();
+    c[0] ^= 1;
+    assert!(matches!(
+        InsecureDevTransparentBackend.prove(&TestSuiteJob, &bundle.statement, &c, &witness),
+        Err(ProveError::Unsatisfied(VerifyError::CiphertextHashMismatch))
+    ));
+}
+
+#[test]
+fn state_machine_guards_refuse_out_of_order_calls() {
+    // The buyer accepts one offer, once.
+    let mut w = wire();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    assert!(matches!(
+        w.buyer.accept_offer(&w.offer, w.ledger.now()),
+        Err(PcpError::WrongState(_))
+    ));
+    // The seller proves only an accepted offer, and not after it expired.
+    let mut w = wire();
+    let id = w.offer.offer_id();
+    assert!(matches!(
+        w.seller.prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng
+        ),
+        Err(PcpError::WrongState(_))
+    ));
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    assert_eq!(
+        w.seller.prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.offer.offer_expires_at,
+            &mut OsRng
+        ),
+        Err(PcpError::OfferExpired)
+    );
+}
+
+#[test]
+fn each_side_refuses_a_rail_other_than_the_offers() {
+    // Seller: invoicing on another rail.
+    let (mut w, _, _) = {
+        let mut w = wire();
+        let id = w.offer.offer_id();
+        w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+        let acc = w.buyer.accept_message().unwrap();
+        w.seller.accept(&acc, w.ledger.now()).unwrap();
+        w.seller
+            .prove(
+                &id,
+                CLAMP_OK.as_bytes().to_vec(),
+                w.ledger.now(),
+                &mut OsRng,
+            )
+            .unwrap();
+        let mut rail = FlakyRail::new(&mut w.ledger);
+        rail.rail_id = Some("other-rail/0");
+        assert!(matches!(
+            w.seller.invoice(&id, &mut rail),
+            Err(PcpError::RailNotSupported)
+        ));
+        (w, (), ())
+    };
+    // Buyer: paying on another rail.
+    let (mut w2, bundle, binding) = wire_proven();
+    w2.buyer.verify_bundle(&bundle).unwrap();
+    w2.buyer.check_invoice(&binding, w2.ledger.now()).unwrap();
+    let mut rail = FlakyRail::new(&mut w2.ledger);
+    rail.rail_id = Some("other-rail/0");
+    assert_eq!(w2.buyer.pay_via(&mut rail), Err(PcpError::RailNotSupported));
+    // Seller, one-call path: fulfil on another rail.
+    let mut rail = FlakyRail::new(&mut w.ledger);
+    rail.rail_id = Some("other-rail/0");
+    let req = w.buyer.request().clone();
+    let r = w.seller.fulfil(
+        &req,
+        &w.offer,
+        CLAMP_OK.as_bytes().to_vec(),
+        &mut rail,
+        &mut OsRng,
+    );
+    assert!(matches!(r, Err(PcpError::RailNotSupported)), "{r:?}");
+}
+
+#[test]
+fn mandate_version_and_agent_expiry_are_checked() {
+    let p = party(terms(Role::Buyer, "buyer"));
+    let mut m = p.agent.mandate().clone();
+    m.version = "PCP/1".into();
+    assert_eq!(m.verify_signature(), Err(MandateError::Version));
+    let expires = p.agent.mandate().expires_at;
+    assert_eq!(p.agent.check_budget(1, expires), Err(MandateError::Expired));
+    assert_eq!(p.agent.check_budget(1, expires - 1), Ok(()));
 }

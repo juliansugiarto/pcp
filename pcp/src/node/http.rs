@@ -51,6 +51,10 @@ use super::wire::{Inbox, Wire, WireMsg};
 
 /// Largest request or accept body accepted (a sudoku request is about 1 KB).
 pub const MAX_BODY: usize = 64 * 1024;
+/// Largest answer the buyer reads from a seller: a bundle with a 512 KiB
+/// receipt, hex-encoded, plus the ciphertext fits with room to spare. A
+/// hostile seller cannot make the buyer buffer more.
+pub const MAX_ANSWER: u64 = 4 * 1024 * 1024;
 /// How long a handler waits for the seller loop's answer.
 pub const REPLY_WAIT: Duration = Duration::from_secs(3);
 /// Messages waiting for the seller loop at most; beyond, 503 at once.
@@ -308,7 +312,12 @@ impl HttpBuyer {
                 "{base}: the seller URL must be https:// (--allow-insecure-transport for tests)"
             ));
         }
-        let mut builder = reqwest::blocking::Client::builder().timeout(Duration::from_secs(15));
+        // No redirects: a seller never needs one, and following them would
+        // let a hostile seller send the buyer's POST anywhere, including
+        // inside the buyer's own network.
+        let mut builder = reqwest::blocking::Client::builder()
+            .timeout(Duration::from_secs(15))
+            .redirect(reqwest::redirect::Policy::none());
         if let Some(pem) = ca_pem {
             let cert = reqwest::Certificate::from_pem(pem)
                 .map_err(|e| format!("seller CA certificate: {e}"))?;
@@ -329,7 +338,18 @@ impl HttpBuyer {
         match self.http.post(&url).json(body).send() {
             Ok(resp) => {
                 let status = resp.status().as_u16();
-                let bytes = resp.bytes().map(|b| b.to_vec()).unwrap_or_default();
+                use std::io::Read;
+                let mut bytes = Vec::new();
+                if let Err(e) = resp.take(MAX_ANSWER + 1).read_to_end(&mut bytes) {
+                    eprintln!("POST {url}: reading the answer: {e} (will ask again)");
+                    return None;
+                }
+                if bytes.len() as u64 > MAX_ANSWER {
+                    eprintln!(
+                        "POST {url}: answer over {MAX_ANSWER} bytes, ignored (will ask again)"
+                    );
+                    return None;
+                }
                 Some((status, bytes))
             }
             Err(e) => {
@@ -529,6 +549,53 @@ mod tests {
         assert!(HttpBuyer::new("https://example.org", false, None).is_ok());
         assert!(HttpBuyer::new("https://example.org", false, Some(b"not a pem")).is_err());
         assert!(HttpSeller::start("0.0.0.0:0".parse().unwrap(), false).is_err());
+    }
+
+    #[test]
+    fn a_redirect_is_not_followed() {
+        // A "seller" that redirects every POST elsewhere (307 keeps the
+        // method and body): the buyer must not follow.
+        let l = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = l.local_addr().unwrap();
+        std::thread::spawn(move || {
+            use std::io::{Read, Write};
+            if let Ok((mut c, _)) = l.accept() {
+                let mut buf = [0u8; 4096];
+                let _ = c.read(&mut buf);
+                let _ = write!(
+                    c,
+                    "HTTP/1.1 307 Temporary Redirect\r\nlocation: http://10.0.0.1/admin\r\ncontent-length: 0\r\n\r\n"
+                );
+            }
+        });
+        let b = HttpBuyer::new(&format!("http://{addr}"), true, None).unwrap();
+        assert_eq!(
+            b.post("/pcp/v0/request", &json!({})).map(|r| r.0),
+            Some(307)
+        );
+    }
+
+    #[test]
+    fn an_oversized_answer_is_not_buffered() {
+        // A "seller" that answers every request with 5 MiB.
+        let l = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = l.local_addr().unwrap();
+        std::thread::spawn(move || {
+            use std::io::{Read, Write};
+            if let Ok((mut c, _)) = l.accept() {
+                let mut buf = [0u8; 4096];
+                let _ = c.read(&mut buf);
+                let body = vec![b'x'; 5 * 1024 * 1024];
+                let _ = write!(
+                    c,
+                    "HTTP/1.1 200 OK\r\ncontent-length: {}\r\n\r\n",
+                    body.len()
+                );
+                let _ = c.write_all(&body);
+            }
+        });
+        let b = HttpBuyer::new(&format!("http://{addr}"), true, None).unwrap();
+        assert!(b.post("/pcp/v0/request", &json!({})).is_none());
     }
 
     #[test]

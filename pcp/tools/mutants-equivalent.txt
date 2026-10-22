@@ -1,0 +1,5 @@
+# Checks whose mutant cannot change behaviour, with the reason. Matched by
+# file and the exact condition text (line numbers move). Reviewed by hand;
+# re-check when the code around them changes.
+src/protocol.rs	crypto::ciphertext_hash(&bundle.ciphertext) != st.ciphertext_hash	Receipt::verify: bundle_id hashes the ciphertext and is compared first (OfferMismatch), so a changed ciphertext never reaches this line
+src/protocol.rs	req.mandate.is_none()	Seller::prove_inner: make_offer refuses a request without a mandate (S1m), so an issued offer always has one

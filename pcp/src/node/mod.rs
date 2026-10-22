@@ -28,6 +28,22 @@ pub mod http;
 pub mod sim_file;
 pub mod store;
 pub mod wire;
+pub mod work;
+
+/// A counterparty's refusal reason, reduced to what a reason code can hold
+/// (SPEC 5.4: `a-z`, digits, `_`, `.`, `-`, `:`) and at most 128 characters.
+pub fn reason_code(s: &str) -> String {
+    let kept: String = s
+        .chars()
+        .filter(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || "_.-:".contains(*c))
+        .take(128)
+        .collect();
+    if kept.is_empty() {
+        "unreadable_reason".into()
+    } else {
+        kept
+    }
+}
 
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
@@ -578,6 +594,10 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
                         run.wire.ack(&name)?;
                         continue;
                     }
+                    // The reason is the seller's text: keep it a reason code,
+                    // so it cannot write escapes to the terminal or grow the
+                    // saved state.
+                    let reason = reason_code(&reason);
                     let e = buyer.refused_by_seller(&PcpError::Recorded(reason.clone()));
                     if !matches!(e, PcpError::WrongState(_)) {
                         save(&buyer)?;
@@ -711,6 +731,18 @@ fn short(h: &[u8; 32]) -> String {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn refusal_reasons_are_reduced_to_codes() {
+        assert_eq!(super::reason_code("seller_busy"), "seller_busy");
+        assert_eq!(
+            super::reason_code("refused_by_counterparty.offer_not_issued"),
+            "refused_by_counterparty.offer_not_issued"
+        );
+        assert_eq!(super::reason_code("\u{1b}[2Jowned\n"), "2owned");
+        assert_eq!(super::reason_code(&"x".repeat(10_000)).len(), 128);
+        assert_eq!(super::reason_code("\u{1b}"), "unreadable_reason");
+    }
+
     use super::sim_file::{self, SimFileRail};
     use super::store::StateDir;
     use super::wire::{DirTransport, WireMsg};
@@ -746,6 +778,86 @@ mod tests {
             &mut OsRng,
         );
         (key, m)
+    }
+
+    #[test]
+    fn both_loops_stop_at_their_deadline() {
+        use super::{run_buyer, run_seller, BuyerRun, NodeError, SellerRun};
+        use crate::job::{JobClass, SudokuJob};
+        use crate::proof::{InsecureDevTransparentBackend, ProofBackend};
+        use crate::protocol::{BuyerPolicy, SellerConfig};
+        use std::time::Duration;
+        let job = SudokuJob::four();
+        let mandate = |role| {
+            let principal = SecretKey::generate(&mut OsRng);
+            let key = SecretKey::generate(&mut OsRng);
+            let m = Mandate::sign(
+                &principal,
+                key.public_key(),
+                MandateTerms {
+                    role,
+                    scope: vec![job.spec_hash()],
+                    cap_msat: 10_000_000,
+                    per_deal_max_msat: 10_000_000,
+                    payout_node: "n".into(),
+                    expires_at: 1_000_000,
+                },
+                &mut OsRng,
+            );
+            (key, m)
+        };
+        let make_job = || Box::new(job) as Box<dyn JobClass>;
+        let make_backend = || Box::new(InsecureDevTransparentBackend) as Box<dyn ProofBackend>;
+        let d = tmp("deadline");
+        let mut ledger = crate::lightning::Ledger::new();
+
+        let (key, m) = mandate(Role::Seller);
+        StateDir::open(&d.join("seller"))
+            .unwrap()
+            .init_agent(&key, &m)
+            .unwrap();
+        let work = |_: &[u8]| None;
+        let r = run_seller(SellerRun {
+            state_dir: d.join("seller"),
+            wire: Box::new(DirTransport::new(&d.join("si"), &d.join("bi")).unwrap()),
+            rail: &mut ledger,
+            make_job: &make_job,
+            make_backend: &make_backend,
+            cfg: SellerConfig::default(),
+            work: &work,
+            poll: Duration::from_millis(1),
+            sales: 1,
+            quiet_exit: Duration::from_secs(3600),
+            deadline: Duration::ZERO,
+            log: &mut |_| {},
+        });
+        assert!(matches!(r, Err(NodeError::Deadline)), "{r:?}");
+
+        let (key, m) = mandate(Role::Buyer);
+        StateDir::open(&d.join("buyer"))
+            .unwrap()
+            .init_agent(&key, &m)
+            .unwrap();
+        let r = run_buyer(BuyerRun {
+            state_dir: d.join("buyer"),
+            wire: Box::new(DirTransport::new(&d.join("bi"), &d.join("si")).unwrap()),
+            rail: &mut ledger,
+            make_job: &make_job,
+            make_backend: &make_backend,
+            policy: BuyerPolicy {
+                allow_insecure_dev_backend: true,
+                ..BuyerPolicy::default()
+            },
+            input: job.parse_grid("1..4 ..1. .1.. 4..1").unwrap(),
+            max_price_msat: 2_000_000,
+            poll: Duration::from_millis(1),
+            resend: Duration::from_secs(5),
+            offer_wait_secs: 3600,
+            deadline: Duration::ZERO,
+            tamper_accept: false,
+            log: &mut |_| {},
+        });
+        assert!(matches!(r, Err(NodeError::Deadline)), "{r:?}");
     }
 
     #[test]

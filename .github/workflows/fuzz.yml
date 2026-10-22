@@ -1,0 +1,93 @@
+# Coverage-guided fuzzing of every decoder and every function that takes a
+# stranger's bytes (pcp/fuzz, design note 17, Fable review 18). Nightly and
+# manual, not per push: it needs the nightly toolchain and takes about 15
+# minutes per target. The stable seed tests (pcp/fuzz/tests/seeds.rs) run in
+# two-process.yml on every push. A crash becomes a regression test before
+# its fix. Results: branch ci-results under fuzz/<UTC ts>/, crashes also as
+# workflow artifacts.
+name: fuzz
+
+on:
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: "Seconds per target"
+        type: number
+        default: 600
+  schedule:
+    - cron: "17 19 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fuzz
+  cancel-in-progress: false
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [f1_messages, f2_seller, f3_buyer, f4_statement, f5_jobs, f6_restore, f7_lnd]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Nightly toolchain and cargo-fuzz
+        run: |
+          mkdir -p out
+          rustup toolchain install nightly --profile minimal 2>&1 | tail -n 2
+          cargo +nightly --version | tee out/toolchain.txt
+          cargo install --locked cargo-fuzz --version 0.13.1 2>&1 | tail -n 1
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: pcp/fuzz/corpus/${{ matrix.target }}
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: fuzz-corpus-${{ matrix.target }}-
+      - name: Fuzz ${{ matrix.target }}
+        id: run
+        continue-on-error: true
+        run: |
+          cd pcp
+          secs=${{ inputs.seconds || 600 }}
+          case "${{ matrix.target }}" in f3_buyer|f5_jobs|f6_restore) secs=$((secs * 3 / 2));; esac
+          mkdir -p fuzz/corpus/${{ matrix.target }}
+          set -o pipefail
+          cargo +nightly fuzz run --features libfuzzer ${{ matrix.target }} fuzz/corpus/${{ matrix.target }} -- \
+            -max_total_time=$secs -timeout=20 -rss_limit_mb=2048 2>&1 | tail -n 40 | tee ../../out/run.txt
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        if: always()
+        with:
+          path: pcp/fuzz/corpus/${{ matrix.target }}
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+      - name: Collect
+        if: always()
+        run: |
+          { echo "target: ${{ matrix.target }}"; echo "outcome: ${{ steps.run.outcome }}";
+            echo "corpus: $(ls pcp/fuzz/corpus/${{ matrix.target }} 2>/dev/null | wc -l) files";
+            grep -E "^#[0-9]+.*(DONE|pulse)|stat::number_of_executed_units|Done [0-9]+ runs" out/run.txt | tail -n 2; } | tee out/summary.txt
+          mkdir -p out/crashes
+          cp pcp/fuzz/artifacts/${{ matrix.target }}/* out/crashes/ 2>/dev/null || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: fuzz-${{ matrix.target }}-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results
+        if: always()
+        run: |
+          git config user.name "pcp-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="fuzz/$(date -u +%Y%m%d)-${{ github.run_id }}/${{ matrix.target }}"
+          for i in 1 2 3 4 5 6 7 8; do
+            git fetch origin +refs/heads/ci-results:refs/remotes/origin/ci-results 2>/dev/null || true
+            git checkout -f -B ci-results origin/ci-results 2>/dev/null \
+              || { git checkout -f --orphan ci-results && git rm -rq --cached .; }
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add fuzz && git commit -qm "fuzz ${{ matrix.target }} run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results && break
+            sleep $((RANDOM % 30 + 5))
+          done
+      - name: Fail if the fuzzer found a crash
+        if: steps.run.outcome != 'success'
+        run: exit 1

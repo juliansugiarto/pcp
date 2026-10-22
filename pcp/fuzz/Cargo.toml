@@ -1,0 +1,77 @@
+# Fuzz harnesses for pcp (design note 17, Fable review 18). The harness
+# logic is a plain library (src/lib.rs) so that `cargo test` on stable runs
+# it over seeds and pseudo-random inputs; `cargo fuzz` (nightly, CI only)
+# drives the same functions with libFuzzer. Not part of the zkVM guest.
+[package]
+name = "pcp-fuzz"
+version = "0.0.0"
+edition = "2021"
+license = "MIT"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[features]
+# Only `cargo fuzz` turns this on (it pulls libFuzzer).
+libfuzzer = ["dep:libfuzzer-sys"]
+
+[dependencies]
+pcp = { path = "..", features = ["lnd", "http", "fuzzing"] }
+libfuzzer-sys = { version = "0.4", optional = true }
+rand = "0.8"
+serde = "1"
+serde_json = "1"
+
+# Keep this crate out of pcp's own build.
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "f1_messages"
+path = "fuzz_targets/f1_messages.rs"
+test = false
+doc = false
+required-features = ["libfuzzer"]
+
+[[bin]]
+name = "f2_seller"
+path = "fuzz_targets/f2_seller.rs"
+test = false
+doc = false
+required-features = ["libfuzzer"]
+
+[[bin]]
+name = "f3_buyer"
+path = "fuzz_targets/f3_buyer.rs"
+test = false
+doc = false
+required-features = ["libfuzzer"]
+
+[[bin]]
+name = "f4_statement"
+path = "fuzz_targets/f4_statement.rs"
+test = false
+doc = false
+required-features = ["libfuzzer"]
+
+[[bin]]
+name = "f5_jobs"
+path = "fuzz_targets/f5_jobs.rs"
+test = false
+doc = false
+required-features = ["libfuzzer"]
+
+[[bin]]
+name = "f6_restore"
+path = "fuzz_targets/f6_restore.rs"
+test = false
+doc = false
+required-features = ["libfuzzer"]
+
+[[bin]]
+name = "f7_lnd"
+path = "fuzz_targets/f7_lnd.rs"
+test = false
+doc = false
+required-features = ["libfuzzer"]

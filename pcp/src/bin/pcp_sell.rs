@@ -45,7 +45,8 @@ fn main() {
     let delay = Duration::from_millis(a.num("work-delay-ms", 0));
     let work = move |input: &[u8]| {
         std::thread::sleep(delay);
-        job.solve(input)
+        // Bounded: a crafted puzzle must not park the seller (node::work).
+        pcp::node::work::solve_sudoku(&job, input, pcp::node::work::MAX_NODES)
     };
     let mut log = logger("seller");
     let r = run_seller(SellerRun {

@@ -31,14 +31,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Install RISC Zero toolchain
         run: |
           mkdir -p out
-          curl -L https://risczero.com/install | bash
+          # Pinned components (the versions CI used on 22 October 2026).
+          curl -sSfL https://risczero.com/install -o rzup-install.sh
+          sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
+          bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
-          rzup install 2>&1 | tail -n 20
+          { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.0.6 && rzup install cargo-risczero 3.0.6; } 2>&1 | tail -n 20
           rzup show 2>&1 | tee out/rzup-show.txt
+          grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.0\.6' || { echo "r0vm 3.0.6 not installed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
       - name: Build pcp-risc0 (${{ matrix.build }})
         run: |
@@ -49,10 +53,10 @@ jobs:
             | jq -r '.results[] | "\(.name) \(.last_updated)"' > ../out/guest-builder-tags.txt || true
           set -o pipefail
           # The guest first (fails fast), then the host. Full output kept.
-          cargo build --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }
+          cargo build --locked --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }
           grep -E "Docker context|Building ELF|^#[0-9]+ (DONE|ERROR)|risc0-guest-builder" ../out/build-methods-full.txt | head -n 40 || true
           docker images --digests | grep -i risc0 | tee ../out/docker-images.txt || true
-          cargo build --release 2>&1 | tail -n 20 | tee ../out/build.txt
+          cargo build --locked --release 2>&1 | tail -n 20 | tee ../out/build.txt
       - name: Image id and execute-only
         run: |
           cd pcp-risc0
@@ -60,7 +64,7 @@ jobs:
           ./target/release/pcp-risc0 --job sudoku9 --execute-only 2>&1 | tee ../out/execute-sudoku9.txt
           find target -path '*riscv32im-risc0-zkvm-elf*' -type f \( -name 'pcp-guest' -o -name 'pcp-guest.bin' \) -exec sha256sum {} \; | tee ../out/guest-elf-sha256.txt
           { echo "build: ${{ matrix.build }}"; echo "commit: $GITHUB_SHA"; grep "guest image id" ../out/execute-sudoku9.txt; } | tee ../out/image-id.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: risc0-image-id-${{ matrix.build }}-${{ github.run_id }}

@@ -32,12 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
-      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta
-      BTC_IMAGE: polarlightning/bitcoind:28.0
+      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
+      BTC_IMAGE: polarlightning/bitcoind:28.0@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010
       OUT: out
       CREDS: creds
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Machine
         run: |
           mkdir -p out
@@ -47,7 +47,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          curl -L https://risczero.com/install | bash
+          # The installer is fetched, hashed and kept with the results; the
+          # components are pinned to the versions CI used on 22 October 2026
+          # (risc0-zkvm 3.0.6), instead of "latest".
+          curl -sSfL https://risczero.com/install -o rzup-install.sh
+          sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
+          bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
           # rzup install has failed silently before (risc0-image-id run
           # 39614440446, docker-1: "Installed components:" empty, then
@@ -55,10 +60,10 @@ jobs:
           # are listed.
           ok=""
           for i in 1 2 3 4; do
-            rzup install > out/rzup-install-$i.txt 2>&1 || true
+            { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.0.6 && rzup install cargo-risczero 3.0.6; } > out/rzup-install-$i.txt 2>&1 || true
             tail -n 20 out/rzup-install-$i.txt
             rzup show 2>&1 | tee out/rzup-show.txt
-            if grep -qx rust out/rzup-show.txt && grep -qx r0vm out/rzup-show.txt; then ok=1; break; fi
+            if grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.0\.6' && grep -A1 -x rust out/rzup-show.txt | grep -q '1\.97\.0'; then ok=1; break; fi
             sleep $((i * 20))
           done
           [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }
@@ -66,7 +71,7 @@ jobs:
       # Cache the cargo registry and pcp-risc0/target between iterations.
       # The image id is re-read and compared on every run, so a stale guest
       # would show up as a mismatch.
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ~/.cargo/registry
@@ -83,16 +88,16 @@ jobs:
           export RISC0_USE_DOCKER=1
           echo "RISC0_USE_DOCKER=$RISC0_USE_DOCKER" | tee ../out/build-mode.txt
           set -o pipefail
-          cargo build --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }
+          cargo build --locked --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }
           docker images --digests | grep -i risc0 | tee ../out/docker-images.txt || true
-          cargo build --release -p pcp-risc0-host --features lnd,http > ../out/build-host-full.txt 2>&1 || { tail -n 150 ../out/build-host-full.txt; exit 1; }
+          cargo build --locked --release -p pcp-risc0-host --features lnd,http > ../out/build-host-full.txt 2>&1 || { tail -n 150 ../out/build-host-full.txt; exit 1; }
           tail -n 5 ../out/build-host-full.txt
           find target -path '*riscv32im-risc0-zkvm-elf*' -type f \( -name 'pcp-guest' -o -name 'pcp-guest.bin' \) -exec sha256sum {} \; | tee ../out/guest-elf-sha256.txt
           ./target/release/pcp-risc0 --job sudoku9 --execute-only 2>&1 | tee ../out/execute-sudoku9.txt
           id=$(grep -oE "guest image id [0-9a-f]{64}" ../out/execute-sudoku9.txt | awk '{print $4}')
           { echo "image_id: $id"; echo "expected: $EXPECTED_IMAGE_ID";
             [ "$id" = "$EXPECTED_IMAGE_ID" ] && echo "match: yes" || echo "match: NO"; } | tee ../out/image-id.txt
-      - uses: actions/cache/save@v4
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         if: always()
         with:
           path: |
@@ -131,12 +136,12 @@ jobs:
         run: |
           cd pcp-risc0
           set -o pipefail
-          cargo build --release -p pcp-risc0-verify --features lnd,http > ../out/build-verify-full.txt 2>&1 || { tail -n 150 ../out/build-verify-full.txt; exit 1; }
+          cargo build --locked --release -p pcp-risc0-verify --features lnd,http > ../out/build-verify-full.txt 2>&1 || { tail -n 150 ../out/build-verify-full.txt; exit 1; }
           tail -n 2 ../out/build-verify-full.txt
       - name: Build pcp-setup and pcp-audit
         run: |
           cd pcp
-          cargo build --features lnd --bins 2>&1 | tail -n 3
+          cargo build --locked --features lnd --bins 2>&1 | tail -n 3
       - name: Two processes with real proofs (clean, seller killed after invoicing; directory, HTTP, verify-only buyer)
         id: twoproc
         continue-on-error: true
@@ -180,7 +185,7 @@ jobs:
         run: |
           { echo "sale: ${{ steps.sale.outcome }}"; echo "two processes: ${{ steps.twoproc.outcome }}"; cat out/image-id.txt 2>/dev/null;
             grep -h -E "offer accepted|SETTLED|FAILED|cost-row|Elapsed|Maximum resident" out/sale-*.txt 2>/dev/null; } | tee out/summary.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: real-sale-${{ github.run_id }}

@@ -32,14 +32,21 @@ jobs:
       fail-fast: false
       matrix:
         # Current LND release (Docker Hub, 2026-09-30) and the previous line.
+        # Images pinned by digest (as pulled by CI on 22 October 2026): a tag
+        # can be re-pointed at a poisoned image, a digest cannot.
         lnd: [v0.21.4-beta, v0.19.3-beta]
+        include:
+          - lnd: v0.21.4-beta
+            digest: sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
+          - lnd: v0.19.3-beta
+            digest: sha256:b175f136c01ffe01e75eee836273dd15b21a7e2cea2bd316ea98ad3640743aaa
     env:
-      LND_IMAGE: lightninglabs/lnd:${{ matrix.lnd }}
-      BTC_IMAGE: polarlightning/bitcoind:28.0
+      LND_IMAGE: lightninglabs/lnd:${{ matrix.lnd }}@${{ matrix.digest }}
+      BTC_IMAGE: polarlightning/bitcoind:28.0@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010
       OUT: out
       CREDS: creds
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Machine
         run: |
           mkdir -p out
@@ -52,9 +59,9 @@ jobs:
         run: |
           cd pcp
           set -o pipefail
-          cargo build --features lnd,http --bins 2>&1 | tail -n 5
-          cargo test --features lnd,http --no-run 2>&1 | tail -n 5
-          cargo test --features lnd,http 2>&1 | grep -E "^test |test result" | tee ../out/cargo-test-lnd.txt
+          cargo build --locked --features lnd,http --bins 2>&1 | tail -n 5
+          cargo test --locked --features lnd,http --no-run 2>&1 | tail -n 5
+          cargo test --locked --features lnd,http 2>&1 | grep -E "^test |test result" | tee ../out/cargo-test-lnd.txt
       - name: Start regtest network
         run: bash .github/lnd-regtest/up.sh 2>&1 | tee out/setup.txt
       - name: Sale over LND (lnd_sale)
@@ -81,7 +88,7 @@ jobs:
           export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
           set -o pipefail
           cd pcp
-          timeout 600 cargo test --features lnd,http --test lnd_regtest -- --ignored --test-threads=1 2>&1 | tee ../out/lnd-regtest-tests.txt
+          timeout 600 cargo test --locked --features lnd,http --test lnd_regtest -- --ignored --test-threads=1 2>&1 | tee ../out/lnd-regtest-tests.txt
       - name: Two processes over LND, killed and restarted (crash matrix)
         id: matrix
         continue-on-error: true
@@ -170,7 +177,7 @@ jobs:
             echo "least privilege: ${{ steps.leastpriv.outcome }}"; tail -n 1 out/crash-matrix-least-summary.txt 2>/dev/null;
             echo "empty node, inbound channel: ${{ steps.emptyinbound.outcome }}"; grep '^active' out/empty-inbound.txt 2>/dev/null;
             cat out/images.txt 2>/dev/null; } | tee out/summary.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: lnd-regtest-${{ matrix.lnd }}-${{ github.run_id }}
