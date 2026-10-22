@@ -1,0 +1,110 @@
+[buyer 1792650058] request sent
+[buyer 1792650059] offer accepted: 1000000 msat, backend INSECURE-dev-transparent/0
+[buyer 1792650059] proof verified in 0.001 s, invoice checked, before paying
+PCP_CRASH_AT=buyer:pay:pre: aborting
+timeout: the monitored command dumped core
+--- restarted after buyer:pay:pre ---
+[buyer 1792650059] buyer resumed in Paying
+PCP_PAUSE_AT=buyer:resumed: pausing 8 s
+--- buyer node stopped ---
+alice
+[buyer 1792650067] payment status unknown: rail
+[buyer 1792650067] payment status unknown: rail
+[buyer 1792650067] payment status unknown: rail
+[buyer 1792650068] payment status unknown: rail
+[buyer 1792650068] payment status unknown: rail
+[buyer 1792650068] payment status unknown: rail
+[buyer 1792650068] payment status unknown: rail
+[buyer 1792650068] payment status unknown: rail
+[buyer 1792650069] payment status unknown: rail
+[buyer 1792650069] payment status unknown: rail
+[buyer 1792650069] payment status unknown: rail
+[buyer 1792650069] payment status unknown: rail
+[buyer 1792650069] payment status unknown: rail
+[buyer 1792650070] payment status unknown: rail
+[buyer 1792650070] payment status unknown: rail
+[buyer 1792650070] payment status unknown: rail
+[buyer 1792650070] payment status unknown: rail
+[buyer 1792650070] payment status unknown: rail
+[buyer 1792650071] payment status unknown: rail
+[buyer 1792650071] payment status unknown: rail
+[buyer 1792650071] payment status unknown: rail
+[buyer 1792650071] payment status unknown: rail
+[buyer 1792650071] payment status unknown: rail
+[buyer 1792650072] payment status unknown: rail
+[buyer 1792650072] payment status unknown: rail
+[buyer 1792650072] payment status unknown: rail
+[buyer 1792650072] payment status unknown: rail
+[buyer 1792650072] payment status unknown: rail
+[buyer 1792650073] payment status unknown: rail
+[buyer 1792650073] payment status unknown: rail
+[buyer 1792650073] payment status unknown: rail
+[buyer 1792650073] payment status unknown: rail
+[buyer 1792650073] payment status unknown: rail
+[buyer 1792650074] payment status unknown: rail
+[buyer 1792650074] payment status unknown: rail
+[buyer 1792650074] payment status unknown: rail
+[buyer 1792650074] payment status unknown: rail
+[buyer 1792650074] payment status unknown: rail
+[buyer 1792650075] payment status unknown: rail
+[buyer 1792650075] payment status unknown: rail
+[buyer 1792650075] payment status unknown: rail
+[buyer 1792650075] payment status unknown: rail
+[buyer 1792650076] payment status unknown: rail
+[buyer 1792650076] payment status unknown: rail
+[buyer 1792650076] payment status unknown: rail
+[buyer 1792650076] payment status unknown: rail
+[buyer 1792650076] payment status unknown: rail
+[buyer 1792650077] payment status unknown: rail
+[buyer 1792650077] payment status unknown: rail
+[buyer 1792650077] payment status unknown: rail
+[buyer 1792650077] payment status unknown: rail
+[buyer 1792650077] payment status unknown: rail
+[buyer 1792650078] payment status unknown: rail
+[buyer 1792650078] payment status unknown: rail
+[buyer 1792650078] payment status unknown: rail
+[buyer 1792650078] payment status unknown: rail
+[buyer 1792650078] payment status unknown: rail
+[buyer 1792650079] payment status unknown: rail
+[buyer 1792650079] payment status unknown: rail
+[buyer 1792650079] payment status unknown: rail
+[buyer 1792650079] payment status unknown: rail
+[buyer 1792650079] payment status unknown: rail
+[buyer 1792650080] payment status unknown: rail
+[buyer 1792650080] payment status unknown: rail
+[buyer 1792650080] payment status unknown: rail
+[buyer 1792650080] payment status unknown: rail
+[buyer 1792650080] payment status unknown: rail
+[buyer 1792650081] payment status unknown: rail
+[buyer 1792650081] payment status unknown: rail
+[buyer 1792650081] payment status unknown: rail
+[buyer 1792650081] payment status unknown: rail
+[buyer 1792650081] payment status unknown: rail
+[buyer 1792650082] payment status unknown: rail
+[buyer 1792650082] payment status unknown: rail
+[buyer 1792650082] payment status unknown: rail
+[buyer 1792650082] payment status unknown: rail
+--- buyer node started ---
+[buyer 1792650082] payment status unknown: rail
+alice
+[buyer 1792650083] payment status unknown: rail
+[buyer 1792650083] payment status unknown: rail
+[buyer 1792650083] payment status unknown: rail
+[buyer 1792650083] payment status unknown: rail
+[buyer 1792650083] payment status unknown: rail
+[buyer 1792650084] payment status unknown: rail
+[buyer 1792650084] payment status unknown: rail
+[buyer 1792650084] payment found at the node: it left
+[buyer 1792650084] DELIVERED: have k, decrypted C, re-checked R
+[buyer 1792650084] buyer done: Delivered 
+buyer summary: Delivered  spent_msat 1000000
+5 3 4 6 7 8 9 1 2
+6 7 2 1 9 5 3 4 8
+1 9 8 3 4 2 5 6 7
+8 5 9 7 6 1 4 2 3
+4 2 6 8 5 3 7 9 1
+7 1 3 9 2 4 8 5 6
+9 6 1 5 3 7 2 8 4
+2 8 7 4 1 9 6 3 5
+3 4 5 2 8 6 1 7 9
+alice active channels: 1
