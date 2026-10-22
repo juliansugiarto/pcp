@@ -1,0 +1,15 @@
+sale: success
+two processes: success
+image_id: cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+expected: cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+match: yes
+[12:46:56]   [2 offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328, rail lightning-bolt11/0]
+[12:48:17] SETTLED. Result R:
+[12:48:17] cost-row,job=sudoku9,backend=risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328,segments=1,user_cycles=88606,total_cycles=131072,prove_s=80.537,verify_s=0.015,receipt_bytes=223748,settle_s=0.520,peak_rss_mib=1425
+[12:48:17] 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:21.15
+[12:48:17] 	Maximum resident set size (kbytes): 1459400
+[12:48:18]   [2 offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328, rail lightning-bolt11/0]
+[12:50:24] SETTLED. Result R:
+[12:50:24] cost-row,job=testsuite,backend=risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328,segments=1,user_cycles=106862,total_cycles=262144,prove_s=125.098,verify_s=0.015,receipt_bytes=223770,settle_s=0.520,peak_rss_mib=2358
+[12:50:24] 	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:05.71
+[12:50:24] 	Maximum resident set size (kbytes): 2414588
