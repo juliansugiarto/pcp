@@ -1,0 +1,44 @@
+clean                  PASS  buyer exits [0] seller exits [0] 
+repeat-accept          PASS  buyer exits [0] seller exits [0] 
+tampered-accept        PASS  buyer exits [11] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  3571 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer-gone             PASS  buyer exits [134] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  3620 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:offer:pre       PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3658 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:offer:post      PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3696 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:accept:pre      PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3734 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:accept:post     PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3772 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:k:pre           PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3810 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:k:post          PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3848 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:invoice:pre     PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3886 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:invoice:post    PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3924 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:settle:pre      PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  3962 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:settle:post     PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 67:  4002 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:request:post     PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4040 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:offer:pre        PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4078 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:accept:post      PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4116 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:invoice:pre      PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4154 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:paying:post      PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4192 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:pay:pre          PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4230 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:pay:post         PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4265 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:settle:pre       PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 67:  4303 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:settle:post      PASS  buyer exits [134 0] seller exits [0] 
+rail=sim cases=23 failed=0

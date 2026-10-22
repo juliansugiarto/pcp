@@ -1,0 +1,13 @@
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+[seller 1792644928] seller up: 0 offers, 0 sales on record
+[seller 1792644928] offer cde597e2549d sent
+[seller 1792644928] accept cde597e2549d : proving
+[seller 1792644928] proved cde597e2549d in 0.001 s
+[seller 1792644928] invoice cde597e2549d sent
+PCP_CRASH_AT=seller:settle:post: aborting
+timeout: the monitored command dumped core
+--- restarted after seller:settle:post ---
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+[seller 1792644929] seller up: 1 offers, 1 sales on record
+[seller 1792644929] seller done: 1 sales over, committed 1000000 msat
+seller summary: settled 0 cancelled 0 refused 0 proofs 0 committed_msat 1000000
