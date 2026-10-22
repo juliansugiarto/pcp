@@ -2,7 +2,7 @@
 
 **Pay for work only when it's proven correct.**
 
-Hi, I'm Julian. This repo is my attempt at something I think the internet is still missing: a way to pay someone for a result only if they can prove, before you pay, that the result is right. No escrow, no platform in the middle, nobody who can freeze the payment. The money moves over Lightning, and the proof is zero-knowledge, so you learn that the answer is correct without seeing it until you've paid.
+Hi, I'm Julian. This repo is my attempt at something I think the internet is still missing: a way to pay someone for a result only if they can prove, before you pay, that the result is right. No escrow, no platform in the middle, nobody who can freeze the payment. The money moves over Lightning, and the proof hides the answer, so you learn that it is correct without seeing it until you've paid. (How well it hides is stated plainly in the whitepaper: in practice, not as a proven theorem.)
 
 The idea isn't mine. Greg Maxwell described it in 2011 as the zero-knowledge contingent payment, and a sudoku solution was sold this way live at Financial Cryptography 2016. A year later Campanelli et al. showed that the trusted-setup version could be broken by a buyer who poisons the setup. Everything here uses transparent proof systems, so that attack has nothing to poison.
 
