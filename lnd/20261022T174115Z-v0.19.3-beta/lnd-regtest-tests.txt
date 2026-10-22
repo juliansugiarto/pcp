@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/lnd_regtest.rs (target/debug/deps/lnd_regtest-a97aa5c763a84ecd)
+
+running 4 tests
+test a_cancelled_hold_invoice_refunds_the_buyer ... ok
+test a_reused_payment_hash_is_refused ... ok
+test the_buyer_node_refuses_a_presented_invoice_with_other_terms ... ok
+test the_hold_invoice_reads_back_with_the_requested_terms ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.36s
+
