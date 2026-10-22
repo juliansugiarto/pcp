@@ -1,0 +1,14 @@
+guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+[seller 1792679859] seller up: 0 offers, 0 sales on record
+[seller 1792679859] offer d8ef0cbb4622 sent
+[seller 1792679860] accept d8ef0cbb4622 : proving
+[seller 1792679922] proved d8ef0cbb4622 in 62.233 s
+PCP_CRASH_AT=seller:invoice:post: aborting
+timeout: the monitored command dumped core
+--- restarted after seller:invoice:post ---
+guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+[seller 1792679922] seller up: 1 offers, 1 sales on record
+[seller 1792679922] bundle d8ef0cbb4622 sent again
+[seller 1792679923] SETTLED: revealed k, 1000000 msat
+[seller 1792679923] seller done: 1 sales over, committed 1000000 msat
+seller summary: settled 1 cancelled 0 refused 0 proofs 0 committed_msat 1000000
