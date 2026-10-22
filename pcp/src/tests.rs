@@ -3155,6 +3155,10 @@ fn receipt_reverification_checks_each_field() {
     let mut r = receipt.clone();
     r.version = "PCP/1".into();
     assert_eq!(r.verify(&job, &input, bundle), Err(PcpError::Version));
+    // The signature check refuses another version before the signature.
+    let m = fx.bp.agent.mandate();
+    assert_eq!(receipt.verify_signature(m), Ok(()));
+    assert_eq!(r.verify_signature(m), Err(PcpError::Version));
     let mut b = bundle.clone();
     b.statement.version = "PCP/1".into();
     assert_eq!(receipt.verify(&job, &input, &b), Err(PcpError::Version));

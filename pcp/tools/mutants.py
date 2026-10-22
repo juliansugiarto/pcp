@@ -57,8 +57,20 @@ def checks(path):
     return lines, out
 
 
+TIMEOUT = 600
+
+
 def run(cmd, cwd, env):
-    return subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)
+    """Run cmd; a run that hangs (a mutant that loops) counts as a failure."""
+    p = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, text=True, start_new_session=True)
+    try:
+        out, err = p.communicate(timeout=TIMEOUT)
+        return subprocess.CompletedProcess(cmd, p.returncode, out, err)
+    except subprocess.TimeoutExpired:
+        os.killpg(p.pid, 9)
+        p.communicate()
+        return subprocess.CompletedProcess(cmd, -9, "", "timed out")
 
 
 def main():
@@ -93,6 +105,8 @@ def main():
             open(path, "w").write(orig)
             if "error[" in r.stderr and "could not compile" in r.stderr:
                 verdict = "no-compile"
+            elif r.returncode == -9:
+                verdict = "killed (hang)"
             elif r.returncode != 0:
                 verdict = "killed"
             elif (rel, c.group(2)) in equivalent:
