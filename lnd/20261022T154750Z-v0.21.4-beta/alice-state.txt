@@ -1,0 +1,145 @@
+== alice channelbalance
+{
+    "balance": "1044059",
+    "pending_open_balance": "0",
+    "local_balance": {
+        "sat": "1044059",
+        "msat": "1044059000"
+    },
+    "remote_balance": {
+        "sat": "49001",
+        "msat": "49001000"
+    },
+    "unsettled_local_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "unsettled_remote_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "pending_open_local_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "pending_open_remote_balance": {
+        "sat": "0",
+        "msat": "0"
+    },
+    "custom_channel_data": "02000000"
+}
+== alice listchannels
+{
+    "channels": [
+        {
+            "active": true,
+            "remote_pubkey": "0386dbb4535efc833339ddc84c23f8043ce0b993d26d79c52d58317e1f41ab837a",
+            "channel_point": "31bcea2b916a9ea85d4087896dedff9344052f5bb0d5b36169cbf2767b087605:0",
+            "chan_id": "0576087b76f2cb6961b3d5b05b2f054493ffed6d8987405da89e6a912beabc31",
+            "scid": "125344325632000",
+            "scid_str": "114x1x0",
+            "capacity": "100000",
+            "local_balance": "96530",
+            "remote_balance": "0",
+            "commit_fee": "3140",
+            "commit_weight": "772",
+            "fee_per_kw": "2500",
+            "unsettled_balance": "0",
+            "total_satoshis_sent": "0",
+            "total_satoshis_received": "0",
+            "num_updates": "0",
+            "pending_htlcs": [],
+            "csv_delay": 144,
+            "private": false,
+            "initiator": true,
+            "chan_status_flags": "ChanStatusDefault",
+            "local_chan_reserve_sat": "1000",
+            "remote_chan_reserve_sat": "1000",
+            "static_remote_key": false,
+            "commitment_type": "ANCHORS",
+            "lifetime": "9",
+            "uptime": "9",
+            "close_address": "",
+            "push_amount_sat": "0",
+            "thaw_height": 0,
+            "local_constraints": {
+                "csv_delay": 144,
+                "chan_reserve_sat": "1000",
+                "dust_limit_sat": "354",
+                "max_pending_amt_msat": "99000000",
+                "min_htlc_msat": "1",
+                "max_accepted_htlcs": 483
+            },
+            "remote_constraints": {
+                "csv_delay": 144,
+                "chan_reserve_sat": "1000",
+                "dust_limit_sat": "354",
+                "max_pending_amt_msat": "99000000",
+                "min_htlc_msat": "1",
+                "max_accepted_htlcs": 483
+            },
+            "alias_scids": [],
+            "zero_conf": false,
+            "zero_conf_confirmed_scid": "0",
+            "peer_alias": "unable to lookup peer alias: alias for node not found",
+            "peer_scid_alias": "0",
+            "memo": "",
+            "custom_channel_data": ""
+        },
+        {
+            "active": true,
+            "remote_pubkey": "03e0947685698435a34a22851c64c95687c2e465d896258ff3c2cd997333f84e99",
+            "channel_point": "216e8811a5f28814ab6c3152fc042b7e3953d86837618e490f628ebae2ac08e4:0",
+            "chan_id": "e408ace2ba8e620f498e613768d853397e2b04fc52316cab1488f2a511886e21",
+            "scid": "118747255865344",
+            "scid_str": "108x1x0",
+            "capacity": "1000000",
+            "local_balance": "947529",
+            "remote_balance": "49001",
+            "commit_fee": "2810",
+            "commit_weight": "1116",
+            "fee_per_kw": "2500",
+            "unsettled_balance": "0",
+            "total_satoshis_sent": "49001",
+            "total_satoshis_received": "0",
+            "num_updates": "102",
+            "pending_htlcs": [],
+            "csv_delay": 144,
+            "private": false,
+            "initiator": true,
+            "chan_status_flags": "ChanStatusDefault",
+            "local_chan_reserve_sat": "10000",
+            "remote_chan_reserve_sat": "10000",
+            "static_remote_key": false,
+            "commitment_type": "ANCHORS",
+            "lifetime": "96",
+            "uptime": "96",
+            "close_address": "",
+            "push_amount_sat": "0",
+            "thaw_height": 0,
+            "local_constraints": {
+                "csv_delay": 144,
+                "chan_reserve_sat": "10000",
+                "dust_limit_sat": "354",
+                "max_pending_amt_msat": "990000000",
+                "min_htlc_msat": "1",
+                "max_accepted_htlcs": 483
+            },
+            "remote_constraints": {
+                "csv_delay": 144,
+                "chan_reserve_sat": "10000",
+                "dust_limit_sat": "354",
+                "max_pending_amt_msat": "990000000",
+                "min_htlc_msat": "1",
+                "max_accepted_htlcs": 483
+            },
+            "alias_scids": [],
+            "zero_conf": false,
+            "zero_conf_confirmed_scid": "0",
+            "peer_alias": "bob",
+            "peer_scid_alias": "0",
+            "memo": "",
+            "custom_channel_data": ""
+        }
+    ]
+}
