@@ -36,6 +36,9 @@ pub enum StoreError {
     Locked(PathBuf),
     /// A file is missing or malformed (agent key, mandate).
     Bad(PathBuf, String),
+    /// The peer refused the message in a way asking again cannot cure
+    /// (HTTP 4xx other than 408, 422 and 429).
+    Peer(String),
 }
 
 impl std::fmt::Display for StoreError {
@@ -45,6 +48,7 @@ impl std::fmt::Display for StoreError {
             StoreError::Json(p, e) => write!(f, "{}: {e}", p.display()),
             StoreError::Locked(p) => write!(f, "{}: in use by another process", p.display()),
             StoreError::Bad(p, m) => write!(f, "{}: {m}", p.display()),
+            StoreError::Peer(m) => write!(f, "{m}"),
         }
     }
 }

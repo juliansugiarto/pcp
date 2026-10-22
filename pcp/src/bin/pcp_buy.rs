@@ -17,7 +17,9 @@ pcp-buy --state DIR (--seller-url URL | --inbox DIR --peer-inbox DIR)
 Accepts the INSECURE dev proof backend (tests only). --tamper-accept sends
 an accept for an offer the seller never issued (a test of the seller).
 --seller-url talks to a seller over HTTP (feature http, SPEC 5.5); it must be
-https:// unless --allow-insecure-transport (tests on loopback).";
+https:// unless --allow-insecure-transport (tests on loopback).
+--seller-ca-cert PEM trusts a CA the seller's certificate chains to, next to
+the system roots.";
 
 fn main() {
     let a = Args::parse(USAGE, cli::FLAGS);

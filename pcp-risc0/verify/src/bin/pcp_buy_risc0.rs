@@ -12,7 +12,8 @@ pcp-buy-risc0 --state DIR (--seller-url URL | --inbox DIR --peer-inbox DIR)
               --rail (lnd|sim:FILE:NODE) [--image-id HEX] [--job sudoku9|sudoku4]
               [--puzzle TEXT] [--max-price-msat N] [--offer-wait-secs N]
               [--resend-secs N] [--deadline-secs N] [--poll-ms N]
-              [--allow-sim] [--allow-insecure-transport]
+              [--allow-sim] [--allow-insecure-transport] [--seller-ca-cert PEM]
+              [--tamper-accept]
 
 Verifies RISC Zero succinct receipts of the PCP/0 guest against --image-id
 (default: the pinned id). An offer naming another guest is refused

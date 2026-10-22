@@ -114,6 +114,31 @@ jobs:
           export BUYER_NODE_START='docker start alice; for i in $(seq 120); do n=$(docker exec alice lncli --network=regtest listchannels --active_only 2>/dev/null | jq ".channels | length" 2>/dev/null); [ "${n:-0}" -ge 1 ] && break; sleep 1; done; echo "alice active channels: ${n:-0}"'
           set -o pipefail
           bash pcp/tools/crash-matrix.sh matrix-http 2>&1 | tee out/crash-matrix-http.txt
+      - name: Least-privilege macaroons (what sale-window.yml and RUN-SIGNET.md use)
+        id: leastpriv
+        continue-on-error: true
+        run: |
+          # Seller: its node id, its own invoices, decoding them. Buyer: its node id and payments.
+          docker exec bob lncli --network=regtest bakemacaroon --save_to /tmp/seller.macaroon info:read invoices:read invoices:write offchain:read
+          docker exec alice lncli --network=regtest bakemacaroon --save_to /tmp/buyer.macaroon info:read offchain:read offchain:write
+          mkdir -p creds/least
+          docker cp bob:/tmp/seller.macaroon creds/least/seller.macaroon
+          docker cp alice:/tmp/buyer.macaroon creds/least/buyer.macaroon
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds/alice/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds/least/buyer.macaroon
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8082
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/bob/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/least/seller.macaroon
+          export RAIL=lnd WIRE=http TIMEOUT=150
+          set -o pipefail
+          bash pcp/tools/crash-matrix.sh matrix-least clean seller:invoice:post buyer:pay:pre buyer-gone 2>&1 | tee out/crash-matrix-least.txt
+      - name: An empty node accepts an inbound channel (the sale window's case)
+        id: emptyinbound
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          bash .github/lnd-regtest/empty-inbound.sh 2>&1 | tee out/empty-inbound.txt
       - name: Collect crash matrix
         if: always()
         run: |
@@ -121,7 +146,8 @@ jobs:
           # test agents' keys and are not published.
           cp matrix/summary.txt out/crash-matrix-summary.txt 2>/dev/null || true
           cp matrix-http/summary.txt out/crash-matrix-http-summary.txt 2>/dev/null || true
-          for m in matrix:crash-matrix matrix-http:crash-matrix-http; do
+          cp matrix-least/summary.txt out/crash-matrix-least-summary.txt 2>/dev/null || true
+          for m in matrix:crash-matrix matrix-http:crash-matrix-http matrix-least:crash-matrix-least; do
             for d in ${m%%:*}/*/; do
               [ -d "$d" ] || continue
               n=$(basename "$d"); mkdir -p "out/${m##*:}/$n"
@@ -141,6 +167,8 @@ jobs:
           { echo "sale: ${{ steps.sale.outcome }}"; echo "rail tests: ${{ steps.railtests.outcome }}";
             echo "crash matrix: ${{ steps.matrix.outcome }}"; tail -n 1 out/crash-matrix-summary.txt 2>/dev/null;
             echo "crash matrix http: ${{ steps.matrix_http.outcome }}"; tail -n 1 out/crash-matrix-http-summary.txt 2>/dev/null;
+            echo "least privilege: ${{ steps.leastpriv.outcome }}"; tail -n 1 out/crash-matrix-least-summary.txt 2>/dev/null;
+            echo "empty node, inbound channel: ${{ steps.emptyinbound.outcome }}"; grep '^active' out/empty-inbound.txt 2>/dev/null;
             cat out/images.txt 2>/dev/null; } | tee out/summary.txt
       - uses: actions/upload-artifact@v4
         if: always()
@@ -164,5 +192,5 @@ jobs:
             sleep $((RANDOM % 20 + 5))
           done
       - name: Fail if the sale, the rail tests or a crash matrix failed
-        if: steps.sale.outcome != 'success' || steps.railtests.outcome != 'success' || steps.matrix.outcome != 'success' || steps.matrix_http.outcome != 'success'
+        if: steps.sale.outcome != 'success' || steps.railtests.outcome != 'success' || steps.matrix.outcome != 'success' || steps.matrix_http.outcome != 'success' || steps.leastpriv.outcome != 'success' || steps.emptyinbound.outcome != 'success'
         run: exit 1

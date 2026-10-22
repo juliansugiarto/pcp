@@ -36,18 +36,10 @@ Any change to the code compiled into the guest changes the id: `pcp/src/job/`, `
 `verify/` (crate `pcp-risc0-verify`, binary `pcp-buy-risc0`) verifies receipts with risc0-zkvm built without its `client`, `prove` and `bonsai` features: no guest build, no rzup, no Docker, no prover. It accepts only succinct receipts (one STARK) of at most 512 KiB: composite receipts nest without limit and could overflow the buyer's stack while decoding, and Groth16 receipts rest on a trusted setup (SPEC T9). It takes `pcp-buy`'s options. Today this is what the `real-sale` workflow runs, against an LND node on regtest:
 
 ```bash
-cd pcp && cargo build --features lnd --bin pcp-setup && cd ..
-cd pcp-risc0 && cargo build --release -p pcp-risc0-verify --features lnd,http && cd ..
-export PCP_LND_REST_URL=https://127.0.0.1:8081           # your LND node's REST address
-export PCP_LND_TLS_CERT=/path/to/tls.cert
-export PCP_LND_MACAROON=/path/to/admin.macaroon         # regtest; least rights beyond it
-# pcp-setup makes a principal, an agent key and a mandate (and a seller pair for tests)
-PCP_BUYER_LND_REST_URL=$PCP_LND_REST_URL PCP_BUYER_LND_TLS_CERT=$PCP_LND_TLS_CERT \
-PCP_BUYER_LND_MACAROON=$PCP_LND_MACAROON \
-  ./pcp/target/debug/pcp-setup --root run --buyer-node from-env:PCP_BUYER_LND_ --seller-node unused
-./pcp-risc0/target/release/pcp-buy-risc0 --state run/buyer --seller-url https://<seller> --rail lnd
+cd pcp-risc0 && cargo build --release -p pcp-risc0-verify --features lnd,http
+./target/release/pcp-buy-risc0 --state <buyer dir> --seller-url https://<seller> --rail lnd
 ```
 
-A setup for a buyer alone, and the signet seller's address, come with the signet runbook. See `../pcp/RUN.md` for the regtest network.
+`../pcp/RUN-SIGNET.md` walks through the rest: an LND node on signet, a channel, a macaroon that can only pay, and `pcp-setup --buyer-only` for the buyer's principal, agent key and mandate.
 
 With `--image-id HEX` the buyer pins another id instead. Take that id only from a guest you built or a release you trust, never from the seller's offer: the offer names the guest the seller wants you to accept.

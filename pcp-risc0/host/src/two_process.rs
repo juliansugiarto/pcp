@@ -24,7 +24,8 @@ pcp-risc0 --role sell|buy --state DIR (--inbox DIR --peer-inbox DIR | --listen A
           [--allow-sim] [--price-msat N] [--max-price-msat N] [--sales N]
           [--quiet-exit-secs N] [--deadline-secs N] [--poll-ms N]
           [--resend-secs N] [--offer-wait-secs N] [--invoice-expiry-secs N]
-          [--tamper-accept]
+          [--tamper-accept] [--allow-public-bind] [--allow-insecure-transport]
+          [--seller-ca-cert PEM]
 
 Options as for pcp-sell / pcp-buy. Proof backend: RISC Zero, local proving.";
 

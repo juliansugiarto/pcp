@@ -287,28 +287,40 @@ pub struct HttpBuyer {
     http: reqwest::blocking::Client,
     received: Mutex<VecDeque<WireMsg>>,
     seq: AtomicU64,
+    /// Final-looking answers in a row (see [`FATAL_IN_A_ROW`]).
+    final_answers: AtomicU64,
 }
 
 impl HttpBuyer {
     /// A client for the seller at `base` (e.g. `https://seller.example`).
     /// Refuses `http://` unless `allow_insecure` (tests on loopback): the
     /// bundle must not cross the network in the clear (SPEC 5.2, T6).
-    pub fn new(base: &str, allow_insecure: bool) -> Result<HttpBuyer, String> {
+    /// `ca_pem` adds a root certificate the seller's TLS certificate may
+    /// chain to (a self-hosted CA), next to the system roots.
+    pub fn new(
+        base: &str,
+        allow_insecure: bool,
+        ca_pem: Option<&[u8]>,
+    ) -> Result<HttpBuyer, String> {
         let base = base.trim_end_matches('/').to_string();
         if !base.starts_with("https://") && !(allow_insecure && base.starts_with("http://")) {
             return Err(format!(
                 "{base}: the seller URL must be https:// (--allow-insecure-transport for tests)"
             ));
         }
-        let http = reqwest::blocking::Client::builder()
-            .timeout(Duration::from_secs(15))
-            .build()
-            .map_err(|e| format!("http client: {e}"))?;
+        let mut builder = reqwest::blocking::Client::builder().timeout(Duration::from_secs(15));
+        if let Some(pem) = ca_pem {
+            let cert = reqwest::Certificate::from_pem(pem)
+                .map_err(|e| format!("seller CA certificate: {e}"))?;
+            builder = builder.add_root_certificate(cert);
+        }
+        let http = builder.build().map_err(|e| format!("http client: {e}"))?;
         Ok(HttpBuyer {
             base,
             http,
             received: Mutex::new(VecDeque::new()),
             seq: AtomicU64::new(0),
+            final_answers: AtomicU64::new(0),
         })
     }
 
@@ -321,7 +333,15 @@ impl HttpBuyer {
                 Some((status, bytes))
             }
             Err(e) => {
-                eprintln!("POST {url}: {e} (will ask again)");
+                // The whole chain: "error sending request" alone hides a
+                // certificate problem a stranger has to see.
+                let mut msg = e.to_string();
+                let mut src = std::error::Error::source(&e);
+                while let Some(c) = src {
+                    msg.push_str(&format!(": {c}"));
+                    src = c.source();
+                }
+                eprintln!("POST {url}: {msg} (will ask again)");
                 None
             }
         }
@@ -347,20 +367,64 @@ impl HttpBuyer {
     }
 }
 
+/// A 4xx answer other than 408 (timeout), 421 and 425 (a proxy's routing
+/// or early-data hiccup), 422 (refusal) and 429 (slow down) looks final: the
+/// seller cannot read this message (another version, a wrong URL, too
+/// large). The buyer stops only after this many in a row, so one stray
+/// answer from a proxy whose route is changing does not end a purchase.
+/// The buyer sends only before paying, and a restart resumes.
+pub const FATAL_IN_A_ROW: u64 = 3;
+
+fn looks_final(status: u16) -> bool {
+    (400..500).contains(&status) && ![408, 421, 422, 425, 429].contains(&status)
+}
+
+impl HttpBuyer {
+    /// Count a non-2xx, non-422 answer; `Err` once [`FATAL_IN_A_ROW`]
+    /// final-looking answers came in a row.
+    fn other_status(&self, what: &str, status: u16, body: &[u8]) -> Result<(), StoreError> {
+        if !looks_final(status) {
+            self.final_answers.store(0, Ordering::Relaxed);
+            eprintln!("{what}: HTTP {status} (will ask again)");
+            return Ok(());
+        }
+        let n = self.final_answers.fetch_add(1, Ordering::Relaxed) + 1;
+        let b = String::from_utf8_lossy(&body[..body.len().min(200)]).into_owned();
+        if n >= FATAL_IN_A_ROW {
+            return Err(StoreError::Peer(format!(
+                "{what}: the seller answered HTTP {status} ({b}) {n} times in a row; not asking again"
+            )));
+        }
+        eprintln!("{what}: HTTP {status} ({b}); {n} of {FATAL_IN_A_ROW} before giving up");
+        Ok(())
+    }
+
+    fn answered(&self) {
+        self.final_answers.store(0, Ordering::Relaxed);
+    }
+}
+
 impl Wire for HttpBuyer {
     fn send(&self, msg: &WireMsg) -> Result<(), StoreError> {
         match msg {
             WireMsg::Request { request } => match self.post("/pcp/v0/request", request) {
-                Some((200, b)) => match serde_json::from_slice(&b) {
-                    Ok(offer) => self.push(WireMsg::Offer { offer }),
-                    Err(e) => eprintln!("offer does not parse: {e}"),
-                },
-                Some((422, b)) => self.push_refused(&b),
-                Some((s, _)) => eprintln!("request: HTTP {s} (will ask again)"),
+                Some((200, b)) => {
+                    self.answered();
+                    match serde_json::from_slice(&b) {
+                        Ok(offer) => self.push(WireMsg::Offer { offer }),
+                        Err(e) => eprintln!("offer does not parse: {e}"),
+                    }
+                }
+                Some((422, b)) => {
+                    self.answered();
+                    self.push_refused(&b)
+                }
+                Some((s, b)) => self.other_status("request", s, &b)?,
                 None => {}
             },
             WireMsg::Accept { accept } => match self.post("/pcp/v0/accept", accept) {
                 Some((200, b)) => {
+                    self.answered();
                     let v: Result<Value, _> = serde_json::from_slice(&b);
                     let parsed = v.ok().and_then(|v| {
                         Some(WireMsg::Bundle {
@@ -373,9 +437,12 @@ impl Wire for HttpBuyer {
                         None => eprintln!("bundle does not parse"),
                     }
                 }
-                Some((202, _)) => {}
-                Some((422, b)) => self.push_refused(&b),
-                Some((s, _)) => eprintln!("accept: HTTP {s} (will ask again)"),
+                Some((202, _)) => self.answered(),
+                Some((422, b)) => {
+                    self.answered();
+                    self.push_refused(&b)
+                }
+                Some((s, b)) => self.other_status("accept", s, &b)?,
                 None => {}
             },
             // The buyer only sends requests and accepts.
@@ -457,10 +524,30 @@ mod tests {
 
     #[test]
     fn transport_safety_defaults() {
-        assert!(HttpBuyer::new("http://example.org", false).is_err());
-        assert!(HttpBuyer::new("http://127.0.0.1:1", true).is_ok());
-        assert!(HttpBuyer::new("https://example.org", false).is_ok());
+        assert!(HttpBuyer::new("http://example.org", false, None).is_err());
+        assert!(HttpBuyer::new("http://127.0.0.1:1", true, None).is_ok());
+        assert!(HttpBuyer::new("https://example.org", false, None).is_ok());
+        assert!(HttpBuyer::new("https://example.org", false, Some(b"not a pem")).is_err());
         assert!(HttpSeller::start("0.0.0.0:0".parse().unwrap(), false).is_err());
+    }
+
+    #[test]
+    fn only_answers_a_retry_can_cure_are_retried() {
+        for s in [400, 403, 404, 413, 415] {
+            assert!(looks_final(s), "{s}");
+        }
+        for s in [408, 421, 422, 425, 429, 500, 502, 503, 504] {
+            assert!(!looks_final(s), "{s}");
+        }
+        // Three final-looking answers in a row end it; anything else between
+        // them starts the count again.
+        let b = HttpBuyer::new("https://example.org", false, None).unwrap();
+        assert!(b.other_status("accept", 404, b"").is_ok());
+        assert!(b.other_status("accept", 404, b"").is_ok());
+        assert!(b.other_status("accept", 502, b"").is_ok());
+        assert!(b.other_status("accept", 404, b"").is_ok());
+        assert!(b.other_status("accept", 404, b"").is_ok());
+        assert!(b.other_status("accept", 404, b"").is_err());
     }
 
     #[test]
@@ -588,7 +675,7 @@ mod tests {
             }
         });
         let req = request();
-        let buyer = HttpBuyer::new(&base, true).unwrap();
+        let buyer = HttpBuyer::new(&base, true, None).unwrap();
         buyer
             .send(&WireMsg::Request {
                 request: req.clone(),

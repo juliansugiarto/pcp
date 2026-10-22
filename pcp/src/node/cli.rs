@@ -20,17 +20,32 @@ pub struct Args {
 
 impl Args {
     /// Parse `std::env::args()`. Exits with code 2 and the usage text on
-    /// `--help` or a malformed argument.
+    /// `--help`, a malformed argument, or an option the usage text does not
+    /// name (a typo such as `--image_id` must not fall back to a default).
     pub fn parse(usage: &'static str, flag_names: &[&str]) -> Args {
+        Args::parse_from(usage, flag_names, std::env::args().skip(1))
+            .unwrap_or_else(|e| fail(usage, &e))
+    }
+
+    /// [`Args::parse`] over given arguments; `Err` instead of exiting.
+    pub fn parse_from(
+        usage: &'static str,
+        flag_names: &[&str],
+        args: impl IntoIterator<Item = String>,
+    ) -> Result<Args, String> {
+        let known = option_names(usage);
         let mut opts = BTreeMap::new();
         let mut flags = Vec::new();
-        let mut it = std::env::args().skip(1);
+        let mut it = args.into_iter();
         while let Some(a) = it.next() {
             let Some(name) = a.strip_prefix("--") else {
-                fail(usage, &format!("unexpected argument {a}"));
+                return Err(format!("unexpected argument {a}"));
             };
             if name == "help" {
-                fail(usage, "");
+                return Err(String::new());
+            }
+            if !known.iter().any(|k| k == name) {
+                return Err(format!("unknown option --{name}"));
             }
             if flag_names.contains(&name) {
                 flags.push(name.to_string());
@@ -39,11 +54,11 @@ impl Args {
                     Some(v) => {
                         opts.insert(name.to_string(), v);
                     }
-                    None => fail(usage, &format!("--{name} needs a value")),
+                    None => return Err(format!("--{name} needs a value")),
                 }
             }
         }
-        Args { opts, flags, usage }
+        Ok(Args { opts, flags, usage })
     }
 
     pub fn get(&self, name: &str) -> Option<&str> {
@@ -71,6 +86,23 @@ impl Args {
     pub fn flag(&self, name: &str) -> bool {
         self.flags.iter().any(|f| f == name)
     }
+}
+
+/// Every `--name` the usage text mentions.
+fn option_names(usage: &str) -> Vec<String> {
+    let mut names = Vec::new();
+    let mut rest = usage;
+    while let Some(i) = rest.find("--") {
+        rest = &rest[i + 2..];
+        let n: String = rest
+            .chars()
+            .take_while(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || *c == '-')
+            .collect();
+        if !n.is_empty() && !names.contains(&n) {
+            names.push(n);
+        }
+    }
+    names
 }
 
 /// Print the usage and an error, exit 2.
@@ -170,8 +202,11 @@ fn listen(a: &Args, addr: &str, usage: &str) -> Box<dyn super::wire::Wire> {
 
 #[cfg(feature = "http")]
 fn connect(a: &Args, url: &str, usage: &str) -> Box<dyn super::wire::Wire> {
+    let ca = a.get("seller-ca-cert").map(|p| {
+        std::fs::read(p).unwrap_or_else(|e| fail(usage, &format!("--seller-ca-cert {p}: {e}")))
+    });
     Box::new(
-        super::http::HttpBuyer::new(url, a.flag("allow-insecure-transport"))
+        super::http::HttpBuyer::new(url, a.flag("allow-insecure-transport"), ca.as_deref())
             .unwrap_or_else(|e| fail(usage, &e)),
     )
 }
@@ -268,5 +303,31 @@ pub fn run_buy(
             eprintln!("buyer stopped: {e}");
             std::process::exit(1)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const U: &str = "x --state DIR [--image-id HEX] [--allow-sim]";
+
+    fn parse(a: &[&str]) -> Result<Args, String> {
+        Args::parse_from(U, FLAGS, a.iter().map(|s| s.to_string()))
+    }
+
+    #[test]
+    fn options_the_usage_does_not_name_are_refused() {
+        let a = parse(&["--state", "d", "--image-id", "ab", "--allow-sim"]).unwrap();
+        assert_eq!(a.get("image-id"), Some("ab"));
+        assert!(a.flag("allow-sim"));
+        // A typo must not fall back to the pinned default.
+        assert_eq!(
+            parse(&["--image_id", "ab"]).err().unwrap(),
+            "unknown option --image_id"
+        );
+        assert!(parse(&["--tamper-accept"]).is_err());
+        assert!(parse(&["--state"]).is_err());
+        assert!(parse(&["state"]).is_err());
     }
 }

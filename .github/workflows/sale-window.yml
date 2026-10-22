@@ -1,0 +1,301 @@
+# S-D: a time-boxed sale window on signet. One job runs, for at most three
+# hours, a fresh LND node (signet, neutrino) and the RISC Zero seller
+# (`pcp-risc0 --role sell`, HTTP binding on loopback), reachable through a
+# Cloudflare quick tunnel (HTTPS, no account) and a bore TCP tunnel for the
+# Lightning port. A buyer opens a direct channel to the node and buys with
+# `pcp-buy-risc0` (pcp-risc0/IMAGE-ID.md, pcp/RUN-SIGNET.md).
+#
+# Manual only, never scheduled: a short, announced test of this project's
+# software on a test network. Test coins only. Cloudflare terminates TLS
+# and sees requests, offers and bundles (the ciphertext), never the key.
+#
+# dry_run (the default) does not announce anything: a 10-minute window
+# that a second LND node on the same runner checks from outside (GET
+# /pcp/v0/info through the public URL, a Lightning connection through
+# bore). Results: branch ci-results-lnd, window/<UTC ts>/. A real window
+# also writes WINDOW.md on branch `window`.
+name: sale-window
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Self-check only, nothing announced (10 minutes)"
+        type: boolean
+        default: true
+      minutes:
+        description: "How long the window stays open (at most 150)"
+        type: number
+        default: 120
+      price_sat:
+        description: "Price per sale in sat"
+        type: number
+        default: 1000
+      sales:
+        description: "Sales before the seller stops"
+        type: number
+        default: 3
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sale-window
+  cancel-in-progress: false
+
+jobs:
+  window:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta
+      OUT: out
+    steps:
+      - uses: actions/checkout@v4
+      - name: Window parameters
+        id: p
+        run: |
+          mkdir -p out
+          m=${{ inputs.minutes }}; [ "${{ inputs.dry_run }}" = true ] && m=10
+          # 150 leaves the 240-minute job time for the toolchain, a guest
+          # build on a cache miss, LND sync, closing and publishing.
+          [ "$m" -ge 1 ] && [ "$m" -le 150 ] || { echo "minutes must be 1 to 150"; exit 1; }
+          [ "${{ inputs.sales }}" -ge 1 ] || { echo "sales must be at least 1"; exit 1; }
+          price=${{ inputs.price_sat }}
+          [ "$price" -ge 1 ] && [ "$price" -le 10000 ] || { echo "price_sat must be 1 to 10000 (the seller mandate's per-deal limit)"; exit 1; }
+          { echo "minutes=$m"; echo "price_sat=$price"; echo "sales=${{ inputs.sales }}"; echo "dry_run=${{ inputs.dry_run }}"; } | tee -a "$GITHUB_OUTPUT" out/parameters.txt
+          { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; nproc; free -m; } | tee out/machine.txt
+      - name: Install RISC Zero toolchain
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          curl -L https://risczero.com/install | bash
+          export PATH="$HOME/.risc0/bin:$PATH"
+          ok=""
+          for i in 1 2 3 4; do
+            rzup install > out/rzup-install-$i.txt 2>&1 || true
+            rzup show 2>&1 | tee out/rzup-show.txt
+            if grep -qx rust out/rzup-show.txt && grep -qx r0vm out/rzup-show.txt; then ok=1; break; fi
+            sleep $((i * 20))
+          done
+          [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }
+          echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
+      # The real-sale cache: the same build.
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            pcp-risc0/target
+          key: real-sale-${{ runner.os }}-${{ hashFiles('pcp-risc0/Cargo.lock', 'pcp-risc0/methods/guest/Cargo.lock') }}-${{ github.run_id }}
+          restore-keys: real-sale-${{ runner.os }}-${{ hashFiles('pcp-risc0/Cargo.lock', 'pcp-risc0/methods/guest/Cargo.lock') }}-
+      - name: Build the seller (guest in Docker) and check its image id
+        run: |
+          set -o pipefail
+          cd pcp-risc0
+          expected=$(grep -A1 'pub const PINNED_IMAGE_ID' verify/src/lib.rs | grep -oE '[0-9a-f]{64}')
+          export RISC0_USE_DOCKER=1
+          cargo build --release -p pcp-risc0-host --features lnd,http > ../out/build-host.txt 2>&1 || { tail -n 100 ../out/build-host.txt; exit 1; }
+          id=$(./target/release/pcp-risc0 --job sudoku9 --execute-only | grep -oE "guest image id [0-9a-f]{64}" | awk '{print $4}')
+          { echo "image_id: $id"; echo "pinned:   $expected"; } | tee ../out/image-id.txt
+          [ -n "$id" ] && [ "$id" = "$expected" ] || { echo "the guest is not the pinned one: no window"; exit 1; }
+          cd ../pcp && cargo build --features lnd --bin pcp-setup --bin pcp-audit 2>&1 | tail -n 2
+      - name: Start LND on signet (neutrino)
+        run: |
+          docker run -d --name window -p 127.0.0.1:8080:8080 -p 127.0.0.1:9735:9735 \
+            --entrypoint lnd "$LND_IMAGE" --bitcoin.signet --bitcoin.node=neutrino \
+            --noseedbackup --alias=pcp-sale-window --debuglevel=info \
+            --listen=0.0.0.0:9735 --restlisten=0.0.0.0:8080 --rpclisten=127.0.0.1:10009 \
+            --tlsextradomain=localhost >/dev/null
+          s=$(date +%s)
+          for i in $(seq 120); do
+            [ "$(docker exec window lncli --network=signet getinfo 2>/dev/null | jq -r .synced_to_chain)" = true ] && break
+            sleep 5
+          done
+          docker exec window lncli --network=signet getinfo | jq '{identity_pubkey, block_height, synced_to_chain, version}' | tee out/lnd-getinfo.json
+          [ "$(jq -r .synced_to_chain out/lnd-getinfo.json)" = true ] || { echo "LND did not sync"; exit 1; }
+          echo "sync_secs: $(( $(date +%s) - s ))" | tee -a out/timeline.txt
+          # Least privilege: the seller reads its node id, makes, settles and
+          # cancels its own invoices, and decodes them (offchain:read; it
+          # cannot pay). Tested in lnd-regtest.yml.
+          docker exec window lncli --network=signet bakemacaroon --save_to /root/seller.macaroon \
+            info:read invoices:read invoices:write offchain:read
+          mkdir -p creds
+          docker cp window:/root/seller.macaroon creds/seller.macaroon
+          docker cp window:/root/.lnd/tls.cert creds/tls.cert
+      - name: Set up the seller agent
+        run: |
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8080
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/seller.macaroon
+          ./pcp/target/debug/pcp-setup --root win --seller-node from-env:PCP_SELLER_LND_ --seller-only | tee out/setup.txt
+      - name: Open the window
+        id: open
+        run: |
+          minutes=${{ steps.p.outputs.minutes }}
+          secs=$((minutes * 60))
+          export PCP_LND_REST_URL=https://127.0.0.1:8080
+          export PCP_LND_TLS_CERT=$PWD/creds/tls.cert
+          export PCP_LND_MACAROON=$PWD/creds/seller.macaroon
+          nohup ./pcp-risc0/target/release/pcp-risc0 --role sell --state win/seller \
+            --listen 127.0.0.1:8650 --rail lnd --job sudoku9 \
+            --price-msat $(( ${{ steps.p.outputs.price_sat }} * 1000 )) --sales ${{ steps.p.outputs.sales }} \
+            --quiet-exit-secs "$secs" --deadline-secs $((secs + 600)) > out/seller.log 2>&1 &
+          echo $! > seller.pid
+          # HTTPS: Cloudflare quick tunnel (no account; the hostname changes every run).
+          # Pinned versions (the ones window-probe ran); the hash is recorded.
+          curl -sSfL -o cloudflared https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-linux-amd64
+          chmod +x cloudflared && ./cloudflared --version | tee out/cloudflared-version.txt
+          sha256sum cloudflared | tee -a out/cloudflared-version.txt
+          nohup ./cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8650 > cf.log 2>&1 &
+          echo $! > cf.pid
+          # Lightning P2P: bore (plain TCP; Lightning's own transport is encrypted and authenticated).
+          cargo install --locked bore-cli --version 0.6.0 2>&1 | tail -n 1
+          nohup bore local 9735 --to bore.pub > bore.log 2>&1 &
+          echo $! > bore.pid
+          url=""; port=""
+          for i in $(seq 60); do
+            url=$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' cf.log | head -n 1)
+            port=$(grep -oE 'bore.pub:[0-9]+' bore.log | head -n 1 | cut -d: -f2)
+            [ -n "$url" ] && [ -n "$port" ] && break
+            sleep 2
+          done
+          [ -n "$url" ] && [ -n "$port" ] || { echo "a tunnel did not come up"; cat cf.log bore.log | tail -n 40; exit 1; }
+          # The tunnel answers only once Cloudflare has the route.
+          for i in $(seq 30); do curl -sSf -m 10 "$url/pcp/v0/info" -o out/info.json && break; sleep 4; done
+          jq . out/info.json
+          pubkey=$(jq -r .identity_pubkey out/lnd-getinfo.json)
+          opens=$(date -u +%FT%TZ); closes=$(date -u -d "+$minutes minutes" +%FT%TZ)
+          {
+            echo "# PCP sale window"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Seller URL | \`$url\` |"
+            echo "| Lightning node | \`$pubkey@bore.pub:$port\` (signet) |"
+            echo "| Price | ${{ steps.p.outputs.price_sat }} sat per sale (signet test coins) |"
+            echo "| Job | \`sudoku9\`, the default puzzle of \`pcp-buy-risc0\` |"
+            echo "| Guest image id | \`$(grep -oE '[0-9a-f]{64}' out/image-id.txt | head -n 1)\` |"
+            echo "| Opens | $opens |"
+            echo "| Closes | $closes (channels are closed at the end) |"
+            echo "| Software | commit \`$GITHUB_SHA\` |"
+            echo
+            echo "A short test of this software on signet. Signet coins have no value."
+            echo
+            echo "Open a direct channel of at least 20,000 sat to the node, then follow pcp/RUN-SIGNET.md."
+            echo "Cloudflare terminates TLS and sees the request, the offer and the encrypted result, never the key."
+          } > out/WINDOW.md
+          cat out/WINDOW.md
+          { echo "url=$url"; echo "port=$port"; echo "pubkey=$pubkey"; echo "closes=$closes"; } >> "$GITHUB_OUTPUT"
+          echo "opened: $opens" | tee -a out/timeline.txt
+      - name: Announce WINDOW.md on branch window
+        if: steps.p.outputs.dry_run != 'true'
+        run: |
+          git config user.name "pcp-ci"; git config user.email "ci@users.noreply.github.com"
+          cp out/WINDOW.md /tmp/WINDOW.md
+          git fetch origin +refs/heads/window:refs/remotes/origin/window 2>/dev/null || true
+          git checkout -f -B window origin/window 2>/dev/null || { git checkout -f --orphan window && git rm -rq --cached .; }
+          cp /tmp/WINDOW.md WINDOW.md && git add WINDOW.md && git commit -qm "window open until ${{ steps.open.outputs.closes }}" && git push origin window
+          git checkout -f "$GITHUB_SHA"
+      - name: Self-check from a second node (dry run)
+        if: steps.p.outputs.dry_run == 'true'
+        continue-on-error: true
+        id: selfcheck
+        run: |
+          # From outside: the info endpoint through the public URL...
+          curl -sS -m 20 -o out/selfcheck-info.json -w "info via tunnel: HTTP %{http_code}\n" "${{ steps.open.outputs.url }}/pcp/v0/info" | tee out/selfcheck.txt
+          # ...and a Lightning connection through bore from another node.
+          docker run -d --name probe --entrypoint lnd "$LND_IMAGE" --bitcoin.signet --bitcoin.node=neutrino \
+            --noseedbackup --norest --listen=0.0.0.0:9736 >/dev/null
+          for i in $(seq 60); do docker exec probe lncli --network=signet getinfo >/dev/null 2>&1 && break; sleep 5; done
+          probe=$(docker exec probe lncli --network=signet getinfo | jq -r .identity_pubkey)
+          for i in 1 2 3 4 5 6; do
+            docker exec probe lncli --network=signet connect "${{ steps.open.outputs.pubkey }}@bore.pub:${{ steps.open.outputs.port }}" 2>&1 | tee -a out/selfcheck.txt && break
+            sleep 20
+          done
+          sleep 5
+          # The probe itself, not any gossip peer LND found on its own.
+          n=$(docker exec window lncli --network=signet listpeers | jq --arg p "$probe" '[.peers[] | select(.pub_key == $p)] | length')
+          echo "probe connected through bore: $n" | tee -a out/selfcheck.txt
+          docker rm -f probe >/dev/null
+          grep -q "HTTP 200" out/selfcheck.txt && [ "$n" = 1 ]
+      - name: Keep the window open
+        run: |
+          end=$(date -d "${{ steps.open.outputs.closes }}" +%s)
+          while [ "$(date +%s)" -lt "$end" ] && kill -0 "$(cat seller.pid)" 2>/dev/null; do
+            sleep 60
+            { date -u +%T; docker exec window lncli --network=signet listchannels | jq -c '[.channels[] | {remote_pubkey: .remote_pubkey[0:16], capacity, local_balance}]'; } >> out/channels-timeline.txt
+          done
+          echo "window ended: $(date -u +%FT%TZ), seller running: $(kill -0 "$(cat seller.pid)" 2>/dev/null && echo yes || echo no)" | tee -a out/timeline.txt
+      - name: Close the window
+        if: always()
+        run: |
+          # Let the seller finish what it started (an accepted offer being
+          # proven, an invoice not yet paid or expired) for up to 10 minutes,
+          # with the tunnel still up so its buyer can reach it; then close.
+          busy() {
+            python3 - "$1" <<'PY' 2>/dev/null || echo 0
+          import json, sys
+          s = json.load(open(sys.argv[1]))["state"]
+          offers = sum(1 for o in s.get("offers", []) if o["stage"]["stage"] in ("accepted", "proven"))
+          sales = sum(1 for x in s.get("sales", []) if not x["settled"] and not x["closed"])
+          print(offers + sales)
+          PY
+          }
+          for i in $(seq 60); do
+            kill -0 "$(cat seller.pid 2>/dev/null)" 2>/dev/null || break
+            b=$(busy win/seller/state.json); [ "$b" = 0 ] && break
+            echo "$(date -u +%T) unfinished: $b" >> out/timeline.txt; sleep 10
+          done
+          [ -f cf.pid ] && kill "$(cat cf.pid)" 2>/dev/null || true
+          [ -f seller.pid ] && kill "$(cat seller.pid)" 2>/dev/null || true
+          # Close every channel cooperatively; force-close what is left, so
+          # no buyer's funds stay locked behind a node that is gone.
+          # (closechannel per channel: closeallchannels asks for confirmation.)
+          close_all() {
+            docker exec window lncli --network=signet listchannels 2>/dev/null | jq -r '.channels[].channel_point' |
+            while IFS=: read -r txid idx; do
+              echo "closing $txid:$idx $*"
+              timeout 60 docker exec window lncli --network=signet closechannel --funding_txid "$txid" --output_index "$idx" --block=false "$@" 2>&1 | tail -n 3
+            done
+          }
+          close_all > out/close.txt 2>&1 || true
+          sleep 60
+          left=$(docker exec window lncli --network=signet listchannels 2>/dev/null | jq '.channels | length')
+          [ "${left:-0}" -gt 0 ] && close_all --force >> out/close.txt 2>&1 || true
+          [ -f bore.pid ] && kill "$(cat bore.pid)" 2>/dev/null || true
+          docker exec window lncli --network=signet closedchannels 2>/dev/null | jq -c '[.channels[] | {close_type, settled_balance}]' > out/closed-channels.json || true
+          [ -d win/seller ] && ./pcp/target/debug/pcp-audit --state win/seller --out out/audit-seller.json > out/audit.txt 2>&1 || true
+          cat out/audit.txt 2>/dev/null; cat out/close.txt 2>/dev/null | tail -n 5
+          docker logs window 2>&1 | grep -E "\[ERR\]|\[WRN\]" | tail -n 50 > out/lnd-warnings.txt || true
+      - name: Withdraw WINDOW.md
+        if: always() && steps.p.outputs.dry_run != 'true'
+        run: |
+          git config user.name "pcp-ci"; git config user.email "ci@users.noreply.github.com"
+          git fetch origin +refs/heads/window:refs/remotes/origin/window 2>/dev/null || exit 0
+          git checkout -f -B window origin/window
+          printf '# PCP sale window\n\nClosed at %s. No window is open. Results: branch ci-results-lnd, folder window/.\n' "$(date -u +%FT%TZ)" > WINDOW.md
+          git add WINDOW.md && git commit -qm "window closed" && git push origin window
+          git checkout -f "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sale-window-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results-lnd
+        if: always()
+        run: |
+          # Logs, audit and the window card only: win/ holds the agent key
+          # and k, creds/ the macaroon; neither is published.
+          git config user.name "pcp-ci"; git config user.email "ci@users.noreply.github.com"
+          dest="window/$(date -u +%Y%m%dT%H%M%SZ)$([ "${{ steps.p.outputs.dry_run }}" = true ] && echo -dry)"
+          for i in 1 2 3 4 5; do
+            git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
+            git checkout -f -B ci-results-lnd origin/ci-results-lnd
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add window && git commit -qm "sale window run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
+            sleep $((RANDOM % 20 + 5))
+          done
+      - name: Fail if the dry-run self-check failed
+        if: steps.p.outputs.dry_run == 'true' && steps.selfcheck.outcome != 'success'
+        run: exit 1

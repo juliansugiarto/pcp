@@ -25,7 +25,13 @@
 #
 # Wire: a shared directory by default. With WIRE=http the seller listens on
 # a loopback port and the buyer posts to it (build with --features http):
-# a killed seller is then a refused connection for the buyer.
+# a killed seller is then a refused connection for the buyer. With
+# WIRE=https, nginx terminates TLS in front of the seller with a certificate
+# from a CA made for the run, and the buyer trusts only that CA
+# (--seller-ca-cert, no --allow-insecure-transport): a killed seller is then
+# a 502 from the proxy. Needs nginx and openssl. Case https-untrusted (added
+# to the default set with WIRE=https): a buyer without the CA must never
+# reach the seller.
 #
 # CASE names: clean, repeat-accept, tampered-accept, buyer-gone,
 # buyer-node-down (LND only, needs BUYER_NODE_STOP and BUYER_NODE_START
@@ -65,6 +71,58 @@ buyer:settle:post"
 LAST=""
 [ "$RAIL" = lnd ] && [ -n "${BUYER_NODE_STOP:-}" ] && LAST=buyer-node-down
 CASES=${*:-clean repeat-accept tampered-accept buyer-gone $POINTS $LAST}
+[ "$WIRE" = https ] && [ $# -eq 0 ] && CASES="$CASES https-untrusted"
+
+# WIRE=https: one CA and one server certificate (localhost, 127.0.0.1).
+TLS="$OUT/tls"
+if [ "$WIRE" = https ]; then
+  command -v nginx >/dev/null || { echo "WIRE=https needs nginx"; exit 2; }
+  mkdir -p "$TLS"
+  openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes -days 2 \
+    -keyout "$TLS/ca.key" -out "$TLS/ca.pem" -subj "/CN=pcp crash-matrix CA" \
+    -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,keyCertSign,cRLSign" 2>/dev/null
+  openssl req -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes \
+    -keyout "$TLS/srv.key" -out "$TLS/srv.csr" -subj "/CN=localhost" 2>/dev/null
+  printf 'subjectAltName=DNS:localhost,IP:127.0.0.1\nbasicConstraints=CA:FALSE\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth\n' >"$TLS/ext.cnf"
+  openssl x509 -req -in "$TLS/srv.csr" -CA "$TLS/ca.pem" -CAkey "$TLS/ca.key" -CAcreateserial \
+    -days 2 -out "$TLS/srv.pem" -extfile "$TLS/ext.cnf" 2>/dev/null
+  [ -s "$TLS/srv.pem" ] || { echo "could not make the test certificates"; exit 2; }
+fi
+
+# start_proxy DIR FRONT_PORT BACK_PORT: nginx with TLS on FRONT_PORT,
+# forwarding /pcp/ to the seller on BACK_PORT, as a daemon whose pid is in
+# DIR/nginx/nginx.pid.
+start_proxy() {
+  local d=$1 front=$2 back=$3
+  mkdir -p "$d/nginx/tmp"
+  local user_line=""
+  [ "$(id -u)" = 0 ] && user_line="user root;"
+  cat >"$d/nginx/nginx.conf" <<NGINX
+$user_line
+daemon on;
+pid $d/nginx/nginx.pid;
+error_log $d/nginx/error.log warn;
+events { worker_connections 64; }
+http {
+  access_log $d/nginx/access.log;
+  client_body_temp_path $d/nginx/tmp/body;
+  proxy_temp_path $d/nginx/tmp/proxy;
+  fastcgi_temp_path $d/nginx/tmp/fcgi;
+  uwsgi_temp_path $d/nginx/tmp/uwsgi;
+  scgi_temp_path $d/nginx/tmp/scgi;
+  server {
+    listen 127.0.0.1:$front ssl;
+    server_name localhost;
+    ssl_certificate $TLS/srv.pem;
+    ssl_certificate_key $TLS/srv.key;
+    client_max_body_size 64k;
+    location /pcp/ { proxy_pass http://127.0.0.1:$back; proxy_read_timeout 30s; }
+  }
+}
+NGINX
+  nginx -p "$d/nginx" -c "$d/nginx/nginx.conf" 2>>"$d/nginx/error.log" \
+    || echo "nginx did not start" >>"$d/nginx/error.log"
+}
 
 # supervise MODE POINT LOG CMD...: run CMD and echo its exit codes.
 #   normal:    with PCP_CRASH_AT=POINT; if it aborted (134), run it again.
@@ -153,6 +211,13 @@ run_case() {
       read -r -a extra <<<"${WRONG_BACKEND_ARGS:-}"; buyer_exit=11
       expect_state=Aborted; expect_settled=0; expect_proofs=0
       expect_reason=backend_not_accepted; brefusals=(--expect-refusals 1) ;;
+    # WIRE=https: a buyer that does not trust the seller's CA. Every
+    # connection fails the TLS check, nothing reaches the seller, and the
+    # buyer gives up when no offer comes.
+    https-untrusted)
+      extra=(--offer-wait-secs 15); buyer_exit=11
+      expect_state=Aborted; expect_settled=0; expect_proofs=0
+      expect_reason=no_answer; brefusals=(--expect-refusals 1) ;;
     seller:*) sp=$name ;;
     buyer:*) bp=$name ;;
   esac
@@ -165,6 +230,14 @@ run_case() {
     local port=$((PORT_BASE + case_no))
     swire=(--listen "127.0.0.1:$port")
     bwire=(--seller-url "http://127.0.0.1:$port" --allow-insecure-transport)
+  fi
+  if [ "$WIRE" = https ]; then
+    case_no=$((case_no + 1))
+    local port=$((PORT_BASE + 2 * case_no)) front=$((PORT_BASE + 2 * case_no + 1))
+    swire=(--listen "127.0.0.1:$port")
+    bwire=(--seller-url "https://localhost:$front" --seller-ca-cert "$TLS/ca.pem")
+    [ "$name" = https-untrusted ] && bwire=(--seller-url "https://localhost:$front")
+    start_proxy "$dir" "$front" "$port"
   fi
   (
     if [ "$RAIL" = lnd ]; then
@@ -185,6 +258,21 @@ run_case() {
   )
   wait $spid
   local problems=()
+  if [ "$WIRE" = https ]; then
+    [ -f "$dir/nginx/nginx.pid" ] && kill "$(cat "$dir/nginx/nginx.pid")" 2>/dev/null
+    # The proxy really carried the sale (or, untrusted, nothing at all).
+    local proxied
+    proxied=$(grep -c "POST /pcp/v0/" "$dir/nginx/access.log" 2>/dev/null)
+    if [ "$name" = https-untrusted ]; then
+      [ "${proxied:-0}" = 0 ] || problems+=("proxied:$proxied")
+      grep -qiE "certificate|tls|ssl" "$dir/buyer.log" || problems+=(no-tls-error-seen)
+    else
+      # A request, and an accept whenever the buyer took the offer.
+      local want=1
+      [ "$expect_proofs" -gt 0 ] && want=2
+      [ "${proxied:-0}" -ge $want ] || problems+=("proxied:${proxied:-0}")
+    fi
+  fi
 
   # The crash point was reached, and both processes ended as expected.
   if [ -n "$sp" ] && [ "$(first_code "$dir/seller.codes")" != 134 ]; then problems+=(point-missed); fi
