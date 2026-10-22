@@ -1,0 +1,46 @@
+cases: 3621
+
+category                  count
+agree                      3593
+rust_refuses_we_accept        0
+we_refuse_rust_accepts        0
+same_stage_diff_code          0
+diff_stage                    0
+ignored_proof_invalid        28
+
+Agreed refusal codes (count per code, as named by the SPEC):
+    30  bundle/backend_not_accepted
+    23  bundle/ciphertext_hash_mismatch
+    11  bundle/input_commitment_mismatch
+    54  bundle/job_mismatch
+     8  bundle/offer_mismatch
+    11  bundle/replayed_or_misdirected
+    60  bundle/version
+     4  invoice/htlc_lock_too_long
+    13  invoice/invoice_amount_mismatch
+    33  invoice/invoice_binding_mismatch
+    15  invoice/invoice_description_mismatch
+    12  invoice/invoice_expires_too_soon
+    15  invoice/invoice_hash_mismatch
+    47  invoice/invoice_payee_mismatch
+    37  invoice/version
+    21  offer/backend_not_accepted
+    41  offer/counterparty_mandate.agent_signature_invalid
+     5  offer/counterparty_mandate.missing
+    63  offer/counterparty_mandate.signature_invalid
+    21  offer/counterparty_mandate.version
+   112  offer/deal_above_ceiling
+    13  offer/enc_scheme_not_supported
+     3  offer/input_commitment_mismatch
+    40  offer/insecure_backend_refused
+    19  offer/job_mismatch
+    32  offer/offer_expired
+    10  offer/own_mandate.cap_exceeded
+    10  offer/own_mandate.per_deal_max_exceeded
+   224  offer/price_too_high
+    14  offer/rail_not_supported
+     6  offer/replayed_or_misdirected
+    16  offer/version
+
+Divergences (one line per class; line numbers are 1-based in the corpus):
+  none
