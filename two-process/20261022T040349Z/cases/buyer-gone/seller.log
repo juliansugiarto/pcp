@@ -1,0 +1,9 @@
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+[seller 1792641730] seller up: 0 offers, 0 sales on record
+[seller 1792641730] offer 0c8ac3f24393 sent
+[seller 1792641730] accept 0c8ac3f24393 : proving
+[seller 1792641730] proved 0c8ac3f24393 in 0.001 s
+[seller 1792641730] invoice 0c8ac3f24393 sent
+[seller 1792641805] sale cancelled: invoice_expired
+[seller 1792641805] seller done: 1 sales over, committed 0 msat
+seller summary: settled 0 cancelled 1 refused 0 proofs 1 committed_msat 0
