@@ -1,0 +1,220 @@
+aead v0.5.2
+ahash v0.8.12
+allocator-api2 v0.2.21
+anyhow v1.0.104
+ark-bn254 v0.5.0
+ark-crypto-primitives v0.5.0
+ark-crypto-primitives-macros v0.5.0 (proc-macro)
+ark-ec v0.5.0
+ark-ff v0.5.0
+ark-ff-asm v0.5.0 (proc-macro)
+ark-ff-macros v0.5.0 (proc-macro)
+ark-groth16 v0.5.0
+ark-poly v0.5.0
+ark-relations v0.5.1
+ark-serialize v0.5.0
+ark-serialize-derive v0.5.0 (proc-macro)
+ark-snark v0.5.1
+ark-std v0.5.0
+arrayvec v0.7.8
+atomic-waker v1.1.2
+autocfg v1.5.1
+axum v0.8.9
+axum-core v0.5.6
+base64 v0.22.1
+base64 v0.23.1
+bincode v1.3.3
+bit-vec v0.8.0
+bitflags v2.13.2
+blake2 v0.10.6
+block-buffer v0.10.4
+borsh v1.8.1
+borsh-derive v1.8.1 (proc-macro)
+bytemuck v1.25.2
+bytemuck_derive v1.12.1 (proc-macro)
+byteorder v1.5.0
+bytes v1.12.1
+cc v1.9.0
+cfg-if v1.0.5
+cfg_aliases v0.2.2
+chacha20 v0.9.1
+chacha20poly1305 v0.10.1
+cipher v0.4.4
+cobs v0.3.0
+const-oid v0.9.6
+cpufeatures v0.2.17
+crypto-common v0.1.7
+curve25519-dalek v4.1.3
+curve25519-dalek-derive v0.1.1 (proc-macro)
+derivative v2.2.0 (proc-macro)
+derive_more v2.1.1
+derive_more-impl v2.1.1 (proc-macro)
+digest v0.10.7
+displaydoc v0.2.7 (proc-macro)
+downcast-rs v1.2.1
+ed25519 v2.2.3
+ed25519-dalek v2.2.0
+educe v0.6.0 (proc-macro)
+either v1.19.0
+elf v0.7.4
+enum-ordinalize v4.4.2
+enum-ordinalize-derive v4.4.2 (proc-macro)
+equivalent v1.0.3
+find-msvc-tools v0.1.15
+foreign-types v0.3.2
+foreign-types-shared v0.1.1
+form_urlencoded v1.2.2
+futures-channel v0.3.34
+futures-core v0.3.34
+futures-io v0.3.34
+futures-sink v0.3.34
+futures-task v0.3.34
+futures-util v0.3.34
+generic-array v0.14.7
+getrandom v0.2.17
+hashbrown v0.15.5
+hashbrown v0.17.1
+hex v0.4.3
+hex-literal v0.4.1
+http v1.5.0
+http-body v1.1.0
+http-body-util v0.1.5
+httparse v1.10.1
+httpdate v1.0.3
+hyper v1.12.0
+hyper-tls v0.6.0
+hyper-util v0.1.21
+icu_collections v2.3.0
+icu_locale_core v2.3.0
+icu_normalizer v2.3.0
+icu_normalizer_data v2.3.0
+icu_properties v2.3.0
+icu_properties_data v2.3.0
+icu_provider v2.3.1
+idna v1.1.0
+idna_adapter v1.2.2
+include_bytes_aligned v0.1.4
+indexmap v2.14.2
+inout v0.1.4
+ipnet v2.12.2
+itertools v0.13.0
+itoa v1.0.18
+keccak v0.1.6
+lazy_static v1.5.1
+libc v0.2.191
+litemap v0.8.3
+log v0.4.34
+matchit v0.8.4
+memchr v2.8.3
+merlin v3.0.0
+mime v0.3.17
+mio v1.2.4
+native-tls v0.2.18
+no_std_strings v0.1.3
+num-bigint v0.4.8
+num-integer v0.1.47
+num-traits v0.2.19
+num_enum v0.7.6
+num_enum_derive v0.7.6 (proc-macro)
+once_cell v1.21.4
+opaque-debug v0.3.1
+openssl v0.10.81
+openssl-macros v0.1.1 (proc-macro)
+openssl-probe v0.2.1
+openssl-sys v0.9.117
+paste v1.0.15 (proc-macro)
+pcp v0.0.1 (/home/runner/work/pcp/pcp/pcp)
+pcp-risc0-verify v0.1.0 (/home/runner/work/pcp/pcp/pcp-risc0/verify)
+percent-encoding v2.3.2
+pin-project-lite v0.2.17
+pkg-config v0.3.34
+poly1305 v0.8.0
+postcard v1.1.3
+potential_utf v0.1.6
+ppv-lite86 v0.2.21
+proc-macro-crate v3.5.0
+proc-macro2 v1.0.107
+quote v1.0.47
+rand v0.8.8
+rand v0.9.5
+rand_chacha v0.3.1
+rand_core v0.6.4
+rand_core v0.9.5
+reqwest v0.13.5
+risc0-binfmt v3.0.5
+risc0-circuit-keccak v4.0.6
+risc0-circuit-recursion v4.0.5
+risc0-circuit-rv32im v4.0.5
+risc0-core v3.0.2
+risc0-groth16 v3.0.5
+risc0-zkos-v1compat v2.2.3
+risc0-zkp v3.0.5
+risc0-zkvm v3.0.6
+risc0-zkvm-platform v2.2.3
+rrs-lib v0.1.0
+ruint v1.21.0
+ruint-macro v1.2.1 (proc-macro)
+rustc_version v0.4.1
+rustls-pki-types v1.15.1
+rustversion v1.0.23 (proc-macro)
+semver v1.0.28
+serde v1.0.229
+serde_core v1.0.229
+serde_derive v1.0.229 (proc-macro)
+serde_json v1.0.154
+serde_path_to_error v0.1.20
+sha2 v0.10.9
+shlex v2.0.1
+signature v2.2.0
+slab v0.4.12
+smallvec v1.16.3
+socket2 v0.6.5
+spin v0.9.9
+stability v0.2.1 (proc-macro)
+stable_deref_trait v1.2.1
+subtle v2.6.1
+syn v1.0.109
+syn v2.0.119
+syn v3.0.9
+sync_wrapper v1.0.2
+synstructure v0.14.0
+thiserror v2.0.21
+thiserror-impl v2.0.21 (proc-macro)
+tinystr v0.8.4
+tokio v1.54.1
+tokio-macros v2.7.2 (proc-macro)
+tokio-native-tls v0.3.1
+toml_datetime v1.1.2+spec-1.1.0
+toml_edit v0.25.17+spec-1.1.0
+toml_parser v1.1.5+spec-1.1.0
+tower v0.5.3
+tower-http v0.6.11
+tower-layer v0.3.3
+tower-service v0.3.3
+tracing v0.1.44
+tracing-attributes v0.1.31 (proc-macro)
+tracing-core v0.1.36
+tracing-subscriber v0.2.25
+try-lock v0.2.5
+typenum v1.20.1
+unicode-ident v1.0.27
+unicode-xid v0.2.6
+universal-hash v0.5.1
+url v2.5.8
+utf8_iter v1.0.4
+vcpkg v0.2.15
+version_check v0.9.5
+want v0.3.2
+winnow v1.0.4
+writeable v0.6.4
+yoke v0.8.3
+yoke-derive v0.8.4 (proc-macro)
+zerocopy v0.8.63
+zerofrom v0.1.8
+zerofrom-derive v0.1.8 (proc-macro)
+zeroize v1.9.1
+zeroize_derive v1.5.0 (proc-macro)
+zerotrie v0.2.5
+zerovec v0.11.8
+zerovec-derive v0.11.6 (proc-macro)
+zmij v1.0.23
