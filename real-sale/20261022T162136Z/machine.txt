@@ -1,0 +1,11 @@
+date: 2026-10-22T16:01:12Z
+commit: 02745608b50c6179c2ba707964b16245128fdae4
+Linux runnervmfese6 7.0.0-1017-azure #17~24.04.1-Ubuntu SMP PREEMPT Thu Sep 24 18:46:57 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+4
+               total        used        free      shared  buff/cache   available
+Mem:           15983         960       12862          41        2521       15023
+Swap:           3071           0        3071
+Docker version 28.0.4, build b8034c0
+rustc 1.99.1 (58cf8f9c3 2026-10-13)
+LND_IMAGE=lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
+BTC_IMAGE=polarlightning/bitcoind:28.0@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010
