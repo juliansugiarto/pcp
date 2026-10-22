@@ -179,6 +179,10 @@ jobs:
             git add real-sale && git commit -qm "real sale (risc0 + lnd regtest) run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
             sleep $((RANDOM % 20 + 5))
           done
-      - name: Fail if a sale failed
-        if: steps.sale.outcome != 'success' || steps.twoproc.outcome != 'success'
-        run: exit 1
+      - name: Fail if a sale failed or the guest is not the expected one
+        if: always()
+        run: |
+          # A sale with an unexpected image id still settles, but every
+          # document quotes the expected id: treat a mismatch as a failure.
+          grep -qx "match: yes" out/image-id.txt || { echo "image id mismatch"; cat out/image-id.txt; exit 1; }
+          [ "${{ steps.sale.outcome }}" = success ] && [ "${{ steps.twoproc.outcome }}" = success ] || exit 1

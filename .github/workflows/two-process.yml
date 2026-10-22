@@ -47,7 +47,13 @@ jobs:
           cd pcp
           set -o pipefail
           cargo clippy --version | tee ../out/clippy.txt
-          cargo clippy --all-targets -- -D warnings 2>&1 | grep -v "^ *Compiling\|^ *Checking" | tail -n 80 | tee -a ../out/clippy.txt
+          # chunks_exact_to_as_chunks (clippy 1.99) flags job::testsuite::decode_suite.
+          # That file is compiled into the zkVM guest, where any edit, even a
+          # moved line, changes the binary (panic locations are embedded) and
+          # its reproducible image id: an attribute there moved it from
+          # cc6e7b82... to 73ad16c1... on 22 October. So it is allowed here.
+          cargo clippy --all-targets -- -D warnings -A unknown-lints -A clippy::chunks_exact_to_as_chunks 2>&1 \
+            | grep -v "^ *Compiling\|^ *Checking" | tail -n 80 | tee -a ../out/clippy.txt
       - name: Crash matrix (sim)
         id: matrix
         continue-on-error: true
