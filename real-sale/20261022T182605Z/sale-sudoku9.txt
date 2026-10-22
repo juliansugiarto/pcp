@@ -1,0 +1,43 @@
+[18:13:26] guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+[18:13:26]   [1 request sent]
+[18:13:26]   [2 offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328, rail lightning-bolt11/0]
+[18:14:55]   [3 seller proved and invoiced in 88.455 s: C 97 bytes, proof 223748 bytes]
+[18:14:55]   [4 buyer verified the proof in 0.016 s, before paying]
+[18:14:55]   [5 invoice checked: hash, amount, payee, description, expiry]
+[18:14:55]   [6 paid: HTLC to H on its way]
+[18:14:55]   [7 seller settled: revealed k, 1000000 msat received]
+[18:14:55]   [8 buyer has k, decrypted C and re-checked R (0.526 s after paying)]
+[18:14:55] SETTLED. Result R:
+[18:14:55] 5 3 4 6 7 8 9 1 2
+[18:14:55] 6 7 2 1 9 5 3 4 8
+[18:14:55] 1 9 8 3 4 2 5 6 7
+[18:14:55] 8 5 9 7 6 1 4 2 3
+[18:14:55] 4 2 6 8 5 3 7 9 1
+[18:14:55] 7 1 3 9 2 4 8 5 6
+[18:14:55] 9 6 1 5 3 7 2 8 4
+[18:14:55] 2 8 7 4 1 9 6 3 5
+[18:14:55] 3 4 5 2 8 6 1 7 9
+[18:14:55] cost-row,job=sudoku9,backend=risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328,segments=1,user_cycles=88606,total_cycles=131072,prove_s=88.451,verify_s=0.016,receipt_bytes=223748,settle_s=0.526,peak_rss_mib=1425
+[18:14:55] 	Command being timed: "./pcp-risc0/target/release/pcp-risc0 --job sudoku9 --rail lnd"
+[18:14:55] 	User time (seconds): 338.62
+[18:14:55] 	System time (seconds): 1.09
+[18:14:55] 	Percent of CPU this job got: 381%
+[18:14:55] 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:29.09
+[18:14:55] 	Average shared text size (kbytes): 0
+[18:14:55] 	Average unshared data size (kbytes): 0
+[18:14:55] 	Average stack size (kbytes): 0
+[18:14:55] 	Average total size (kbytes): 0
+[18:14:55] 	Maximum resident set size (kbytes): 1459172
+[18:14:55] 	Average resident set size (kbytes): 0
+[18:14:55] 	Major (requiring I/O) page faults: 0
+[18:14:55] 	Minor (reclaiming a frame) page faults: 666686
+[18:14:55] 	Voluntary context switches: 1323
+[18:14:55] 	Involuntary context switches: 52916
+[18:14:55] 	Swaps: 0
+[18:14:55] 	File system inputs: 0
+[18:14:55] 	File system outputs: 224
+[18:14:55] 	Socket messages sent: 0
+[18:14:55] 	Socket messages received: 0
+[18:14:55] 	Signals delivered: 0
+[18:14:55] 	Page size (bytes): 4096
+[18:14:55] 	Exit status: 0
