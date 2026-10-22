@@ -23,6 +23,8 @@
 //! next message not sent yet). See [`CRASH_POINTS`].
 
 pub mod cli;
+#[cfg(feature = "http")]
+pub mod http;
 pub mod sim_file;
 pub mod store;
 pub mod wire;
@@ -42,7 +44,7 @@ use crate::protocol::{
 use crate::rail::Rail;
 
 use store::{StateDir, StoreError};
-use wire::{DirTransport, WireMsg};
+use wire::{Wire, WireMsg};
 
 /// Every named crash point, seller first.
 pub const CRASH_POINTS: &[&str] = &[
@@ -134,7 +136,7 @@ impl From<PcpError> for NodeError {
 /// A seller process.
 pub struct SellerRun<'a> {
     pub state_dir: PathBuf,
-    pub wire: DirTransport,
+    pub wire: Box<dyn Wire>,
     pub rail: &'a mut dyn Rail,
     pub make_job: &'a dyn Fn() -> Box<dyn JobClass>,
     pub make_backend: &'a dyn Fn() -> Box<dyn ProofBackend>,
@@ -198,6 +200,23 @@ fn open_seller(run: &SellerRun) -> Result<(StateDir, Seller), NodeError> {
 pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
     let (dir, mut seller) = open_seller(&run)?;
     let save = |s: &Seller| dir.save(&s.snapshot(), s.agent());
+    {
+        // What strangers may read before asking (unsigned; the signed
+        // offer is what binds the seller).
+        let job = (run.make_job)();
+        let backend = (run.make_backend)();
+        run.wire.set_info(serde_json::json!({
+            "version": crate::encoding::VERSION,
+            "job_id": job.job_id(),
+            "spec_hash": hex::encode(job.spec_hash()),
+            "price_msat": run.cfg.price_msat,
+            "backend_id": backend.backend_id(),
+            "rail": run.cfg.rail,
+            "seller_node": seller.node(),
+            "offer_ttl_secs": run.cfg.offer_ttl_secs,
+            "mandate": seller.agent().mandate(),
+        }));
+    }
     let start = Instant::now();
     let mut last_msg = Instant::now();
     let mut summary = SellerSummary::default();
@@ -394,7 +413,7 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
 /// A buyer process. One purchase per state directory in S1.
 pub struct BuyerRun<'a> {
     pub state_dir: PathBuf,
-    pub wire: DirTransport,
+    pub wire: Box<dyn Wire>,
     pub rail: &'a mut dyn Rail,
     pub make_job: &'a dyn Fn() -> Box<dyn JobClass>,
     pub make_backend: &'a dyn Fn() -> Box<dyn ProofBackend>,

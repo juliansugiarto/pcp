@@ -10,8 +10,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Duration;
 
-use pcp::node::cli::{fail, logger, rail, Args};
-use pcp::node::wire::DirTransport;
+use pcp::node::cli::{self, fail, logger, rail, Args};
 use pcp::node::{run_buyer, run_seller, BuyerRun, SellerRun};
 use pcp::proof::ProofBackend;
 use pcp::protocol::{BuyerPolicy, SellerConfig};
@@ -20,7 +19,7 @@ use pcp::rail::RAIL_BOLT11;
 use crate::{job_case, Risc0Backend};
 
 const USAGE: &str = "\
-pcp-risc0 --role sell|buy --state DIR --inbox DIR --peer-inbox DIR
+pcp-risc0 --role sell|buy --state DIR (--inbox DIR --peer-inbox DIR | --listen ADDR | --seller-url URL)
           --rail (lnd|sim:FILE:NODE) [--job sudoku9|sudoku4|testsuite]
           [--allow-sim] [--price-msat N] [--max-price-msat N] [--sales N]
           [--quiet-exit-secs N] [--deadline-secs N] [--poll-ms N]
@@ -30,13 +29,12 @@ pcp-risc0 --role sell|buy --state DIR --inbox DIR --peer-inbox DIR
 Options as for pcp-sell / pcp-buy. Proof backend: RISC Zero, local proving.";
 
 pub fn run() -> ! {
-    let a = Args::parse(USAGE, &["allow-sim", "tamper-accept"]);
+    let a = Args::parse(USAGE, cli::FLAGS);
     let role = a.req("role").to_string();
     let job_name = a.get("job").unwrap_or("sudoku9").to_string();
     let (make_job, input, result) = job_case(&job_name);
     let mut rail = rail(a.req("rail"), a.flag("allow-sim"), USAGE);
-    let wire = DirTransport::new(&a.path("inbox"), &a.path("peer-inbox"))
-        .unwrap_or_else(|e| fail(USAGE, &e.to_string()));
+    let wire = cli::wire(&a, USAGE);
     let stats = Rc::new(RefCell::new(None));
     let s2 = stats.clone();
     let make_backend = move || Box::new(Risc0Backend::new(s2.clone())) as Box<dyn ProofBackend>;

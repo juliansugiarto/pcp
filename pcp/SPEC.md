@@ -182,7 +182,7 @@ The seller proves only after a valid Accept (S1o). The buyer does not echo the o
 | `ciphertext` | bytes | `C` |
 | `proof` | bytes | Backend-specific, opaque to the protocol |
 
-The bundle SHOULD be sent to the buyer only, over a confidential channel (see T6).
+The bundle MUST be sent to the buyer only. Between machines it MUST travel over a confidential channel that authenticates the seller (TLS for the HTTP binding, 5.5): anyone who records `C` learns `R` once `k` is public on the route (T6).
 
 ### 5.3 Invoice binding (seller to buyer)
 
@@ -216,6 +216,23 @@ Every deal that does not complete is also logged, as a **refusal**: refused by t
 The log is exported as JSON lines, one entry per line. It goes to the principal, never to a third party.
 
 **Limit.** An agent running a modified client can leave entries out of the log. The principal's own node history is the ground truth for amounts, and the counterparty's receipt names this agent's mandate, so an omitted deal leaves evidence elsewhere; the log itself cannot prove its own completeness.
+
+### 5.5 HTTP binding
+
+The messages of 5.0 to 5.3 travel as the JSON of 3.3. The seller is the only server; the buyer is a client and needs no public address.
+
+| Call | Body | Answers |
+|---|---|---|
+| `POST /pcp/v0/request` | Request (5.0) | `200` Offer (5.1); `422` refusal; `503` with `Retry-After` |
+| `POST /pcp/v0/accept` | Accept (5.1a) | `200` `{bundle, binding}` (5.2, 5.3); `202` no answer yet; `422` refusal; `503` with `Retry-After` |
+| `GET /pcp/v0/info` | | `200`: what the seller sells (job, `spec_hash`, price, backend, rail, node, offer lifetime, mandate). Unsigned and not binding: only the signed offer counts |
+
+- A refusal body is `{subject_id, reason}`: the request, offer or accept it is about, and the reason code of 5.4. A buyer MUST ignore a refusal that does not name its own request, offer or accept.
+- `202` means the seller has not answered yet (it is proving, or the Accept waits its turn); it says nothing about whether the Accept is valid. `503` means the seller cannot take the message now. In both cases, and on a refused connection or a timeout, the buyer asks again later with the same message. Both calls are idempotent (S1o, 5.1a), so asking again is always safe, and the signed Accept is also the poll for the bundle: there is nothing else to authenticate.
+- `400` is a body that does not parse, `413` a body over the seller's limit. Neither reaches the protocol.
+- The URL MUST be `https://` (5.2). A seller SHOULD serve on loopback behind a TLS reverse proxy rather than expose its process directly.
+
+The reference implementation (feature `http`: `pcp-sell --listen`, `pcp-buy --seller-url`) waits up to 3 s for the seller loop's answer, accepts bodies up to 64 KiB, queues at most 64 distinct messages (`503` beyond; a message identical to a queued one waits for the same answer instead of being queued again), listens on loopback unless `--allow-public-bind`, and refuses `http://` unless `--allow-insecure-transport` (tests only).
 
 ## 6. Job classes
 
@@ -400,7 +417,7 @@ A party that runs as a process SHOULD save its state after every step and before
 
 The saved state contains `k` (seller) or `R` (buyer) and the agent key. It is as sensitive as a Lightning node's credentials.
 
-The reference implementation (`src/node/`, binaries `pcp-sell`, `pcp-buy`, `pcp-audit`) does this over a directory transport, and `tools/crash-matrix.sh` kills each side at every named point and checks the result. Its seller is bounded for strangers: at most 8 open offers and 1 per buyer principal (`seller_busy` beyond), one proof at a time, at most 10 refusals of requests and accepts logged per minute (the rest counted), and offers dropped one offer lifetime after they expire. Sales are kept: they hold `k` and the cap. A buyer acts only on a refusal that names its own request, offer or accept.
+The reference implementation (`src/node/`, binaries `pcp-sell`, `pcp-buy`, `pcp-audit`) does this over a directory transport and over HTTP (5.5), and `tools/crash-matrix.sh` kills each side at every named point and checks the result. Its seller is bounded for strangers: at most 8 open offers and 1 per buyer principal (`seller_busy` beyond), one proof at a time, at most 10 refusals of requests and accepts logged per minute (the rest counted), and offers dropped one offer lifetime after they expire. Sales are kept: they hold `k` and the cap. A buyer acts only on a refusal that names its own request, offer or accept.
 
 The mandate's budget and the log belong to the agent, not to one purchase: parallel purchases under one mandate share one cap and one log.
 
@@ -409,7 +426,7 @@ The mandate's budget and the log belong to the agent, not to one purchase: paral
 | # | Threat | Defence | Test |
 |---|---|---|---|
 | T1 | **Seller sends a wrong `C`**: ciphertext of a result that fails the check, or of something other than the proven result, or swapped after proving | V3 and V4 (relations `job_check` and `C = Enc_k(R)`; dev seal bound to statement hash). An honest backend refuses to prove a false statement | `wrong_result_fails_verification_and_nothing_is_paid`, `ciphertext_of_other_result_than_proven_fails`, `swapped_ciphertext_after_proving_fails`, `honest_seller_and_backend_refuse_wrong_result` |
-| T2 | **Buyer refuses to pay** after receiving the bundle; or makes the seller prove for nothing | The buyer learns nothing about `R` (zero knowledge; with the dev backend only by API discipline, see 7.3). The seller loses work and proving cost, never `R`. The seller proves only on a signed Accept from the agent that sent the request (S1o, 5.1a), so a third party who saw the offer cannot trigger proving, and a repeated Accept never proves twice. That does not stop the requester itself: any key is a principal (2.1), so mandates are free and a requester can be the attacker. The economic defence is the price, which is paid only on delivery. The bound is the seller's: it keeps few offers open (in total and per buyer principal, `seller_busy` beyond), proves one accepted offer at a time (a later Accept waits), and logs only a few refusals per minute, so a flood costs at most one proof per proving time and cannot grow its state. Mitigations outside PCP/0: price proving cost in, rate-limit by network address, ZKCSP-style service payments | `buyer_who_never_pays_never_gets_k`, `buyer_cannot_learn_result_before_paying`, `accept_for_an_offer_not_issued_or_not_signed_is_refused_without_proving`, `accept_runs_the_work_once_and_repeats_resend`, `request_flood_is_bounded`, `one_open_offer_per_buyer_principal` |
+| T2 | **Buyer refuses to pay** after receiving the bundle; or makes the seller prove for nothing | The buyer learns nothing about `R` (zero knowledge; with the dev backend only by API discipline, see 7.3). The seller loses work and proving cost, never `R`. The seller proves only on a signed Accept from the agent that sent the request (S1o, 5.1a), so a third party who saw the offer cannot trigger proving, and a repeated Accept never proves twice. That does not stop the requester itself: any key is a principal (2.1), so mandates are free and a requester can be the attacker. The economic defence is the price, which is paid only on delivery. The bound is the seller's: it keeps few offers open (in total and per buyer principal, `seller_busy` beyond), proves one accepted offer at a time (a later Accept waits), and logs only a few refusals per minute, so a flood costs at most one proof per proving time and cannot grow its state. Over HTTP (5.5) a full queue answers `503` at once. Mitigations outside PCP/0: price proving cost in, rate-limit by network address (at the TLS proxy), ZKCSP-style service payments | `buyer_who_never_pays_never_gets_k`, `buyer_cannot_learn_result_before_paying`, `accept_for_an_offer_not_issued_or_not_signed_is_refused_without_proving`, `accept_runs_the_work_once_and_repeats_resend`, `request_flood_is_bounded`, `one_open_offer_per_buyer_principal` |
 | T3 | **Invoice hash mismatch**: invoice to a hash whose preimage does not decrypt `C` (money with no delivery) | V6 | `invoice_payment_hash_mismatch_is_refused` |
 | T4 | Invoice amount, payee, description, binding altered | V5, V7 | `invoice_amount_payee_description_and_timing_are_checked` |
 | T5 | **Replay of a proof for another buyer** (forwarding a bundle or invoice made for Alice to Bob, or rewriting its public fields) | `buyer_nonce` and `offer_id` in the statement (V1, V2); `C` bound to `offer_id` via AEAD; proof bound to the statement hash; invoice bound to `statement_hash` (V5); fresh `k` per sale. Buyers SHOULD also refuse any `H` they have seen before | `proof_replayed_to_another_buyer_fails` |

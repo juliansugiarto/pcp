@@ -68,6 +68,9 @@ std = [
 ]
 # LND REST settlement rail (hold invoices). Off by default; no network in tests.
 lnd = ["std", "dep:reqwest", "dep:base64"]
+# The HTTP binding of the wire (SPEC 5.5): an axum server for the seller,
+# a reqwest client for the buyer. Off by default.
+http = ["std", "dep:axum", "dep:tokio", "dep:reqwest"]
 
 [dependencies]
 sha2 = { version = "0.10", default-features = false }
@@ -79,3 +82,5 @@ hex = { version = "0.4", optional = true }
 ed25519-dalek = { version = "2", optional = true }
 reqwest = { version = "0.13", optional = true, default-features = false, features = ["blocking", "json", "native-tls"] }
 base64 = { version = "0.22", optional = true }
+axum = { version = "0.8", optional = true, default-features = false, features = ["http1", "tokio", "json"] }
+tokio = { version = "1", optional = true, features = ["rt-multi-thread", "net", "time", "sync"] }

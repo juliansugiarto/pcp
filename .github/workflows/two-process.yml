@@ -1,7 +1,8 @@
 # S1: buyer and seller as two processes with their own state directories,
 # killed and restarted at every named crash point (pcp/tools/crash-matrix.sh),
-# on the TEST-ONLY simulated network file. The same matrix runs against two
-# real LND nodes in lnd-regtest.yml. Results go to the `ci-results` branch
+# on the TEST-ONLY simulated network file, once over a shared directory and
+# once over loopback HTTP (SPEC 5.5, feature http). The same matrix runs
+# against two real LND nodes in lnd-regtest.yml. Results go to the `ci-results` branch
 # under two-process/<UTC ts>/ and to workflow artifacts, never to main.
 name: two-process
 
@@ -38,8 +39,12 @@ jobs:
         run: |
           cd pcp
           set -o pipefail
-          cargo build --bins 2>&1 | tail -n 3
-          cargo test 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee ../out/cargo-test.txt
+          echo "## cargo test" | tee ../out/cargo-test.txt
+          cargo test 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee -a ../out/cargo-test.txt
+          echo "## cargo test --features http" | tee -a ../out/cargo-test.txt
+          cargo test --features http 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee -a ../out/cargo-test.txt
+          # Last, so target/debug holds the binaries with HTTP for the matrices.
+          cargo build --bins --features http 2>&1 | tail -n 3
       - name: Clippy
         id: clippy
         continue-on-error: true
@@ -52,23 +57,42 @@ jobs:
           # moved line, changes the binary (panic locations are embedded) and
           # its reproducible image id: an attribute there moved it from
           # cc6e7b82... to 73ad16c1... on 22 October. So it is allowed here.
-          cargo clippy --all-targets -- -D warnings -A unknown-lints -A clippy::chunks_exact_to_as_chunks 2>&1 \
-            | grep -v "^ *Compiling\|^ *Checking" | tail -n 80 | tee -a ../out/clippy.txt
-      - name: Crash matrix (sim)
+          for f in "" "--features http"; do
+            echo "## clippy $f" | tee -a ../out/clippy.txt
+            cargo clippy --all-targets $f -- -D warnings -A unknown-lints -A clippy::chunks_exact_to_as_chunks 2>&1 \
+              | grep -v "^ *Compiling\|^ *Checking" | tail -n 80 | tee -a ../out/clippy.txt
+          done
+      - name: Dependency audit (RustSec)
+        id: audit
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          cargo install --locked cargo-audit 2>&1 | tail -n 1
+          cd pcp && cargo audit 2>&1 | tee ../out/cargo-audit.txt
+      - name: Crash matrix (sim, directory wire)
         id: matrix
         continue-on-error: true
         run: TIMEOUT=150 bash pcp/tools/crash-matrix.sh matrix 2>&1 | tee out/matrix.txt
+      - name: Crash matrix (sim, HTTP wire)
+        id: matrix_http
+        continue-on-error: true
+        run: WIRE=http TIMEOUT=150 bash pcp/tools/crash-matrix.sh matrix-http 2>&1 | tee out/matrix-http.txt
       - name: Collect
         if: always()
         run: |
           # Logs, exit codes and audits only: the state directories hold the
           # test agents' keys and are not published.
           { echo "test: ${{ steps.test.outcome }}"; echo "clippy: ${{ steps.clippy.outcome }}";
-            echo "matrix: ${{ steps.matrix.outcome }}"; } | tee out/outcomes.txt
+            echo "audit: ${{ steps.audit.outcome }}"; echo "matrix: ${{ steps.matrix.outcome }}";
+            echo "matrix_http: ${{ steps.matrix_http.outcome }}"; } | tee out/outcomes.txt
           cp matrix/summary.txt out/ 2>/dev/null || true
-          for d in matrix/*/; do
-            n=$(basename "$d"); mkdir -p "out/cases/$n"
-            cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "$d"/setup.txt "out/cases/$n"/ 2>/dev/null || true
+          cp matrix-http/summary.txt out/summary-http.txt 2>/dev/null || true
+          for m in matrix:cases matrix-http:cases-http; do
+            for d in ${m%%:*}/*/; do
+              [ -d "$d" ] || continue
+              n=$(basename "$d"); mkdir -p "out/${m##*:}/$n"
+              cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "$d"/setup.txt "out/${m##*:}/$n"/ 2>/dev/null || true
+            done
           done
       - uses: actions/upload-artifact@v4
         if: always()
@@ -89,8 +113,8 @@ jobs:
             git add two-process && git commit -qm "two-process run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results && break
             sleep $((RANDOM % 20 + 5))
           done
-      - name: Fail if the tests, clippy or the matrix failed
-        if: steps.test.outcome != 'success' || steps.clippy.outcome != 'success' || steps.matrix.outcome != 'success'
+      - name: Fail if the tests, clippy, the audit or a matrix failed
+        if: steps.test.outcome != 'success' || steps.clippy.outcome != 'success' || steps.audit.outcome != 'success' || steps.matrix.outcome != 'success' || steps.matrix_http.outcome != 'success'
         run: |
-          echo "test=${{ steps.test.outcome }} clippy=${{ steps.clippy.outcome }} matrix=${{ steps.matrix.outcome }}"
+          cat out/outcomes.txt
           exit 1

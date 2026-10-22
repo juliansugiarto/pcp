@@ -135,6 +135,63 @@ pub fn job_factory(job: SudokuJob) -> impl Fn() -> Box<dyn JobClass> {
     move || Box::new(job) as Box<dyn JobClass>
 }
 
+/// The wire from the options: `--listen ADDR` (seller, HTTP), `--seller-url
+/// URL` (buyer, HTTP), or `--inbox DIR --peer-inbox DIR` (directory).
+/// Flags: `--allow-public-bind` (seller), `--allow-insecure-transport`
+/// (buyer, `http://` for tests).
+pub fn wire(a: &Args, usage: &str) -> Box<dyn super::wire::Wire> {
+    if let Some(addr) = a.get("listen") {
+        return listen(a, addr, usage);
+    }
+    if let Some(url) = a.get("seller-url") {
+        return connect(a, url, usage);
+    }
+    match super::wire::DirTransport::new(&a.path("inbox"), &a.path("peer-inbox")) {
+        Ok(w) => Box::new(w),
+        Err(e) => fail(usage, &e.to_string()),
+    }
+}
+
+#[cfg(feature = "http")]
+fn listen(a: &Args, addr: &str, usage: &str) -> Box<dyn super::wire::Wire> {
+    let addr: std::net::SocketAddr = addr
+        .parse()
+        .unwrap_or_else(|_| fail(usage, "--listen: not an address like 127.0.0.1:8650"));
+    let s = super::http::HttpSeller::start(addr, a.flag("allow-public-bind"))
+        .unwrap_or_else(|e| fail(usage, &e));
+    println!(
+        "listening on http://{} (put a TLS proxy in front)",
+        s.local_addr()
+    );
+    Box::new(s)
+}
+
+#[cfg(feature = "http")]
+fn connect(a: &Args, url: &str, usage: &str) -> Box<dyn super::wire::Wire> {
+    Box::new(
+        super::http::HttpBuyer::new(url, a.flag("allow-insecure-transport"))
+            .unwrap_or_else(|e| fail(usage, &e)),
+    )
+}
+
+#[cfg(not(feature = "http"))]
+fn listen(_: &Args, _: &str, usage: &str) -> Box<dyn super::wire::Wire> {
+    fail(usage, "built without the http feature")
+}
+
+#[cfg(not(feature = "http"))]
+fn connect(_: &Args, _: &str, usage: &str) -> Box<dyn super::wire::Wire> {
+    fail(usage, "built without the http feature")
+}
+
+/// Flags every role binary accepts (some are role-specific).
+pub const FLAGS: &[&str] = &[
+    "allow-sim",
+    "tamper-accept",
+    "allow-public-bind",
+    "allow-insecure-transport",
+];
+
 /// A log line with a UTC time stamp (seconds), to stdout.
 pub fn logger(role: &'static str) -> impl FnMut(&str) {
     move |l: &str| {

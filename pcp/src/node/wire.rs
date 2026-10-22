@@ -66,6 +66,34 @@ impl WireMsg {
     }
 }
 
+/// How a role exchanges SPEC 5 messages: send one, read what arrived,
+/// and acknowledge a message once the state it led to is saved. The loops
+/// in `node` use only this, so the directory wire and the HTTP binding
+/// (`node::http`, feature `http`) are interchangeable.
+pub trait Wire {
+    /// Send (or resend) a message. Transport failures that a resend will
+    /// cure (peer down, busy) are not errors here.
+    fn send(&self, msg: &WireMsg) -> Result<(), StoreError>;
+    /// Messages that arrived, with a name for [`Wire::ack`].
+    fn receive(&self) -> Result<Inbox, StoreError>;
+    /// The message is handled and its effect saved.
+    fn ack(&self, name: &str) -> Result<(), StoreError>;
+    /// What the seller publishes about itself (`GET /pcp/v0/info` on HTTP).
+    fn set_info(&self, _info: serde_json::Value) {}
+}
+
+impl Wire for DirTransport {
+    fn send(&self, msg: &WireMsg) -> Result<(), StoreError> {
+        DirTransport::send(self, msg)
+    }
+    fn receive(&self) -> Result<Inbox, StoreError> {
+        DirTransport::receive(self)
+    }
+    fn ack(&self, name: &str) -> Result<(), StoreError> {
+        DirTransport::ack(self, name)
+    }
+}
+
 /// Messages read from an inbox: file name, and the message or why it did
 /// not parse.
 pub type Inbox = Vec<(String, Result<WireMsg, String>)>;

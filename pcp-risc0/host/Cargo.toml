@@ -12,6 +12,8 @@ path = "src/main.rs"
 [features]
 # Real Lightning (two LND nodes on regtest) instead of the simulated ledger.
 lnd = ["pcp/lnd"]
+# The HTTP binding of the wire (pcp-risc0 --role ... --listen / --seller-url).
+http = ["pcp/http"]
 
 [dependencies]
 methods = { path = "../methods" }

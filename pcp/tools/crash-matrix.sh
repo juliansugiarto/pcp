@@ -23,6 +23,10 @@
 #     and the simulated network file (which holds k after settlement, as a
 #     node does).
 #
+# Wire: a shared directory by default. With WIRE=http the seller listens on
+# a loopback port and the buyer posts to it (build with --features http):
+# a killed seller is then a refused connection for the buyer.
+#
 # CASE names: clean, repeat-accept, tampered-accept, buyer-gone,
 # buyer-node-down (LND only, needs BUYER_NODE_STOP and BUYER_NODE_START
 # commands), and every crash point (seller:offer:pre ...). Default: all.
@@ -35,6 +39,9 @@ shift
 command -v python3 >/dev/null || { echo "crash-matrix.sh needs python3"; exit 2; }
 BIN=${BIN:-$(cd "$(dirname "$0")/.." && pwd)/target/debug}
 RAIL=${RAIL:-sim}
+WIRE=${WIRE:-dir}
+PORT_BASE=${PORT_BASE:-18700}
+case_no=0
 TIMEOUT=${TIMEOUT:-120}
 # The seller and buyer programs. Any program taking pcp-sell / pcp-buy's
 # options works, e.g. the RISC Zero host: SELL_BIN=.../pcp-risc0
@@ -143,12 +150,20 @@ run_case() {
   esac
   local allow=()
   [ "$RAIL" = sim ] && allow=(--allow-sim)
+  local swire=(--inbox "$dir/seller-inbox" --peer-inbox "$dir/buyer-inbox")
+  local bwire=(--inbox "$dir/buyer-inbox" --peer-inbox "$dir/seller-inbox")
+  if [ "$WIRE" = http ]; then
+    case_no=$((case_no + 1))
+    local port=$((PORT_BASE + case_no))
+    swire=(--listen "127.0.0.1:$port")
+    bwire=(--seller-url "http://127.0.0.1:$port" --allow-insecure-transport)
+  fi
   (
     if [ "$RAIL" = lnd ]; then
       export PCP_LND_REST_URL=$PCP_SELLER_LND_REST_URL PCP_LND_MACAROON=$PCP_SELLER_LND_MACAROON PCP_LND_TLS_CERT=$PCP_SELLER_LND_TLS_CERT
     fi
     supervise normal "$sp" "$dir/seller.log" "$SELL_BIN" "${SELL_PRE[@]}" --state "$dir/seller" \
-      --inbox "$dir/seller-inbox" --peer-inbox "$dir/buyer-inbox" --rail "$seller_rail" \
+      "${swire[@]}" --rail "$seller_rail" \
       "${allow[@]}" "${sextra[@]}" --quiet-exit-secs 20 --deadline-secs "$TIMEOUT" >"$dir/seller.codes"
   ) &
   local spid=$!
@@ -157,7 +172,7 @@ run_case() {
       export PCP_LND_REST_URL=$PCP_BUYER_LND_REST_URL PCP_LND_MACAROON=$PCP_BUYER_LND_MACAROON PCP_LND_TLS_CERT=$PCP_BUYER_LND_TLS_CERT
     fi
     supervise "$bmode" "$bp" "$dir/buyer.log" "$BUY_BIN" "${BUY_PRE[@]}" --state "$dir/buyer" \
-      --inbox "$dir/buyer-inbox" --peer-inbox "$dir/seller-inbox" --rail "$buyer_rail" \
+      "${bwire[@]}" --rail "$buyer_rail" \
       "${allow[@]}" --resend-secs 1 --deadline-secs "$TIMEOUT" "${extra[@]}" >"$dir/buyer.codes"
   )
   wait $spid
@@ -219,5 +234,5 @@ fail=0
 for c in $CASES; do
   run_case "$c" || fail=1
 done
-echo "rail=$RAIL cases=$(echo $CASES | wc -w) failed=$(grep -c FAIL "$OUT/summary.txt")" | tee -a "$OUT/summary.txt"
+echo "rail=$RAIL wire=$WIRE cases=$(echo $CASES | wc -w) failed=$(grep -c FAIL "$OUT/summary.txt")" | tee -a "$OUT/summary.txt"
 exit $fail

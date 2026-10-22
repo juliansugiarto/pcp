@@ -7,24 +7,25 @@
 
 use std::time::Duration;
 
-use pcp::node::cli::{fail, job_factory, logger, rail, sudoku, Args, DEFAULT_PUZZLE9};
-use pcp::node::wire::DirTransport;
+use pcp::node::cli::{self, fail, job_factory, logger, rail, sudoku, Args, DEFAULT_PUZZLE9};
 use pcp::node::{run_buyer, BuyerRun};
 use pcp::proof::{InsecureDevTransparentBackend, ProofBackend};
 use pcp::protocol::BuyerPolicy;
 use pcp::rail::RAIL_BOLT11;
 
 const USAGE: &str = "\
-pcp-buy --state DIR --inbox DIR --peer-inbox DIR --rail (sim:FILE:NODE|lnd)
-        [--job sudoku9|sudoku4] [--puzzle TEXT] [--max-price-msat N]
+pcp-buy --state DIR (--seller-url URL | --inbox DIR --peer-inbox DIR)
+        --rail (sim:FILE:NODE|lnd) [--allow-insecure-transport] [--job sudoku9|sudoku4] [--puzzle TEXT] [--max-price-msat N]
         [--offer-wait-secs N] [--resend-secs N] [--deadline-secs N]
         [--poll-ms N] [--allow-sim] [--tamper-accept]
 
 Accepts the INSECURE dev proof backend (tests only). --tamper-accept sends
-an accept for an offer the seller never issued (a test of the seller).";
+an accept for an offer the seller never issued (a test of the seller).
+--seller-url talks to a seller over HTTP (feature http, SPEC 5.5); it must be
+https:// unless --allow-insecure-transport (tests on loopback).";
 
 fn main() {
-    let a = Args::parse(USAGE, &["allow-sim", "tamper-accept"]);
+    let a = Args::parse(USAGE, cli::FLAGS);
     let job = sudoku(a.get("job").unwrap_or("sudoku9")).unwrap_or_else(|| fail(USAGE, "--job"));
     let input = job
         .parse_grid(a.get("puzzle").unwrap_or(DEFAULT_PUZZLE9))
@@ -36,8 +37,7 @@ fn main() {
         BuyerPolicy::default()
     };
     policy.allow_insecure_dev_backend = true;
-    let wire = DirTransport::new(&a.path("inbox"), &a.path("peer-inbox"))
-        .unwrap_or_else(|e| fail(USAGE, &e.to_string()));
+    let wire = cli::wire(&a, USAGE);
     let make_job = job_factory(job);
     let make_backend = || Box::new(InsecureDevTransparentBackend) as Box<dyn ProofBackend>;
     let mut log = logger("buyer");

@@ -76,7 +76,7 @@ jobs:
             pcp-risc0/target
           key: real-sale-${{ runner.os }}-${{ hashFiles('pcp-risc0/Cargo.lock', 'pcp-risc0/methods/guest/Cargo.lock') }}-${{ github.run_id }}
           restore-keys: real-sale-${{ runner.os }}-${{ hashFiles('pcp-risc0/Cargo.lock', 'pcp-risc0/methods/guest/Cargo.lock') }}-
-      - name: Build pcp-risc0 --features lnd (guest in Docker)
+      - name: Build pcp-risc0 --features lnd,http (guest in Docker)
         run: |
           cd pcp-risc0
           export RISC0_USE_DOCKER=1
@@ -84,7 +84,7 @@ jobs:
           set -o pipefail
           cargo build --release -p methods > ../out/build-methods-full.txt 2>&1 || { tail -n 150 ../out/build-methods-full.txt; exit 1; }
           docker images --digests | grep -i risc0 | tee ../out/docker-images.txt || true
-          cargo build --release -p pcp-risc0-host --features lnd > ../out/build-host-full.txt 2>&1 || { tail -n 150 ../out/build-host-full.txt; exit 1; }
+          cargo build --release -p pcp-risc0-host --features lnd,http > ../out/build-host-full.txt 2>&1 || { tail -n 150 ../out/build-host-full.txt; exit 1; }
           tail -n 5 ../out/build-host-full.txt
           find target -path '*riscv32im-risc0-zkvm-elf*' -type f \( -name 'pcp-guest' -o -name 'pcp-guest.bin' \) -exec sha256sum {} \; | tee ../out/guest-elf-sha256.txt
           ./target/release/pcp-risc0 --job sudoku9 --execute-only 2>&1 | tee ../out/execute-sudoku9.txt
@@ -144,13 +144,20 @@ jobs:
           export SELL_BIN=$PWD/pcp-risc0/target/release/pcp-risc0 SELL_PRE="--role sell"
           export BUY_BIN=$PWD/pcp-risc0/target/release/pcp-risc0 BUY_PRE="--role buy"
           set -o pipefail
-          bash pcp/tools/crash-matrix.sh twoproc clean seller:invoice:post 2>&1 | tee out/two-process.txt
-          for d in twoproc/*/; do
-            [ -d "$d" ] || continue
-            n=$(basename "$d"); mkdir -p "out/two-process/$n"
-            cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "out/two-process/$n"/ 2>/dev/null || true
+          rc=0
+          bash pcp/tools/crash-matrix.sh twoproc clean seller:invoice:post 2>&1 | tee out/two-process.txt || rc=1
+          # Over HTTP too (SPEC 5.5, loopback): the seller loop is busy for the
+          # whole proof, so the buyer's accepts get 202 and it asks again.
+          WIRE=http bash pcp/tools/crash-matrix.sh twoproc-http clean seller:invoice:post 2>&1 | tee out/two-process-http.txt || rc=1
+          for m in twoproc:two-process twoproc-http:two-process-http; do
+            for d in ${m%%:*}/*/; do
+              [ -d "$d" ] || continue
+              n=$(basename "$d"); mkdir -p "out/${m##*:}/$n"
+              cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "out/${m##*:}/$n"/ 2>/dev/null || true
+            done
           done
-          grep -h "prove-row\|proof verified" twoproc/*/*.log | tee out/two-process-costs.txt || true
+          grep -h "prove-row\|proof verified" twoproc*/*/*.log | tee out/two-process-costs.txt || true
+          exit $rc
       - name: Dump node state
         if: always()
         run: bash .github/lnd-regtest/dump.sh > out/dump.txt 2>&1 || true

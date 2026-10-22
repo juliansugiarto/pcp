@@ -5,26 +5,27 @@
 
 use std::time::Duration;
 
-use pcp::node::cli::{fail, job_factory, logger, rail, sudoku, Args};
-use pcp::node::wire::DirTransport;
+use pcp::node::cli::{self, fail, job_factory, logger, rail, sudoku, Args};
 use pcp::node::{run_seller, SellerRun};
 use pcp::proof::{InsecureDevTransparentBackend, ProofBackend};
 use pcp::protocol::SellerConfig;
 use pcp::rail::RAIL_BOLT11;
 
 const USAGE: &str = "\
-pcp-sell --state DIR --inbox DIR --peer-inbox DIR --rail (sim:FILE:NODE|lnd)
-         [--job sudoku9|sudoku4] [--price-msat N] [--sales N]
+pcp-sell --state DIR (--listen ADDR | --inbox DIR --peer-inbox DIR)
+         --rail (sim:FILE:NODE|lnd) [--allow-public-bind] [--job sudoku9|sudoku4] [--price-msat N] [--sales N]
          [--quiet-exit-secs N] [--deadline-secs N] [--poll-ms N] [--allow-sim]
          [--work-delay-ms N] [--invoice-expiry-secs N]
 
 Proof backend: InsecureDevTransparentBackend (NO zero knowledge; tests only).
 Exit 0 when --sales sales are over and nothing is pending, or when nothing
 is pending and no message came for --quiet-exit-secs. --work-delay-ms (tests)
-makes each job take at least that long, so messages arrive during the work.";
+makes each job take at least that long, so messages arrive during the work.
+--listen serves the HTTP binding (feature http, SPEC 5.5) on a loopback
+address; put a TLS proxy in front. --allow-public-bind permits other addresses.";
 
 fn main() {
-    let a = Args::parse(USAGE, &["allow-sim"]);
+    let a = Args::parse(USAGE, cli::FLAGS);
     let job = sudoku(a.get("job").unwrap_or("sudoku9")).unwrap_or_else(|| fail(USAGE, "--job"));
     let mut rail = rail(a.req("rail"), a.flag("allow-sim"), USAGE);
     let price = a.num("price-msat", 1_000_000);
@@ -37,8 +38,7 @@ fn main() {
         }
     };
     cfg.invoice_expiry_secs = a.num("invoice-expiry-secs", cfg.invoice_expiry_secs);
-    let wire = DirTransport::new(&a.path("inbox"), &a.path("peer-inbox"))
-        .unwrap_or_else(|e| fail(USAGE, &e.to_string()));
+    let wire = cli::wire(&a, USAGE);
     println!("WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).");
     let make_job = job_factory(job);
     let make_backend = || Box::new(InsecureDevTransparentBackend) as Box<dyn ProofBackend>;

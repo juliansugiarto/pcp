@@ -51,9 +51,10 @@ jobs:
       - name: Build lnd_sale and tests
         run: |
           cd pcp
-          cargo build --features lnd --bins 2>&1 | tail -n 5
-          cargo test --features lnd --no-run 2>&1 | tail -n 5
-          cargo test --features lnd 2>&1 | grep -E "^test |test result" | tee ../out/cargo-test-lnd.txt
+          set -o pipefail
+          cargo build --features lnd,http --bins 2>&1 | tail -n 5
+          cargo test --features lnd,http --no-run 2>&1 | tail -n 5
+          cargo test --features lnd,http 2>&1 | grep -E "^test |test result" | tee ../out/cargo-test-lnd.txt
       - name: Start regtest network
         run: bash .github/lnd-regtest/up.sh 2>&1 | tee out/setup.txt
       - name: Sale over LND (lnd_sale)
@@ -80,7 +81,7 @@ jobs:
           export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
           set -o pipefail
           cd pcp
-          timeout 600 cargo test --features lnd --test lnd_regtest -- --ignored --test-threads=1 2>&1 | tee ../out/lnd-regtest-tests.txt
+          timeout 600 cargo test --features lnd,http --test lnd_regtest -- --ignored --test-threads=1 2>&1 | tee ../out/lnd-regtest-tests.txt
       - name: Two processes over LND, killed and restarted (crash matrix)
         id: matrix
         continue-on-error: true
@@ -98,16 +99,34 @@ jobs:
           export BUYER_NODE_START='docker start alice; for i in $(seq 120); do n=$(docker exec alice lncli --network=regtest listchannels --active_only 2>/dev/null | jq ".channels | length" 2>/dev/null); [ "${n:-0}" -ge 1 ] && break; sleep 1; done; echo "alice active channels: ${n:-0}"'
           set -o pipefail
           bash pcp/tools/crash-matrix.sh matrix 2>&1 | tee out/crash-matrix.txt
+      - name: The same over HTTP (SPEC 5.5, loopback)
+        id: matrix_http
+        continue-on-error: true
+        run: |
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds/alice/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds/alice/admin.macaroon
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8082
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/bob/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
+          export RAIL=lnd WIRE=http TIMEOUT=150
+          export BUYER_NODE_STOP="docker stop alice"
+          export BUYER_NODE_START='docker start alice; for i in $(seq 120); do n=$(docker exec alice lncli --network=regtest listchannels --active_only 2>/dev/null | jq ".channels | length" 2>/dev/null); [ "${n:-0}" -ge 1 ] && break; sleep 1; done; echo "alice active channels: ${n:-0}"'
+          set -o pipefail
+          bash pcp/tools/crash-matrix.sh matrix-http 2>&1 | tee out/crash-matrix-http.txt
       - name: Collect crash matrix
         if: always()
         run: |
           # Logs, exit codes and audits only: the state directories hold the
           # test agents' keys and are not published.
           cp matrix/summary.txt out/crash-matrix-summary.txt 2>/dev/null || true
-          for d in matrix/*/; do
-            [ -d "$d" ] || continue
-            n=$(basename "$d"); mkdir -p "out/crash-matrix/$n"
-            cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "$d"/setup.txt "out/crash-matrix/$n"/ 2>/dev/null || true
+          cp matrix-http/summary.txt out/crash-matrix-http-summary.txt 2>/dev/null || true
+          for m in matrix:crash-matrix matrix-http:crash-matrix-http; do
+            for d in ${m%%:*}/*/; do
+              [ -d "$d" ] || continue
+              n=$(basename "$d"); mkdir -p "out/${m##*:}/$n"
+              cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "$d"/setup.txt "out/${m##*:}/$n"/ 2>/dev/null || true
+            done
           done
       - name: Raw REST probe (curl)
         if: always()
@@ -121,6 +140,7 @@ jobs:
         run: |
           { echo "sale: ${{ steps.sale.outcome }}"; echo "rail tests: ${{ steps.railtests.outcome }}";
             echo "crash matrix: ${{ steps.matrix.outcome }}"; tail -n 1 out/crash-matrix-summary.txt 2>/dev/null;
+            echo "crash matrix http: ${{ steps.matrix_http.outcome }}"; tail -n 1 out/crash-matrix-http-summary.txt 2>/dev/null;
             cat out/images.txt 2>/dev/null; } | tee out/summary.txt
       - uses: actions/upload-artifact@v4
         if: always()
@@ -143,6 +163,6 @@ jobs:
             git add lnd && git commit -qm "lnd regtest ${{ matrix.lnd }} run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
             sleep $((RANDOM % 20 + 5))
           done
-      - name: Fail if the sale, the rail tests or the crash matrix failed
-        if: steps.sale.outcome != 'success' || steps.railtests.outcome != 'success' || steps.matrix.outcome != 'success'
+      - name: Fail if the sale, the rail tests or a crash matrix failed
+        if: steps.sale.outcome != 'success' || steps.railtests.outcome != 'success' || steps.matrix.outcome != 'success' || steps.matrix_http.outcome != 'success'
         run: exit 1
