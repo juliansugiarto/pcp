@@ -1,0 +1,3 @@
+pcp-buy-risc0 --state DIR (--seller-url URL | --inbox DIR --peer-inbox DIR)
+              --rail (lnd|sim:FILE:NODE) [--image-id HEX] [--job sudoku9|sudoku4]
+              [--puzzle TEXT] [--max-price-msat N] [--offer-wait-secs N]
