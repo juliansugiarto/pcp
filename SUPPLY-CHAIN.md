@@ -11,12 +11,12 @@ Everything that runs in CI or in a sale window comes from somewhere. This file l
 | bitcoind image (regtest) | `polarlightning/bitcoind:28.0@sha256:ff435d75…d010` | same | same |
 | cloudflared (sale window) | version 2026.10.3, file SHA-256 `053b80b0…bab0`, also compared with the digest GitHub records for the release asset | two CI downloads on 22 October 2026 (`ci-results-lnd/window/*/cloudflared-version.txt`) | the window does not open |
 | bore-cli, cargo-audit, cargo-fuzz | `cargo install --locked --version` (0.6.0, 0.22.2, 0.13.1) | crates.io | another version is not installed |
-| RISC Zero toolchain | `rzup install` of rust 1.97.0, cpp 2024.1.5, r0vm 3.0.6, cargo-risczero 3.0.6, checked with `rzup show`; the installer script's hash is recorded | the versions CI used on 22 October 2026 | the build stops if r0vm is not 3.0.6 |
+| RISC Zero toolchain | `rzup install` of rust 1.97.0, cpp 2024.1.5, r0vm 3.0.6, cargo-risczero 3.0.6, checked with `rzup show`; the installer script is checked against SHA-256 `5699878a…41bf` | the versions CI used on 22 October 2026 | the build stops if r0vm is not 3.0.6 |
+| Guest builder image | `risczero/risc0-guest-builder:r0.1.97.0@sha256:7ae0a27f…4468` in `pcp-risc0/methods/build.rs` | Docker Hub's digest for the tag, recorded by `risc0-image-id` on 22 October 2026 (`ci-results-lnd/risc0-image-id/20261022T1845*/guest-builder-digest.txt`; tag pushed 20 July 2026) | Docker refuses an image with another digest |
 | The zkVM guest | its image id, `cc6e7b82…e328`, pinned in `pcp-risc0/verify/src/lib.rs` and checked against every Docker build | `pcp-risc0/IMAGE-ID.md` | a different guest is refused by every buyer and fails `real-sale` |
 
 ## Not pinned yet
 
-- The `rzup` binary the installer fetches, and the toolchain archives rzup downloads. (The installer script itself is now checked against the hash every recorded run fetched (22 October 2026), `5699878a…41bf`.) The pinned image id catches a tampered guest build; it does not catch a tampered `r0vm` or `cargo-risczero` on the seller's machine.
-- The guest builder image `risczero/risc0-guest-builder:r0.1.97.0` is pinned by tag, not digest (`pcp-risc0/methods/build.rs`); the digest behind the tag is now recorded by `risc0-image-id` (`guest-builder-digest.txt`). The image id is the compensating check.
+- The `rzup` binary the installer fetches, and the toolchain archives rzup downloads. The pinned image id catches a tampered guest build; it does not catch a tampered `r0vm` or `cargo-risczero` on the seller's machine.
 - The host Rust toolchain (`rust-toolchain.toml` says `stable`) and the runner image (`ubuntu-latest`).
 - nginx in the HTTPS test comes from Ubuntu's signed apt archive.

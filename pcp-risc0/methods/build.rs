@@ -26,8 +26,13 @@ use risc0_build::{DockerOptionsBuilder, GuestOptionsBuilder};
 /// on the same runner with 0.6x the memory (COSTS.md). `r0.1.97.0` is the
 /// builder with that toolchain. Changing this tag changes
 /// the image id. (The RISC0_DOCKER_CONTAINER_TAG environment variable still
-/// overrides it, as in risc0-build.)
-const GUEST_BUILDER_TAG: &str = "r0.1.97.0";
+/// overrides it, as in risc0-build.) Pinned by digest too: risc0-build puts
+/// the string after `risczero/risc0-guest-builder:` in the Dockerfile's
+/// `FROM`, so `tag@sha256:...` pulls exactly this image or fails. The
+/// digest is the one Docker Hub reported for the tag on 22 October 2026
+/// (pushed 20 July 2026), recorded by the risc0-image-id workflow.
+const GUEST_BUILDER_TAG: &str =
+    "r0.1.97.0@sha256:7ae0a27fa72b10fb5c1066005bd949ae43dc4ead8a284f2d6572b99c82ab4468";
 
 fn main() {
     println!("cargo:rerun-if-env-changed=RISC0_USE_DOCKER");
