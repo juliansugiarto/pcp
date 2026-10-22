@@ -1,0 +1,256 @@
+2026-10-22 04:23:59.726 [WRN] LTND: open /root/.lnd/lnd.conf: no such file or directory
+2026-10-22 04:23:59.727 [INF] LTND: Version Info rev=390b2d version=0.21.4-beta commit=v0.21.4-beta debuglevel=production logging=info
+2026-10-22 04:23:59.727 [INF] LTND: Network Info rev=390b2d active_chain=Bitcoin network=regtest
+2026-10-22 04:23:59.727 [INF] RPCS: Generating TLS certificates...
+2026-10-22 04:23:59.727 [INF] RPCS: Done generating TLS certificates
+2026-10-22 04:23:59.728 [INF] RPCS: RPC server listening on 0.0.0.0:10009
+2026-10-22 04:23:59.737 [INF] RPCS: gRPC proxy started at 0.0.0.0:8080
+2026-10-22 04:23:59.737 [INF] LTND: Opening the main database, this might take a few minutes...
+2026-10-22 04:23:59.737 [INF] LTND: Opening bbolt database, sync_freelist=false, auto_compact=false
+2026-10-22 04:23:59.739 [INF] LTND: Creating local graph and channel state DB instances
+2026-10-22 04:23:59.741 [INF] CHDB: Checking for schema update: latest_version=35, db_version=35
+2026-10-22 04:23:59.741 [INF] CHDB: Applying 2 optional migrations
+2026-10-22 04:23:59.741 [INF] CHDB: Checking for optional update: name=prune_revocation_log
+2026-10-22 04:23:59.741 [INF] CHDB: Checking for optional update: name=gc_decayed_log
+2026-10-22 04:23:59.741 [INF] CHDB: Performing database optional migration: gc_decayed_log
+2026-10-22 04:23:59.741 [INF] CHDB: Migrating decayed log...
+2026-10-22 04:23:59.741 [INF] CHDB: Decayed log migrated successfully
+2026-10-22 04:23:59.741 [INF] CHDB: Successfully applied optional migration: gc_decayed_log
+2026-10-22 04:23:59.750 [INF] LTND: Database(s) now open (time_to_open=12.908991ms)!
+2026-10-22 04:23:59.819 [INF] RPCC: Established connection to RPC server bitcoind:18443
+2026-10-22 04:23:59.819 [INF] RPCC: Established connection to RPC server bitcoind:18443
+2026-10-22 04:23:59.828 [INF] CHRE: Initializing bitcoind backed fee estimator in CONSERVATIVE mode
+2026-10-22 04:23:59.828 [INF] BTWL: Started listening for bitcoind block notifications via ZMQ on 172.18.0.2:28332
+2026-10-22 04:23:59.828 [INF] BTWL: Started listening for bitcoind transaction notifications via ZMQ on 172.18.0.2:28333
+2026-10-22 04:23:59.829 [INF] RPCC: Established connection to RPC server bitcoind:18443
+2026-10-22 04:23:59.829 [INF] RPCC: Established connection to RPC server bitcoind:18443
+2026-10-22 04:24:00.889 [ERR] RPCS: [/lnrpc.Lightning/GetInfo]: the RPC server is in the process of starting up, but not yet ready to accept calls
+2026-10-22 04:24:02.000 [ERR] RPCS: [/lnrpc.Lightning/GetInfo]: the RPC server is in the process of starting up, but not yet ready to accept calls
+2026-10-22 04:24:02.370 [INF] BTWL: Opened wallet
+2026-10-22 04:24:03.116 [INF] BTWL: The wallet has been unlocked without a time limit
+2026-10-22 04:24:03.120 [ERR] RPCS: [/lnrpc.Lightning/GetInfo]: the RPC server is in the process of starting up, but not yet ready to accept calls
+2026-10-22 04:24:03.149 [INF] CHRE: LightningWallet opened
+2026-10-22 04:24:03.154 [INF] HSWC: Cleaning circuits from disk for closed channels
+2026-10-22 04:24:03.154 [INF] HSWC: Finished cleaning: no closed channels found, no actions taken.
+2026-10-22 04:24:03.154 [INF] HSWC: Restoring in-memory circuit state from disk
+2026-10-22 04:24:03.154 [INF] HSWC: Payment circuits loaded: num_pending=0, num_open=0
+2026-10-22 04:24:03.156 [INF] CRTR: Loaded 0 mission control entries
+2026-10-22 04:24:03.156 [INF] ACSM: Access Manager initialized
+2026-10-22 04:24:03.156 [INF] SWPR: Migrating UTXO nursery finalized TXIDs
+2026-10-22 04:24:03.157 [INF] LTND: Channel backup proxy channel notifier starting
+2026-10-22 04:24:03.157 [INF] CHIO: Registered queue=1 with 3 blockbeat consumers
+2026-10-22 04:24:03.157 [INF] ATPL: Instantiating autopilot with active=false, max_channels=5, allocation=0.600000, min_chan_size=20000, max_chan_size=16777215, private=false, min_confs=1, conf_target=3
+2026-10-22 04:24:03.157 [INF] SGNR: Making macaroons for Signer RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/signer.macaroon
+2026-10-22 04:24:03.158 [INF] RRPC: Making macaroons for Router RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/router.macaroon
+2026-10-22 04:24:03.158 [INF] NTFR: Baking macaroons for ChainNotifier RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/chainnotifier.macaroon
+2026-10-22 04:24:03.158 [INF] WLKT: Baking macaroons for WalletKit RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/walletkit.macaroon
+2026-10-22 04:24:03.158 [INF] IRPC: Baking macaroons for invoices RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/invoices.macaroon
+2026-10-22 04:24:03.159 [INF] LTND: We're not running within systemd or the service type is not 'notify'
+2026-10-22 04:24:03.160 [INF] LTND: Waiting for chain backend to finish sync rev=390b2d start_height=101
+2026-10-22 04:24:03.172 [INF] BTWL: Started rescan from block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206 (height 0) for 0 addrs, 0 outpoints
+2026-10-22 04:24:03.176 [INF] BTWL: Catching up block hashes to height 1, this might take a while
+2026-10-22 04:24:03.181 [INF] BTWL: Done catching up block hashes
+2026-10-22 04:24:03.181 [INF] BTWL: Rescanned through block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206 (height 1)
+2026-10-22 04:24:03.368 [INF] BTWL: Catching up block hashes to height 101, this might take a while
+2026-10-22 04:24:03.368 [INF] BTWL: Done catching up block hashes
+2026-10-22 04:24:03.368 [INF] BTWL: Finished rescan for 0 addresses (synced to block 389e2f958d6fe751b36e51fceb1430ef33bbc469c1a985019ed7584fb2ac7dd5, height 101)
+2026-10-22 04:24:04.167 [INF] LTND: Chain backend is fully synced! rev=390b2d end_height=101
+2026-10-22 04:24:04.167 [WRN] HLCK: check: disk space configured with 0 attempts, skipping it
+2026-10-22 04:24:04.167 [WRN] HLCK: check: tls configured with 0 attempts, skipping it
+2026-10-22 04:24:04.167 [INF] LNWL: SigPool starting
+2026-10-22 04:24:04.167 [INF] NTFN: bitcoind notifier starting...
+2026-10-22 04:24:04.173 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.173 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.173 [INF] BTCN: Broadcaster now active
+2026-10-22 04:24:04.173 [INF] CHNF: ChannelNotifier starting
+2026-10-22 04:24:04.173 [INF] PRNF: PeerNotifier starting
+2026-10-22 04:24:04.173 [INF] HSWC: HtlcNotifier starting
+2026-10-22 04:24:04.173 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.173 [INF] SRVR: Received initial block 389e2f958d6fe751b36e51fceb1430ef33bbc469c1a985019ed7584fb2ac7dd5 at height 101
+2026-10-22 04:24:04.173 [INF] NTFN: Cancelling epoch notification, epoch_id=3
+2026-10-22 04:24:04.173 [INF] SWPR: TxPublisher starting...
+2026-10-22 04:24:04.173 [INF] SWPR: Sweeper starting
+2026-10-22 04:24:04.173 [INF] UTXN: UTXO nursery starting
+2026-10-22 04:24:04.174 [INF] BRAR: Breach arbiter starting
+2026-10-22 04:24:04.174 [INF] FNDG: Funding manager starting
+2026-10-22 04:24:04.174 [INF] HSWC: HTLC Switch starting
+2026-10-22 04:24:04.174 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.174 [INF] BRAR: Starting contract observer, watching for breaches.
+2026-10-22 04:24:04.176 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.176 [INF] HSWC: InterceptableSwitch starting...
+2026-10-22 04:24:04.176 [INF] INVC: HtlcModificationInterceptor starting...
+2026-10-22 04:24:04.176 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.176 [INF] CNCT: ChainArbitrator starting at height 101 with 0 chain watchers, 0 channel arbitrators, and budget config=[tolocal=0 BTC tolocalratio=0.5 anchorcpfp=0 BTC anchorcpfpratio=0.5 deadlinehtlc=0 BTC deadlinehtlcratio=0.5 nodeadlinehtlc=0 BTC nodeadlinehtlcratio=0.5]
+2026-10-22 04:24:04.176 [INF] GRPH: Builder starting
+2026-10-22 04:24:04.176 [INF] GRDB: Populating in-memory channel graph, this might take a while...
+2026-10-22 04:24:04.176 [INF] GRDB: Finished populating in-memory channel graph (took 62.757µs, num_node_features=1, num_nodes=0, num_channels=0)
+2026-10-22 04:24:04.179 [INF] CRTR: FilteredChainView starting
+2026-10-22 04:24:04.185 [INF] GRPH: Filtering chain using 0 channels active
+2026-10-22 04:24:04.187 [INF] GRPH: Prune tip for Channel Graph: height=101, hash=389e2f958d6fe751b36e51fceb1430ef33bbc469c1a985019ed7584fb2ac7dd5
+2026-10-22 04:24:04.187 [INF] CRTR: Channel Router starting
+2026-10-22 04:24:04.188 [INF] DISC: Authenticated Gossiper starting
+2026-10-22 04:24:04.188 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.189 [INF] INVC: InvoiceRegistry starting...
+2026-10-22 04:24:04.189 [INF] HSWC: Onion processor starting
+2026-10-22 04:24:04.190 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.192 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.192 [INF] NANN: Channel Status Manager starting
+2026-10-22 04:24:04.192 [INF] CHFT: ChannelEventStore starting...
+2026-10-22 04:24:04.192 [INF] CHFT: Adding 0 channels to event store
+2026-10-22 04:24:04.192 [INF] CHBU: chanbackup.SubSwapper starting
+2026-10-22 04:24:04.196 [INF] CHBU: Updating backup file at /root/.lnd/data/chain/bitcoin/regtest/channel.backup
+2026-10-22 04:24:04.196 [INF] CHBU: Swapping old multi backup file from /root/.lnd/data/chain/bitcoin/regtest/temp-dont-use.backup to /root/.lnd/data/chain/bitcoin/regtest/channel.backup
+2026-10-22 04:24:04.196 [INF] SRVR: connMgr starting...
+2026-10-22 04:24:04.197 [INF] CMGR: Server listening on [::]:9735
+2026-10-22 04:24:04.197 [INF] SRVR: Initializing peer network bootstrappers!
+2026-10-22 04:24:04.197 [INF] CHIO: BlockbeatDispatcher is starting with 1 consumer queues
+2026-10-22 04:24:04.197 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:24:04.197 [INF] NTFN: New block epoch subscription
+2026-10-22 04:24:04.197 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:24:05.640 [INF] BTWL: Inserting unconfirmed transaction a7f91fc527f6f3fe77d0d9a3973ffd10afb298a294ee2f53ff9de350a34edc25
+2026-10-22 04:24:05.696 [INF] GRPH: Pruning channel graph using block 171000a708a081299bc1fc47dea89b27569c8421e4524ac60e85b5c833f2d681 (height=102)
+2026-10-22 04:24:05.696 [INF] BTWL: Marking unconfirmed transaction a7f91fc527f6f3fe77d0d9a3973ffd10afb298a294ee2f53ff9de350a34edc25 mined in block 102
+2026-10-22 04:24:05.697 [INF] GRPH: Block 171000a708a081299bc1fc47dea89b27569c8421e4524ac60e85b5c833f2d681 (height=102) closed 0 channels
+2026-10-22 04:24:05.699 [INF] GRPH: Pruning channel graph using block 42b610bd5a8f3d9ec2e009aa9a1b8408c8de0f80da6f41f1472a4558acf15b07 (height=103)
+2026-10-22 04:24:05.699 [INF] NTFN: New block: height=102, sha=171000a708a081299bc1fc47dea89b27569c8421e4524ac60e85b5c833f2d681
+2026-10-22 04:24:05.700 [INF] GRPH: Block 42b610bd5a8f3d9ec2e009aa9a1b8408c8de0f80da6f41f1472a4558acf15b07 (height=103) closed 0 channels
+2026-10-22 04:24:05.702 [INF] NTFN: New block: height=103, sha=42b610bd5a8f3d9ec2e009aa9a1b8408c8de0f80da6f41f1472a4558acf15b07
+2026-10-22 04:24:05.702 [INF] GRPH: Pruning channel graph using block 50e559ae3f5be97ff4eda05488b62435d01f353c85442a50d0256f77407ce6dc (height=104)
+2026-10-22 04:24:05.703 [INF] GRPH: Block 50e559ae3f5be97ff4eda05488b62435d01f353c85442a50d0256f77407ce6dc (height=104) closed 0 channels
+2026-10-22 04:24:05.705 [INF] NTFN: New block: height=104, sha=50e559ae3f5be97ff4eda05488b62435d01f353c85442a50d0256f77407ce6dc
+2026-10-22 04:24:05.706 [INF] GRPH: Pruning channel graph using block 62e594d632746be85885fd7d90691caa818eacfd3c41996c332ae917ea53b30e (height=105)
+2026-10-22 04:24:05.706 [INF] GRPH: Block 62e594d632746be85885fd7d90691caa818eacfd3c41996c332ae917ea53b30e (height=105) closed 0 channels
+2026-10-22 04:24:05.708 [INF] NTFN: New block: height=105, sha=62e594d632746be85885fd7d90691caa818eacfd3c41996c332ae917ea53b30e
+2026-10-22 04:24:05.709 [INF] GRPH: Pruning channel graph using block 4bec2c32790dded46ef147740c4fd23612e887ebb75ba600f809a5b3ee24f8ad (height=106)
+2026-10-22 04:24:05.709 [INF] GRPH: Block 4bec2c32790dded46ef147740c4fd23612e887ebb75ba600f809a5b3ee24f8ad (height=106) closed 0 channels
+2026-10-22 04:24:05.712 [INF] GRPH: Pruning channel graph using block 462a2eae0e35f0c29cba6ea26d3c7a338b8999f2fffc36af35ebae8b290d2c0b (height=107)
+2026-10-22 04:24:05.713 [INF] GRPH: Block 462a2eae0e35f0c29cba6ea26d3c7a338b8999f2fffc36af35ebae8b290d2c0b (height=107) closed 0 channels
+2026-10-22 04:24:05.713 [INF] NTFN: New block: height=106, sha=4bec2c32790dded46ef147740c4fd23612e887ebb75ba600f809a5b3ee24f8ad
+2026-10-22 04:24:05.717 [INF] NTFN: New block: height=107, sha=462a2eae0e35f0c29cba6ea26d3c7a338b8999f2fffc36af35ebae8b290d2c0b
+2026-10-22 04:24:06.198 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:24:06.199 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:24:06.547 [INF] SRVR: Established outbound connection to: 024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96@172.18.0.4:9735
+2026-10-22 04:24:06.547 [INF] SRVR: Finalizing connection to 024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96@172.18.0.4:9735, inbound=false
+2026-10-22 04:24:06.547 [INF] ACSM: Upgraded outbound peer: restricted -> temporary peer=024369a3618b
+2026-10-22 04:24:06.548 [INF] MSGX: Starting Router
+2026-10-22 04:24:06.548 [INF] PEER: Peer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): Remote peer supports onion messages, spawning onion message actor
+2026-10-22 04:24:06.548 [INF] PEER: Peer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): Negotiated chan series queries
+2026-10-22 04:24:06.548 [INF] DISC: Creating new GossipSyncer for peer=024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96
+2026-10-22 04:24:06.548 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): requesting new chans from height=0 and 107 blocks after
+2026-10-22 04:24:06.548 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): filtering chan range: start_height=0, num_blocks=107
+2026-10-22 04:24:06.548 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): sending final chan range chunk, size=0
+2026-10-22 04:24:06.549 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): buffering chan range reply of size=0
+2026-10-22 04:24:06.549 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): filtering through 0 chans
+2026-10-22 04:24:06.549 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): applying new remote update horizon: start=2026-10-22 04:24:06 +0000 UTC, end=2162-11-28 10:52:21 +0000 UTC, has_updates=false
+2026-10-22 04:24:06.549 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): remote peer has no new chans
+2026-10-22 04:24:06.549 [INF] DISC: GossipSyncer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): applying gossipFilter(start=2026-10-22 04:24:06.549828526 +0000 UTC m=+6.866843962, end=2162-11-28 10:52:21.549828526 +0000 UTC)
+2026-10-22 04:24:06.727 [WRN] RPCS: Expected either 'sat_per_vbyte' or 'conf_target' to be set, using default conf of 6 instead
+2026-10-22 04:24:06.729 [ERR] LNWL: unable to query estimator: fee estimation data not available yet
+2026-10-22 04:24:06.729 [INF] FNDG: Initiating fundingRequest(local_amt=0.01000000 BTC (subtract_fees=false), push_amt=0 mSAT, chain_hash=0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206, peer=024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96, min_confs=1)
+2026-10-22 04:24:06.730 [ERR] LNWL: unable to query estimator: fee estimation data not available yet
+2026-10-22 04:24:06.730 [INF] CHFD: Performing funding tx coin selection using 6250 sat/kw as fee rate
+2026-10-22 04:24:06.734 [WRN] CHFD: Unable to find funding output for shim intent: unable to create witness script, no funding keys
+2026-10-22 04:24:06.749 [INF] FNDG: Target commit tx sat/kw for pendingID(70eb1433a14f77b827191019de80109f8dcb756b263e7132f83ecf7a0c041486): 2500
+2026-10-22 04:24:06.749 [INF] FNDG: Dust limit for pendingID(70eb1433a14f77b827191019de80109f8dcb756b263e7132f83ecf7a0c041486): 0.00000354 BTC
+2026-10-22 04:24:06.749 [INF] FNDG: Starting funding workflow with 172.18.0.4:9735 for pending_id(70eb1433a14f77b827191019de80109f8dcb756b263e7132f83ecf7a0c041486), committype=anchors-zero-fee-second-level
+2026-10-22 04:24:06.776 [INF] FNDG: Recv'd fundingResponse for pending_id(70eb1433a14f77b827191019de80109f8dcb756b263e7132f83ecf7a0c041486)
+2026-10-22 04:24:06.780 [INF] FNDG: pendingChan(70eb1433a14f77b827191019de80109f8dcb756b263e7132f83ecf7a0c041486): remote party proposes num_confs=1, csv_delay=144
+2026-10-22 04:24:06.780 [INF] FNDG: Generated ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) for pending_id(70eb1433a14f77b827191019de80109f8dcb756b263e7132f83ecf7a0c041486)
+2026-10-22 04:24:06.786 [INF] FNDG: Broadcasting funding tx for ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0): 0200000000010125dc4ea350e39dff532fee94a298b2af10fd3f97a3d9d077fef3f627c51ff9a70100000000000000000240420f000000000022002056f6238586d43e2bb18d4b6da9e02140e2e4e27e98c4029263d65436b08151aeaa8ee605000000002251208d928eafd37777a8275b5d89dc821616940fe62703e2a7789e0a85a810a5fe4202483045022100b045c6a7f34f7610e0dc57f10841ac5618bf357874eaf34ef581633838b31692022036f0cf850694de561dad7a81295f2f3af1aedc46127e5eb025f720e05f0228d0012103025e605d988084d216285a852c32a683c4c5d55f9b85efd7c61a6c02f4daee7600000000
+2026-10-22 04:24:06.787 [INF] BTWL: Inserting unconfirmed transaction 7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1
+2026-10-22 04:24:06.789 [WRN] BTWL: Transaction 7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1 not accepted by mempool: txn-already-in-mempool
+2026-10-22 04:24:06.793 [INF] CNCT: Creating new chainWatcher and ChannelArbitrator for ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0)
+2026-10-22 04:24:06.793 [INF] NTFN: New confirmation subscription: conf_id=1, txid=7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1, num_confs=6 height_hint=107
+2026-10-22 04:24:06.815 [INF] FNDG: Finalizing pending_id(70eb1433a14f77b827191019de80109f8dcb756b263e7132f83ecf7a0c041486) over ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0), waiting for channel open on-chain
+2026-10-22 04:24:06.815 [INF] CNCT: ChannelArbitrator(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0): starting state=StateDefault, trigger=chainTrigger, triggerHeight=107
+2026-10-22 04:24:06.815 [INF] NTFN: New confirmation subscription: conf_id=2, txid=7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1, num_confs=1 height_hint=107
+2026-10-22 04:24:06.815 [INF] FNDG: Waiting for funding tx (7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1) to reach 1 confirmations
+2026-10-22 04:24:06.815 [INF] CNCT: Close observer for ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) active
+2026-10-22 04:24:06.816 [INF] CHBU: Updating on-disk multi SCB backup: num_old_chans=0, num_new_chans=1
+2026-10-22 04:24:06.818 [INF] CHBU: Updating backup file at /root/.lnd/data/chain/bitcoin/regtest/channel.backup
+2026-10-22 04:24:06.818 [INF] CHBU: Swapping old multi backup file from /root/.lnd/data/chain/bitcoin/regtest/temp-dont-use.backup to /root/.lnd/data/chain/bitcoin/regtest/channel.backup
+2026-10-22 04:24:06.818 [INF] CHBU: Archiving old channel backup to /root/.lnd/data/chain/bitcoin/regtest/chan-backup-archives
+2026-10-22 04:24:06.875 [INF] GRPH: Pruning channel graph using block 1670a01cd14c7f2e0e9721beaac67934110f5bc0dd784ef31d8016c91643e92c (height=108)
+2026-10-22 04:24:06.875 [INF] BTWL: Marking unconfirmed transaction 7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1 mined in block 108
+2026-10-22 04:24:06.877 [INF] GRPH: Block 1670a01cd14c7f2e0e9721beaac67934110f5bc0dd784ef31d8016c91643e92c (height=108) closed 0 channels
+2026-10-22 04:24:06.878 [INF] GRPH: Pruning channel graph using block 3ae199eb93261c59f855cd96b57cd529c6be26215550b30f56aa07e630a93f61 (height=109)
+2026-10-22 04:24:06.879 [INF] GRPH: Block 3ae199eb93261c59f855cd96b57cd529c6be26215550b30f56aa07e630a93f61 (height=109) closed 0 channels
+2026-10-22 04:24:06.881 [INF] GRPH: Pruning channel graph using block 6f7465326ec458b7675ebb3210d079662c2b8b1645f81598b471eeb87a977b04 (height=110)
+2026-10-22 04:24:06.881 [INF] GRPH: Block 6f7465326ec458b7675ebb3210d079662c2b8b1645f81598b471eeb87a977b04 (height=110) closed 0 channels
+2026-10-22 04:24:06.883 [INF] GRPH: Pruning channel graph using block 2fa7a3b889e746dca8bf42477902aa8dca65970f99526205a2463e18d5458413 (height=111)
+2026-10-22 04:24:06.883 [INF] GRPH: Block 2fa7a3b889e746dca8bf42477902aa8dca65970f99526205a2463e18d5458413 (height=111) closed 0 channels
+2026-10-22 04:24:06.885 [INF] GRPH: Pruning channel graph using block 3d02ee601fe464dcee95dae34320359afb72500ea546876cb037a972f9832f8c (height=112)
+2026-10-22 04:24:06.885 [INF] GRPH: Block 3d02ee601fe464dcee95dae34320359afb72500ea546876cb037a972f9832f8c (height=112) closed 0 channels
+2026-10-22 04:24:06.888 [INF] GRPH: Pruning channel graph using block 2c44a58e8d6c0cca21262b0faaa9149c5539381f1c2b68f5eb5b48e19eaffdb6 (height=113)
+2026-10-22 04:24:06.889 [INF] GRPH: Block 2c44a58e8d6c0cca21262b0faaa9149c5539381f1c2b68f5eb5b48e19eaffdb6 (height=113) closed 0 channels
+2026-10-22 04:24:06.900 [INF] NTFN: New block: height=108, sha=1670a01cd14c7f2e0e9721beaac67934110f5bc0dd784ef31d8016c91643e92c
+2026-10-22 04:24:06.900 [INF] CNCT: ChannelArbitrator(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) no close event
+2026-10-22 04:24:06.903 [INF] FNDG: ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) is now active: ChannelID(e1fe56d57fe6102e4a7de68579ede4aa22e68e314f251ca2e3cc1b3fce27137b)
+2026-10-22 04:24:06.909 [INF] ACSM: Peer transitioned temporary -> protected (channel opened) peer=024369a3618b
+2026-10-22 04:24:06.909 [INF] CHBU: Updating on-disk multi SCB backup: num_old_chans=1, num_new_chans=1
+2026-10-22 04:24:06.911 [WRN] CHBU: Replacing disk backup for ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) w/ newer version
+2026-10-22 04:24:06.912 [INF] FNDG: Peer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96) is online, sending ChannelReady for ChannelID(e1fe56d57fe6102e4a7de68579ede4aa22e68e314f251ca2e3cc1b3fce27137b)
+2026-10-22 04:24:06.912 [INF] CHBU: Updating backup file at /root/.lnd/data/chain/bitcoin/regtest/channel.backup
+2026-10-22 04:24:06.913 [INF] CHBU: Swapping old multi backup file from /root/.lnd/data/chain/bitcoin/regtest/temp-dont-use.backup to /root/.lnd/data/chain/bitcoin/regtest/channel.backup
+2026-10-22 04:24:06.913 [INF] CHBU: Archiving old channel backup to /root/.lnd/data/chain/bitcoin/regtest/chan-backup-archives
+2026-10-22 04:24:06.915 [INF] PEER: Peer(024369a3618b48baca45e8838501b6df8d90bc8a0dcb6d8aa6e89f4bbd7c50bb96): New channel active ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) with peer
+2026-10-22 04:24:06.915 [INF] HSWC: ChannelLink(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0): starting
+2026-10-22 04:24:06.916 [INF] NTFN: New block: height=109, sha=3ae199eb93261c59f855cd96b57cd529c6be26215550b30f56aa07e630a93f61
+2026-10-22 04:24:06.916 [INF] CNCT: ChannelArbitrator(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) no close event
+2026-10-22 04:24:06.916 [INF] HSWC: Trimming open circuits for chan_id=108:1:0, start_htlc_id=0
+2026-10-22 04:24:06.917 [INF] HSWC: Adding live link chan_id=e1fe56d57fe6102e4a7de68579ede4aa22e68e314f251ca2e3cc1b3fce27137b, short_chan_id=108:1:0
+2026-10-22 04:24:06.917 [INF] CNCT: Attempting to update ContractSignals for ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0)
+2026-10-22 04:24:06.917 [INF] HSWC: ChannelLink(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0): HTLC manager started, bandwidth=982000000 mSAT
+2026-10-22 04:24:06.928 [INF] NTFN: New block: height=110, sha=6f7465326ec458b7675ebb3210d079662c2b8b1645f81598b471eeb87a977b04
+2026-10-22 04:24:06.929 [INF] CNCT: ChannelArbitrator(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) no close event
+2026-10-22 04:24:06.941 [INF] NTFN: New block: height=111, sha=2fa7a3b889e746dca8bf42477902aa8dca65970f99526205a2463e18d5458413
+2026-10-22 04:24:06.941 [INF] CNCT: ChannelArbitrator(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) no close event
+2026-10-22 04:24:06.954 [INF] NTFN: New block: height=112, sha=3d02ee601fe464dcee95dae34320359afb72500ea546876cb037a972f9832f8c
+2026-10-22 04:24:06.954 [INF] CNCT: ChannelArbitrator(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) no close event
+2026-10-22 04:24:06.967 [INF] NTFN: New block: height=113, sha=2c44a58e8d6c0cca21262b0faaa9149c5539381f1c2b68f5eb5b48e19eaffdb6
+2026-10-22 04:24:06.967 [INF] CNCT: ChannelArbitrator(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0) no close event
+2026-10-22 04:24:07.656 [WRN] CRTR: Not enough outbound balance to send htlc of amount: 1000 mSAT, only have local balance: 0 mSAT
+2026-10-22 04:24:07.656 [WRN] CRTR: Failed to find route for payment 29921b319e307f154712d3981cbe96a2cc1e456572220dce15461f42f3abb0ef: insufficient local balance
+2026-10-22 04:24:07.656 [WRN] CRTR: Marking payment 29921b319e307f154712d3981cbe96a2cc1e456572220dce15461f42f3abb0ef permanently failed with no route: insufficient_balance
+2026-10-22 04:24:07.656 [ERR] CRTR: No route found for payment 29921b319e307f154712d3981cbe96a2cc1e456572220dce15461f42f3abb0ef
+2026-10-22 04:24:07.656 [WRN] PYDB: Payment(29921b319e307f154712d3981cbe96a2cc1e456572220dce15461f42f3abb0ef): cannot register HTLC attempt: payment has already failed, current status: Failed
+2026-10-22 04:24:07.656 [ERR] CRTR: Payment 29921b319e307f154712d3981cbe96a2cc1e456572220dce15461f42f3abb0ef failed: insufficient_balance
+2026-10-22 04:24:07.910 [INF] DISC: Received new remote announcement signature for 108:1:0
+2026-10-22 04:24:07.911 [INF] DISC: Orphan remote proof announcement with short_chan_id=118747255865344, adding to waiting batch
+2026-10-22 04:24:07.917 [INF] NTFN: New confirmation subscription: conf_id=3, txid=7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1, num_confs=6 height_hint=108
+2026-10-22 04:24:07.917 [INF] FNDG: Announcing ChannelPoint(7b1327ce3f1bcce3a21c254f318ee622aae4ed7985e67d4a2e10e67fd556fee1:0), short_chan_id=108:1:0
+2026-10-22 04:24:07.917 [ERR] RPCS: [/lnrpc.Lightning/OpenChannel]: rpc error: code = Unavailable desc = transport is closing
+2026-10-22 04:24:07.917 [INF] DISC: Received new local announcement signature for 108:1:0
+2026-10-22 04:24:08.420 [INF] DISC: Fully valid channel proof for short_chan_id=118747255865344 constructed, adding to next ann batch
+2026-10-22 04:24:08.424 [WRN] DISC: ignoring remote ChannelAnnouncement1 for own channel
+2026-10-22 04:24:09.014 [INF] SRVR: Adding preimage=b0c7bd19200baaefdf4af69e48d41efaf6de8d185e0becd8eedf0ad227439c5d to witness cache for d30c2ed5a60f3d52440c334d36093b25b58abc9ad2fce49f64c6a2c23e11d240
+2026-10-22 04:24:10.199 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:24:10.199 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:24:18.200 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:24:18.201 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:24:34.201 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:24:34.202 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:25:06.203 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:25:06.203 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:25:49.880 [INF] RRPC: Payment stream 12884b1d301fd77e1a0a436fc17a8bf560dd259f91286d378e23e00a4eea4c9d canceled
+2026-10-22 04:25:50.397 [INF] SRVR: Adding preimage=09b84473a5affdd7e75f9c64d497e52d76209e1c9b62a32dd28096407e5570bd to witness cache for 12884b1d301fd77e1a0a436fc17a8bf560dd259f91286d378e23e00a4eea4c9d
+2026-10-22 04:26:06.204 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:26:06.204 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:27:06.205 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:27:06.206 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:28:06.206 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:28:06.207 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:28:24.783 [INF] RRPC: Payment stream b22912829a0188ee3553a2f10def0d55fcb4534eb5e09c58e51d6f1da645eb6e canceled
+2026-10-22 04:28:25.300 [INF] SRVR: Adding preimage=2a74ea441aba94a1c7d9c4ca2981a583312bffadd00dcbf805bbe4bfe87d5b1b to witness cache for b22912829a0188ee3553a2f10def0d55fcb4534eb5e09c58e51d6f1da645eb6e
+2026-10-22 04:29:06.208 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:29:06.208 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:30:06.209 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:30:06.210 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:30:30.316 [INF] RRPC: Payment stream 43c1562fffdf8491481b83d12b4c389cfa95cf4306f16c9f8f68c6d13dddaf6e canceled
+2026-10-22 04:30:30.514 [INF] SRVR: Adding preimage=1ab87cd407015cffeb2e1cdd2e6cf8bcad33338144a14c3d98d1b28378ee2495 to witness cache for 43c1562fffdf8491481b83d12b4c389cfa95cf4306f16c9f8f68c6d13dddaf6e
+2026-10-22 04:31:06.210 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:31:06.211 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:32:06.211 [INF] DISC: Attempting to bootstrap with: Authenticated Channel Graph
+2026-10-22 04:32:06.212 [ERR] SRVR: Unable to retrieve initial bootstrap peers: no addresses found
+2026-10-22 04:32:10.921 [INF] RRPC: Payment stream b4fe81127739f9a9462d34ccea6b407d147610cb53fb9c2b4990935452ebd239 canceled
+2026-10-22 04:32:11.118 [INF] SRVR: Adding preimage=d4dc036eafda2f2a82c2f838b784fe8534833c31491ca99bf260f7c6c34e3efe to witness cache for b4fe81127739f9a9462d34ccea6b407d147610cb53fb9c2b4990935452ebd239
