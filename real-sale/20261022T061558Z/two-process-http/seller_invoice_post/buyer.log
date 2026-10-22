@@ -1,0 +1,9 @@
+guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+[buyer 1792649658] request sent
+[buyer 1792649661] offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+POST http://127.0.0.1:18702/pcp/v0/accept: error sending request for url (http://127.0.0.1:18702/pcp/v0/accept) (will ask again)
+[buyer 1792649756] proof verified in 0.018 s, invoice checked, before paying
+[buyer 1792649756] paid: HTLC to H on its way
+[buyer 1792649756] DELIVERED: have k, decrypted C, re-checked R
+[buyer 1792649756] buyer done: Delivered 
+buyer summary: Delivered  spent_msat 1000000
