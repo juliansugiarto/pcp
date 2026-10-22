@@ -1,0 +1,43 @@
+out:
+total 224
+drwxr-xr-x  4 runner runner  4096 Oct 22 04:14 .
+drwxr-xr-x 13 runner runner  4096 Oct 22 04:11 ..
+-rw-r--r--  1 runner runner  2809 Oct 22 04:14 alice-state.txt
+-rw-r--r--  1 runner runner  2806 Oct 22 04:14 bob-state.txt
+-rw-r--r--  1 runner runner   283 Oct 22 04:06 build-host-full.txt
+-rw-r--r--  1 runner runner   583 Oct 22 04:04 build-methods-full.txt
+-rw-r--r--  1 runner runner    19 Oct 22 04:02 build-mode.txt
+-rw-r--r--  1 runner runner   249 Oct 22 04:08 cost-row-sudoku9.txt
+-rw-r--r--  1 runner runner   253 Oct 22 04:11 cost-row-testsuite.txt
+-rw-r--r--  1 runner runner 30548 Oct 22 04:14 docker-alice.log
+-rw-r--r--  1 runner runner 63629 Oct 22 04:14 docker-bitcoind.log
+-rw-r--r--  1 runner runner 26989 Oct 22 04:14 docker-bob.log
+-rw-r--r--  1 runner runner     0 Oct 22 04:04 docker-images.txt
+-rw-r--r--  1 runner runner     0 Oct 22 04:14 dump.txt
+-rw-r--r--  1 runner runner   194 Oct 22 04:06 execute-sudoku9.txt
+-rw-r--r--  1 runner runner   294 Oct 22 04:06 guest-elf-sha256.txt
+-rw-r--r--  1 runner runner   160 Oct 22 04:06 image-id.txt
+-rw-r--r--  1 runner runner   551 Oct 22 04:01 machine.txt
+drwxr-xr-x  2 runner runner  4096 Oct 22 04:14 rest
+-rw-r--r--  1 runner runner   765 Oct 22 04:01 rzup-install-1.txt
+-rw-r--r--  1 runner runner   144 Oct 22 04:01 rzup-show.txt
+-rw-r--r--  1 runner runner  2307 Oct 22 04:08 sale-sudoku9.txt
+-rw-r--r--  1 runner runner  2106 Oct 22 04:11 sale-testsuite.txt
+-rw-r--r--  1 runner runner  1204 Oct 22 04:06 setup.txt
+-rw-r--r--  1 runner runner  2627 Oct 22 04:08 state-after-sudoku9.txt
+-rw-r--r--  1 runner runner  2629 Oct 22 04:11 state-after-testsuite.txt
+-rw-r--r--  1 runner runner   478 Oct 22 04:06 state-before-sudoku9.txt
+drwxr-xr-x  4 runner runner  4096 Oct 22 04:14 two-process
+-rw-r--r--  1 runner runner   279 Oct 22 04:14 two-process-costs.txt
+-rw-r--r--  1 runner runner   281 Oct 22 04:14 two-process.txt
+
+out/rest:
+total 48
+drwxr-xr-x 2 runner runner 4096 Oct 22 04:14 .
+drwxr-xr-x 4 runner runner 4096 Oct 22 04:14 ..
+-rw-r--r-- 1 runner runner 8997 Oct 22 04:14 alice-v1-payments.json
+-rw-r--r-- 1 runner runner  764 Oct 22 04:14 alice-v1-payreq.json
+-rw-r--r-- 1 runner runner 1872 Oct 22 04:14 bob-v1-getinfo.json
+-rw-r--r-- 1 runner runner 1587 Oct 22 04:14 bob-v1-invoice-by-hash.json
+-rw-r--r-- 1 runner runner   70 Oct 22 04:14 bob-v1-invoice-unknown.txt
+-rw-r--r-- 1 runner runner 9094 Oct 22 04:14 bob-v1-invoices.json
