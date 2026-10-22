@@ -186,8 +186,10 @@ jobs:
           import json, sys
           d = json.load(open(sys.argv[1]))["state"]["state"]
           assert d.get("state") == "delivered"
-          json.dump(d["bundle"], open(sys.argv[2] + "/bundle.json", "w"))
-          open(sys.argv[2] + "/receipt.bin", "wb").write(bytes.fromhex(d["bundle"]["proof"]))
+          b = d["bundle"]
+          open(sys.argv[2] + "/receipt.bin", "wb").write(bytes.fromhex(b["proof"]))
+          b["proof"] = ""
+          json.dump(b, open(sys.argv[2] + "/bundle.json", "w"), indent=1)
           PY
           sha256sum seed/* 2>/dev/null | tee out/seed-sha256.txt || true
           exit $rc
@@ -222,6 +224,12 @@ jobs:
             git checkout -f -B ci-results-lnd origin/ci-results-lnd 2>/dev/null \
               || { git checkout -f --orphan ci-results-lnd && git rm -rq --cached .; }
             mkdir -p "$dest" && cp -r out/* "$dest"/
+            # The F8 seed, once per guest (named by image id prefix).
+            id8=$(grep -oE '^image_id: [0-9a-f]{8}' out/image-id.txt 2>/dev/null | cut -c11-)
+            if [ -n "$id8" ] && [ -s seed/receipt.bin ] && [ ! -e "seeds/receipt-$id8.bin" ]; then
+              mkdir -p seeds && cp seed/receipt.bin "seeds/receipt-$id8.bin" && cp seed/bundle.json "seeds/bundle-$id8.json"
+              git add seeds
+            fi
             git add real-sale && git commit -qm "real sale (risc0 + lnd regtest) run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
             sleep $((RANDOM % 20 + 5))
           done
