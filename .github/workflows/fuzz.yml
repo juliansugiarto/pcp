@@ -55,7 +55,7 @@ jobs:
           mkdir -p fuzz/corpus/${{ matrix.target }}
           set -o pipefail
           cargo +nightly fuzz run --features libfuzzer ${{ matrix.target }} fuzz/corpus/${{ matrix.target }} -- \
-            -max_total_time=$secs -timeout=20 -rss_limit_mb=2048 2>&1 | tail -n 40 | tee ../../out/run.txt
+            -max_total_time=$secs -timeout=20 -rss_limit_mb=2048 2>&1 | tail -n 40 | tee ../out/run.txt
       - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         if: always()
         with:
@@ -69,6 +69,7 @@ jobs:
             grep -E "^#[0-9]+.*(DONE|pulse)|stat::number_of_executed_units|Done [0-9]+ runs" out/run.txt | tail -n 2; } | tee out/summary.txt
           mkdir -p out/crashes
           cp pcp/fuzz/artifacts/${{ matrix.target }}/* out/crashes/ 2>/dev/null || true
+          ls out/crashes | sed "s/^/crash: /" | tee -a out/summary.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
