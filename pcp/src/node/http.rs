@@ -21,6 +21,14 @@
 //! message identical to one still queued is not queued twice: its waiter
 //! joins. The seller loop itself is the same as over the directory wire.
 //!
+//! Before queueing, the server refuses (422) what the loop would refuse
+//! anyway and what strangers could use to fill the queue: a request whose
+//! version is not ours or, with a principal list, whose principal is not on
+//! it or whose mandate or agent signature does not verify; an Accept for an
+//! offer the loop never announced, or not signed by the agent the offer was
+//! issued to. Only an invited agent can take a place in the queue. These
+//! refusals are counted, not written to the principal's log.
+//!
 //! [`HttpBuyer`] posts each message and turns the answer into received
 //! messages. A refused connection, a timeout or a 503 is "ask again later",
 //! so a seller that is down or restarting is just slow.
@@ -29,7 +37,7 @@
 //! reverse proxy in front (SPEC 5.2: the bundle needs a confidential
 //! channel). The buyer refuses `http://` unless told otherwise.
 
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::net::SocketAddr;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -44,10 +52,11 @@ use axum::{Json, Router};
 use serde_json::{json, Value};
 
 use crate::encoding::Hash32;
+use crate::mandate::{verify_sig, PublicKey};
 use crate::protocol::{Accept, Request};
 
 use super::store::StoreError;
-use super::wire::{Inbox, Wire, WireMsg};
+use super::wire::{Inbox, KnownOffer, Wire, WireMsg};
 
 /// Largest request or accept body accepted (a sudoku request is about 1 KB).
 pub const MAX_BODY: usize = 64 * 1024;
@@ -74,6 +83,13 @@ struct Shared {
     waiters: Mutex<Vec<Waiter>>,
     info: Mutex<Value>,
     next_id: AtomicU64,
+    /// `None`: everyone (see [`Wire::set_principals`]).
+    principals: Mutex<Option<Vec<Hash32>>>,
+    /// Issued offers: id -> (buyer mandate_id, buyer agent key). Empty
+    /// until the loop says which exist: no Accept is queued before that.
+    offers: Mutex<HashMap<Hash32, (Hash32, PublicKey)>>,
+    /// Refused before the queue (see the module doc).
+    refused_early: AtomicU64,
 }
 
 /// The seller's side: an HTTP server feeding the seller loop.
@@ -164,6 +180,22 @@ impl Wire for HttpSeller {
     fn set_info(&self, info: Value) {
         *self.shared.info.lock().expect("info") = info;
     }
+
+    fn set_principals(&self, principals: Option<Vec<Hash32>>) {
+        *self.shared.principals.lock().expect("principals") = principals;
+    }
+
+    fn know_offers(&self, offers: &[KnownOffer]) {
+        self.shared.offers.lock().expect("offers").extend(
+            offers
+                .iter()
+                .map(|k| (k.offer_id, (k.mandate_id, k.agent_key))),
+        );
+    }
+
+    fn refused_before_queue(&self) -> u64 {
+        self.shared.refused_early.load(Ordering::Relaxed)
+    }
 }
 
 // Short-lived, one per waiting handler: boxing the answer gains nothing.
@@ -232,12 +264,62 @@ fn bad(e: impl std::fmt::Display) -> Response {
         .into_response()
 }
 
+/// What a request must pass before it is queued: the version, and with a
+/// principal list a listed principal whose mandate and agent signature
+/// verify (two Ed25519 checks), so only an invited agent can take a place in
+/// the queue. The codes are the loop's; a signature failure may be named
+/// here before a check the loop would have made first.
+fn gate_request(shared: &Shared, req: &Request) -> Option<String> {
+    if req.version != crate::encoding::VERSION {
+        return Some("version".into());
+    }
+    let list = shared.principals.lock().expect("principals");
+    let list = list.as_ref()?;
+    let Some(m) = req
+        .mandate
+        .as_ref()
+        .filter(|m| list.contains(&m.principal_key))
+    else {
+        return Some("principal_not_allowed".into());
+    };
+    if let Err(e) = m.verify_signature() {
+        return Some(format!("counterparty_mandate.{}", e.code()));
+    }
+    let signed = req
+        .agent_sig
+        .as_ref()
+        .is_some_and(|s| verify_sig(&m.agent_key, &req.auth_message(&m.mandate_id()), s));
+    (!signed).then(|| "counterparty_mandate.agent_signature_invalid".into())
+}
+
+/// What an Accept must pass before it is queued: it names an offer the loop
+/// issued and is signed by the agent of the mandate that offer was issued
+/// under, so only that agent can take a place in the queue.
+fn gate_accept(shared: &Shared, acc: &Accept) -> Option<&'static str> {
+    let offers = shared.offers.lock().expect("offers");
+    let Some((mandate_id, agent_key)) = offers.get(&acc.offer_id) else {
+        return Some("offer_not_issued");
+    };
+    let (Some(m), Some(sig)) = (acc.mandate.as_ref(), acc.agent_sig.as_ref()) else {
+        return Some("counterparty_mandate.missing");
+    };
+    if m.mandate_id() != *mandate_id {
+        return Some("counterparty_mandate.agent_key_mismatch");
+    }
+    (!verify_sig(agent_key, &acc.auth_message(mandate_id), sig))
+        .then_some("counterparty_mandate.agent_signature_invalid")
+}
+
 async fn handle_request(State(shared): State<Arc<Shared>>, body: Bytes) -> Response {
     let req: Request = match serde_json::from_slice(&body) {
         Ok(r) => r,
         Err(e) => return bad(e),
     };
     let rid = req.request_id();
+    if let Some(code) = gate_request(&shared, &req) {
+        shared.refused_early.fetch_add(1, Ordering::Relaxed);
+        return refused(&rid, &code);
+    }
     let nonce = req.buyer_nonce;
     let matches: Matcher = Box::new(move |m| match m {
         WireMsg::Offer { offer } => offer.buyer_nonce == nonce,
@@ -257,6 +339,10 @@ async fn handle_accept(State(shared): State<Arc<Shared>>, body: Bytes) -> Respon
         Err(e) => return bad(e),
     };
     let oid = acc.offer_id;
+    if let Some(code) = gate_accept(&shared, &acc) {
+        shared.refused_early.fetch_add(1, Ordering::Relaxed);
+        return refused(&oid, code);
+    }
     let matches: Matcher = Box::new(move |m| match m {
         WireMsg::Bundle { binding, .. } => binding.offer_id == oid,
         WireMsg::Refused { subject_id, .. } => *subject_id == oid,
@@ -496,6 +582,10 @@ mod tests {
     use rand::rngs::OsRng;
 
     fn request() -> Request {
+        request_by(&agent())
+    }
+
+    fn agent() -> Agent {
         let principal = SecretKey::generate(&mut OsRng);
         let key = SecretKey::generate(&mut OsRng);
         let m = Mandate::sign(
@@ -511,9 +601,12 @@ mod tests {
             },
             &mut OsRng,
         );
-        let agent = Agent::new(key, m).unwrap();
+        Agent::new(key, m).unwrap()
+    }
+
+    fn request_by(agent: &Agent) -> Request {
         let (_b, req) = Buyer::new(
-            &agent,
+            agent,
             Box::new(TestSuiteJob),
             Box::new(InsecureDevTransparentBackend),
             BuyerPolicy::default(),
@@ -549,6 +642,120 @@ mod tests {
         assert!(HttpBuyer::new("https://example.org", false, None).is_ok());
         assert!(HttpBuyer::new("https://example.org", false, Some(b"not a pem")).is_err());
         assert!(HttpSeller::start("0.0.0.0:0".parse().unwrap(), false).is_err());
+    }
+
+    #[test]
+    fn strangers_are_refused_before_the_queue() {
+        let (s, base) = server();
+        let invited = agent();
+        let req = request_by(&invited);
+        let listed = invited.mandate().principal_key;
+        let ask = |r: &Request| {
+            post(
+                &format!("{base}/pcp/v0/request"),
+                serde_json::to_vec(r).unwrap(),
+            )
+        };
+        let refused_with = |r: &Request, code: &str| {
+            let (status, body) = ask(r);
+            assert_eq!(status, 422, "{body}");
+            assert!(body.contains(&format!("\"{code}\"")), "{code}: {body}");
+        };
+        // No list: any request reaches the loop's inbox.
+        let stranger = agent();
+        let t = std::time::Instant::now();
+        assert_eq!(ask(&request_by(&stranger)).0, 503, "no loop answers: busy");
+        assert!(t.elapsed() >= REPLY_WAIT);
+        assert_eq!(s.receive().unwrap().len(), 1);
+        // With a list, refused at once and never queued: a stranger, a
+        // request with no mandate, a wrong version, the invited principal's
+        // key in a mandate it did not sign, and the invited agent's genuine
+        // mandate sent by another agent.
+        s.set_principals(Some(vec![listed]));
+        refused_with(&request_by(&stranger), "principal_not_allowed");
+        let bare = Request {
+            mandate: None,
+            agent_sig: None,
+            ..request_by(&stranger)
+        };
+        refused_with(&bare, "principal_not_allowed");
+        let wrong_version = Request {
+            version: "PCP/9".into(),
+            ..req.clone()
+        };
+        refused_with(&wrong_version, "version");
+        let mut forged = request_by(&stranger);
+        let mut m = forged.mandate.clone().unwrap();
+        m.principal_key = listed;
+        forged.agent_sig = Some(stranger.sign(&forged.auth_message(&m.mandate_id())));
+        forged.mandate = Some(m);
+        refused_with(&forged, "counterparty_mandate.signature_invalid");
+        let mut copied = request_by(&stranger);
+        copied.mandate = Some(invited.mandate().clone());
+        copied.agent_sig =
+            Some(stranger.sign(&copied.auth_message(&invited.mandate().mandate_id())));
+        refused_with(&copied, "counterparty_mandate.agent_signature_invalid");
+        assert!(s.receive().unwrap().is_empty());
+        assert_eq!(s.refused_before_queue(), 5);
+        // The invited agent's own request is queued.
+        assert_eq!(ask(&req).0, 503);
+        assert_eq!(s.receive().unwrap().len(), 1);
+
+        // Accepts: queued only for an offer the loop announced, signed by
+        // the agent of the mandate it was issued under.
+        let accept = |by: &Agent, m: Option<&Mandate>, id: Hash32| {
+            let mut a = Accept {
+                version: crate::encoding::VERSION.into(),
+                offer_id: id,
+                mandate: m.cloned(),
+                agent_sig: None,
+            };
+            if let Some(m) = m {
+                a.agent_sig = Some(by.sign(&a.auth_message(&m.mandate_id())));
+            }
+            post(
+                &format!("{base}/pcp/v0/accept"),
+                serde_json::to_vec(&a).unwrap(),
+            )
+        };
+        let im = invited.mandate().clone();
+        let code = |r: (u16, String)| {
+            assert_eq!(r.0, 422, "{}", r.1);
+            let v: Value = serde_json::from_str(&r.1).unwrap();
+            v["reason"].as_str().unwrap().to_string()
+        };
+        // Nothing announced yet: no Accept is queued.
+        assert_eq!(
+            code(accept(&invited, Some(&im), [2; 32])),
+            "offer_not_issued"
+        );
+        s.know_offers(&[KnownOffer {
+            offer_id: [2; 32],
+            mandate_id: im.mandate_id(),
+            agent_key: im.agent_key,
+        }]);
+        assert_eq!(
+            code(accept(&invited, Some(&im), [1; 32])),
+            "offer_not_issued"
+        );
+        assert_eq!(
+            code(accept(&invited, None, [2; 32])),
+            "counterparty_mandate.missing"
+        );
+        let sm = stranger.mandate().clone();
+        assert_eq!(
+            code(accept(&stranger, Some(&sm), [2; 32])),
+            "counterparty_mandate.agent_key_mismatch"
+        );
+        assert_eq!(
+            code(accept(&stranger, Some(&im), [2; 32])),
+            "counterparty_mandate.agent_signature_invalid"
+        );
+        assert!(s.receive().unwrap().is_empty());
+        assert_eq!(s.refused_before_queue(), 10);
+        // The invited agent's Accept is queued (no loop: no answer yet).
+        assert_eq!(accept(&invited, Some(&im), [2; 32]).0, 202);
+        assert_eq!(s.receive().unwrap().len(), 1);
     }
 
     #[test]
@@ -644,7 +851,8 @@ mod tests {
         // The loop is proving (here: not running). A request is 503 with
         // Retry-After; an accept is 202. Both reached the inbox.
         let (s, base) = server();
-        let req = request();
+        let a = agent();
+        let req = request_by(&a);
         let r = reqwest::blocking::Client::new()
             .post(format!("{base}/pcp/v0/request"))
             .json(&req)
@@ -652,12 +860,19 @@ mod tests {
             .unwrap();
         assert_eq!(r.status().as_u16(), 503);
         assert_eq!(r.headers()["retry-after"], "5");
-        let acc = Accept {
+        let m = a.mandate().clone();
+        s.know_offers(&[KnownOffer {
+            offer_id: [1u8; 32],
+            mandate_id: m.mandate_id(),
+            agent_key: m.agent_key,
+        }]);
+        let mut acc = Accept {
             version: crate::encoding::VERSION.into(),
             offer_id: [1u8; 32],
-            mandate: None,
+            mandate: Some(m.clone()),
             agent_sig: None,
         };
+        acc.agent_sig = Some(a.sign(&acc.auth_message(&m.mandate_id())));
         let (code, _) = post(
             &format!("{base}/pcp/v0/accept"),
             serde_json::to_vec(&acc).unwrap(),

@@ -221,6 +221,46 @@ fn connect(_: &Args, _: &str, usage: &str) -> Box<dyn super::wire::Wire> {
     fail(usage, "built without the http feature")
 }
 
+/// `--allow-principals FILE`: the principal public keys a seller serves,
+/// one lowercase hex key (64 characters) per line, `#` comments. Absent
+/// means everyone; a file with no key means no one.
+pub fn allowed_principals(a: &Args, usage: &str) -> Option<Vec<crate::encoding::Hash32>> {
+    let path = a.get("allow-principals")?;
+    let text = std::fs::read_to_string(path)
+        .unwrap_or_else(|e| fail(usage, &format!("--allow-principals {path}: {e}")));
+    Some(
+        parse_allowed_principals(&text)
+            .unwrap_or_else(|e| fail(usage, &format!("--allow-principals {path}, {e}"))),
+    )
+}
+
+/// One principal public key per line, 64 lowercase hex characters; `#`
+/// starts a comment; blank lines are skipped; duplicates count once. Any
+/// other line is an error naming it, so a typo never silently drops an
+/// invitee.
+pub fn parse_allowed_principals(text: &str) -> Result<Vec<crate::encoding::Hash32>, String> {
+    let mut keys: Vec<crate::encoding::Hash32> = Vec::new();
+    for (i, line) in text.lines().enumerate() {
+        let line = line.split('#').next().unwrap_or("").trim();
+        if line.is_empty() {
+            continue;
+        }
+        let ok = line.len() == 64
+            && line
+                .bytes()
+                .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c));
+        let key = ok
+            .then(|| hex::decode(line).ok())
+            .flatten()
+            .and_then(|b| <[u8; 32]>::try_from(b).ok())
+            .ok_or_else(|| format!("line {}: not a 64-character lowercase hex key", i + 1))?;
+        if !keys.contains(&key) {
+            keys.push(key);
+        }
+    }
+    Ok(keys)
+}
+
 /// Flags every role binary accepts (some are role-specific).
 pub const FLAGS: &[&str] = &[
     "allow-sim",
@@ -314,6 +354,34 @@ mod tests {
 
     fn parse(a: &[&str]) -> Result<Args, String> {
         Args::parse_from(U, FLAGS, a.iter().map(|s| s.to_string()))
+    }
+
+    #[test]
+    fn principal_lists_parse_strictly() {
+        let k1 = "11".repeat(32);
+        let k2 = "ab".repeat(32);
+        let text = format!("# invited\r\n{k1}  # alice\r\n\n  {k2}\n{k1}\n");
+        let keys = parse_allowed_principals(&text).unwrap();
+        assert_eq!(
+            keys,
+            vec![[0x11; 32], [0xab; 32]],
+            "comments, CRLF, blanks, duplicates"
+        );
+        assert_eq!(
+            parse_allowed_principals("").unwrap(),
+            Vec::<[u8; 32]>::new()
+        );
+        assert_eq!(parse_allowed_principals("# nobody\n").unwrap().len(), 0);
+        for bad in [
+            "AB".repeat(32),                 // uppercase
+            "ab".repeat(31),                 // 62 characters
+            format!("{}0", "ab".repeat(32)), // 65 characters
+            format!("{}g", "a".repeat(63)),  // not hex
+            format!("{k1} {k2}"),            // two on a line
+        ] {
+            let e = parse_allowed_principals(&format!("{k1}\n{bad}\n")).unwrap_err();
+            assert!(e.starts_with("line 2:"), "{bad}: {e}");
+        }
     }
 
     #[test]

@@ -3409,3 +3409,121 @@ fn mandate_version_and_agent_expiry_are_checked() {
     assert_eq!(p.agent.check_budget(1, expires), Err(MandateError::Expired));
     assert_eq!(p.agent.check_budget(1, expires - 1), Ok(()));
 }
+
+// ---------------------------------------------------------------------------
+// Design note 19: a seller that serves only listed principals.
+
+#[test]
+fn a_seller_with_a_principal_list_serves_only_listed_principals() {
+    let job = SudokuJob::four();
+    let input = job.parse_grid("1..4 ..1. .1.. 4..1").unwrap();
+    let sp = party(terms(Role::Seller, "seller"));
+    let invited = party(terms(Role::Buyer, "invited"));
+    let stranger = party(terms(Role::Buyer, "stranger"));
+    let request_from = |p: &Party| {
+        Buyer::new(
+            &p.agent,
+            Box::new(job),
+            Box::new(InsecureDevTransparentBackend),
+            dev_policy(),
+            input.clone(),
+            PRICE,
+            0,
+            &mut OsRng,
+        )
+        .unwrap()
+        .1
+    };
+    let mut cfg = sell_cfg(PRICE);
+    cfg.allowed_principals = Some(vec![invited.principal_key()]);
+    let mut s = Seller::new(
+        &sp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        cfg,
+    );
+    // The invited principal gets an offer.
+    assert!(s.make_offer(&request_from(&invited), 0).is_ok());
+    let log_before = s.agent().log_len();
+    // A stranger is refused before any work, and nothing is open for it.
+    assert_eq!(
+        s.make_offer(&request_from(&stranger), 0),
+        Err(PcpError::PrincipalNotAllowed)
+    );
+    // Another agent of the stranger's principal changes nothing.
+    let other_agent = party_with(
+        SecretKey::from_seed(stranger.principal.to_seed()),
+        terms(Role::Buyer, "stranger2"),
+    );
+    assert_eq!(
+        s.make_offer(&request_from(&other_agent), 0),
+        Err(PcpError::PrincipalNotAllowed)
+    );
+    // Naming the invited principal without its key fails the mandate check.
+    let mut forged = request_from(&stranger);
+    let mut m = forged.mandate.clone().unwrap();
+    m.principal_key = invited.principal_key();
+    forged.mandate = Some(m);
+    let forged = Request {
+        agent_sig: Some(
+            stranger
+                .agent
+                .sign(&forged.auth_message(&forged.mandate.as_ref().unwrap().mandate_id())),
+        ),
+        ..forged
+    };
+    assert_eq!(
+        s.make_offer(&forged, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::SignatureInvalid
+        ))
+    );
+    // The realistic attack: a verbatim copy of the invited buyer's genuine
+    // mandate (anyone who saw one of its requests has it), sent by the
+    // stranger's agent. The agent signature does not verify.
+    let mut copied = request_from(&stranger);
+    copied.mandate = Some(invited.agent.mandate().clone());
+    let copied = Request {
+        agent_sig: Some(
+            stranger
+                .agent
+                .sign(&copied.auth_message(&invited.agent.mandate().mandate_id())),
+        ),
+        ..copied
+    };
+    assert_eq!(
+        s.make_offer(&copied, 0),
+        Err(PcpError::CounterpartyMandate(
+            MandateError::AgentSignatureInvalid
+        ))
+    );
+    // With a list, a request without a mandate names no listed principal.
+    let bare = Request {
+        mandate: None,
+        agent_sig: None,
+        ..request_from(&stranger)
+    };
+    assert_eq!(s.make_offer(&bare, 0), Err(PcpError::PrincipalNotAllowed));
+    // Five refusals, each logged once (under the per-minute limit), and
+    // still only the invited principal's offer is held.
+    assert_eq!(s.snapshot().offers.len(), 1);
+    assert_eq!(s.agent().log_len(), log_before + 5);
+    // An empty list serves no one, the invited principal included.
+    let mut cfg = sell_cfg(PRICE);
+    cfg.allowed_principals = Some(vec![]);
+    let mut nobody = Seller::new(
+        &sp.agent,
+        Box::new(job),
+        Box::new(InsecureDevTransparentBackend),
+        cfg,
+    );
+    assert_eq!(
+        nobody.make_offer(&request_from(&invited), 0),
+        Err(PcpError::PrincipalNotAllowed)
+    );
+    // The refusal code is stable.
+    assert_eq!(
+        PcpError::PrincipalNotAllowed.code(),
+        "principal_not_allowed"
+    );
+}

@@ -31,7 +31,7 @@ pub mod wire;
 pub mod work;
 
 /// A counterparty's refusal reason, reduced to what a reason code can hold
-/// (SPEC 5.4: `a-z`, digits, `_`, `.`, `-`, `:`) and at most 128 characters.
+/// (SPEC 5.4a: `a-z`, digits, `_`, `.`, `-`, `:`) and at most 128 characters.
 pub fn reason_code(s: &str) -> String {
     let kept: String = s
         .chars()
@@ -213,7 +213,7 @@ fn open_seller(run: &SellerRun) -> Result<(StateDir, Seller), NodeError> {
 }
 
 /// Run a seller until its stop condition. Resumes from the state directory.
-pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
+pub fn run_seller(mut run: SellerRun) -> Result<SellerSummary, NodeError> {
     let (dir, mut seller) = open_seller(&run)?;
     let save = |s: &Seller| dir.save(&s.snapshot(), s.agent());
     {
@@ -233,9 +233,23 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
             "mandate": seller.agent().mandate(),
         }));
     }
+    // What a queueing transport may refuse before the loop sees it.
+    run.wire.set_principals(run.cfg.allowed_principals.clone());
+    let known: Vec<_> = seller
+        .snapshot()
+        .offers
+        .iter()
+        .filter_map(wire::KnownOffer::of)
+        .collect();
+    run.wire.know_offers(&known);
     let start = Instant::now();
     let mut last_msg = Instant::now();
     let mut summary = SellerSummary::default();
+    // Refusals are written to the text log only as often as to the
+    // principal's log (rate-limited); the rest are counted, once a minute.
+    let mut unshown = 0u64;
+    let mut unshown_since = Instant::now();
+    let mut early_seen = 0u64;
     (run.log)(&format!(
         "seller up: {} offers, {} sales on record",
         seller.snapshot().offers.len(),
@@ -245,7 +259,6 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
         let now = run.rail.now();
         // 1. Messages.
         for (name, msg) in run.wire.receive()? {
-            last_msg = Instant::now();
             let log_len = seller.agent().log_len();
             let msg = match msg {
                 Ok(m) => m,
@@ -257,9 +270,18 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
             match msg {
                 WireMsg::Request { request } => match seller.make_offer(&request, now) {
                     Ok(offer) => {
+                        // Only messages that lead somewhere keep a quiet
+                        // seller up; refused traffic does not.
+                        last_msg = Instant::now();
                         crash_point("seller:offer:pre");
                         save(&seller)?;
                         crash_point("seller:offer:post");
+                        if let Some(k) = seller
+                            .issued(&offer.offer_id())
+                            .and_then(wire::KnownOffer::of)
+                        {
+                            run.wire.know_offers(&[k]);
+                        }
                         run.wire.send(&WireMsg::Offer {
                             offer: offer.clone(),
                         })?;
@@ -269,7 +291,8 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                         // Save only if the refusal was logged (refusals are
                         // rate-limited): a flood of bad requests must not
                         // rewrite the state file per message.
-                        if seller.agent().log_len() != log_len {
+                        let logged = seller.agent().log_len() != log_len;
+                        if logged {
                             save(&seller)?;
                         }
                         summary.refused += 1;
@@ -277,18 +300,24 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                             subject_id: request.request_id(),
                             reason: e.code(),
                         })?;
-                        (run.log)(&format!("request refused: {}", e.code()));
+                        if logged {
+                            (run.log)(&format!("request refused: {}", e.code()));
+                        } else {
+                            unshown += 1;
+                        }
                     }
                 },
                 WireMsg::Accept { accept } => match seller.accept(&accept, now) {
                     Ok(AcceptStep::Prove) => {
+                        last_msg = Instant::now();
                         crash_point("seller:accept:pre");
                         save(&seller)?;
                         crash_point("seller:accept:post");
                         (run.log)(&format!("accept {} : proving", short(&accept.offer_id)));
                     }
-                    Ok(AcceptStep::Pending) | Ok(AcceptStep::Busy) => {}
+                    Ok(AcceptStep::Pending) | Ok(AcceptStep::Busy) => last_msg = Instant::now(),
                     Ok(AcceptStep::Resend(bundle, binding)) => {
+                        last_msg = Instant::now();
                         run.wire.send(&WireMsg::Bundle {
                             bundle: *bundle,
                             binding: *binding,
@@ -296,7 +325,8 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                         (run.log)(&format!("bundle {} sent again", short(&accept.offer_id)));
                     }
                     Err(e) => {
-                        if seller.agent().log_len() != log_len {
+                        let logged = seller.agent().log_len() != log_len;
+                        if logged {
                             save(&seller)?;
                         }
                         summary.refused += 1;
@@ -304,12 +334,20 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                             subject_id: accept.offer_id,
                             reason: e.code(),
                         })?;
-                        (run.log)(&format!("accept refused: {}", e.code()));
+                        if logged {
+                            (run.log)(&format!("accept refused: {}", e.code()));
+                        } else {
+                            unshown += 1;
+                        }
                     }
                 },
                 other => (run.log)(&format!("ignored {}", other.name())),
             }
             run.wire.ack(&name)?;
+        }
+        if unshown_since.elapsed() >= Duration::from_secs(60) {
+            show_unshown(&mut run, &mut unshown, &mut early_seen);
+            unshown_since = Instant::now();
         }
 
         // 2. Work: prove and invoice accepted offers (also after a restart).
@@ -409,6 +447,7 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
         let snap = seller.snapshot();
         let over = snap.sales.iter().filter(|s| s.settled || s.closed).count();
         if seller.is_idle() && (over >= run.sales || last_msg.elapsed() >= run.quiet_exit) {
+            show_unshown(&mut run, &mut unshown, &mut early_seen);
             summary.committed_msat = snap.committed_msat();
             (run.log)(&format!(
                 "seller done: {} sales over, committed {} msat",
@@ -417,10 +456,26 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
             return Ok(summary);
         }
         if start.elapsed() >= run.deadline {
+            show_unshown(&mut run, &mut unshown, &mut early_seen);
             return Err(NodeError::Deadline);
         }
         std::thread::sleep(run.poll);
     }
+}
+
+/// One line for the refusals the text log did not show: those over the
+/// per-minute limit, and those the transport refused before its queue.
+fn show_unshown(run: &mut SellerRun, unshown: &mut u64, early_seen: &mut u64) {
+    let early = run.wire.refused_before_queue();
+    let new_early = early.saturating_sub(*early_seen);
+    if *unshown > 0 || new_early > 0 {
+        (run.log)(&format!(
+            "refusals not shown: {} by the seller, {} before the queue",
+            *unshown, new_early
+        ));
+    }
+    *unshown = 0;
+    *early_seen = early;
 }
 
 // ---------------------------------------------------------------------------

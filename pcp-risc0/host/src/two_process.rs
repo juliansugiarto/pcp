@@ -25,7 +25,7 @@ pcp-risc0 --role sell|buy --state DIR (--inbox DIR --peer-inbox DIR | --listen A
           [--quiet-exit-secs N] [--deadline-secs N] [--poll-ms N]
           [--resend-secs N] [--offer-wait-secs N] [--invoice-expiry-secs N]
           [--tamper-accept] [--allow-public-bind] [--allow-insecure-transport]
-          [--seller-ca-cert PEM]
+          [--seller-ca-cert PEM] [--allow-principals FILE]
 
 Options as for pcp-sell / pcp-buy. Proof backend: RISC Zero, local proving.";
 
@@ -53,6 +53,7 @@ pub fn run() -> ! {
                 }
             };
             cfg.invoice_expiry_secs = a.num("invoice-expiry-secs", cfg.invoice_expiry_secs);
+            cfg.allowed_principals = cli::allowed_principals(&a, USAGE);
             let demo_input = input.clone();
             let work = move |inp: &[u8]| (inp == demo_input.as_slice()).then(|| result.clone());
             let mut log = logger("seller");
@@ -96,6 +97,9 @@ pub fn run() -> ! {
             }
         }
         "buy" => {
+            if a.get("allow-principals").is_some() {
+                fail(USAGE, "--allow-principals is a seller option");
+            }
             let policy = if lightning {
                 BuyerPolicy::lightning()
             } else {

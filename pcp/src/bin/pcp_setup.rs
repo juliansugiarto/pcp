@@ -118,9 +118,13 @@ fn main() {
         .unwrap_or_else(|e| fail(USAGE, &e.to_string()));
         std::fs::create_dir_all(root.join(format!("{name}-inbox")))
             .unwrap_or_else(|e| fail(USAGE, &e.to_string()));
+        // The principal's public key is what a seller with a principal list
+        // (an invited window) needs; it is public. The private key stays in
+        // DIR/<role>-principal.key and is never sent.
         println!(
-            "{name}: agent {} node {node}",
-            hex::encode(agent_key.public_key())
+            "{name}: agent {} node {node} principal {}",
+            hex::encode(agent_key.public_key()),
+            hex::encode(principal.public_key())
         );
         principals.push((node.clone(), principal.public_key()));
     }

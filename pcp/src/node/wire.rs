@@ -19,6 +19,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::encoding::Hash32;
+use crate::mandate::PublicKey;
 use crate::proof::ProofBundle;
 use crate::protocol::{Accept, InvoiceBinding, Offer, Request};
 
@@ -80,6 +81,40 @@ pub trait Wire {
     fn ack(&self, name: &str) -> Result<(), StoreError>;
     /// What the seller publishes about itself (`GET /pcp/v0/info` on HTTP).
     fn set_info(&self, _info: serde_json::Value) {}
+    /// The seller's principal list (`None`: everyone). A transport that
+    /// queues (HTTP) refuses a request from anyone else before queueing it,
+    /// so strangers cannot fill the queue while the loop is proving.
+    fn set_principals(&self, _principals: Option<Vec<Hash32>>) {}
+    /// Offers the seller has issued, with the buyer mandate each was
+    /// issued under. A queueing transport refuses, before queueing, an
+    /// Accept for any other offer or not signed by that mandate's agent.
+    fn know_offers(&self, _offers: &[KnownOffer]) {}
+    /// Messages a queueing transport refused before the loop saw them.
+    fn refused_before_queue(&self) -> u64 {
+        0
+    }
+}
+
+/// An issued offer as the transport's gate needs it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct KnownOffer {
+    pub offer_id: Hash32,
+    /// `mandate_id` of the buyer mandate the request came with.
+    pub mandate_id: Hash32,
+    pub agent_key: PublicKey,
+}
+
+impl KnownOffer {
+    /// From an issued offer (None if its request had no mandate, which a
+    /// seller never issues an offer for).
+    pub fn of(o: &crate::protocol::IssuedOffer) -> Option<KnownOffer> {
+        let m = o.request.mandate.as_ref()?;
+        Some(KnownOffer {
+            offer_id: o.offer.offer_id(),
+            mandate_id: m.mandate_id(),
+            agent_key: m.agent_key,
+        })
+    }
 }
 
 impl Wire for DirTransport {

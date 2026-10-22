@@ -33,9 +33,15 @@
 # to the default set with WIRE=https): a buyer without the CA must never
 # reach the seller.
 #
+# Principal list: with ALLOW=buyer the seller serves only the buyer's
+# principal (--allow-principals, read from pcp-setup's output), as an
+# invited window does. Case unlisted-principal (any ALLOW): the list names
+# someone else, so the request is refused and nothing is proven.
+#
 # CASE names: clean, repeat-accept, tampered-accept, buyer-gone,
 # buyer-node-down (LND only, needs BUYER_NODE_STOP and BUYER_NODE_START
-# commands), wrong-backend (not in the default set; see the case), and
+# commands), unlisted-principal, wrong-backend (not in the default set;
+# see the case), and
 # every crash point (seller:offer:pre ...). Default: all but wrong-backend.
 # Prints one line per case and writes OUT/summary.txt. Exit 0 only if every
 # case passed. Needs bash, timeout and python3.
@@ -47,6 +53,7 @@ command -v python3 >/dev/null || { echo "crash-matrix.sh needs python3"; exit 2;
 BIN=${BIN:-$(cd "$(dirname "$0")/.." && pwd)/target/debug}
 RAIL=${RAIL:-sim}
 WIRE=${WIRE:-dir}
+ALLOW=${ALLOW:-}
 PORT_BASE=${PORT_BASE:-18700}
 case_no=0
 TIMEOUT=${TIMEOUT:-120}
@@ -70,7 +77,7 @@ buyer:settle:post"
 # buyer-node-down restarts the buyer's node, so it runs last.
 LAST=""
 [ "$RAIL" = lnd ] && [ -n "${BUYER_NODE_STOP:-}" ] && LAST=buyer-node-down
-CASES=${*:-clean repeat-accept tampered-accept buyer-gone $POINTS $LAST}
+CASES=${*:-clean repeat-accept tampered-accept buyer-gone unlisted-principal $POINTS $LAST}
 [ "$WIRE" = https ] && [ $# -eq 0 ] && CASES="$CASES https-untrusted"
 
 # WIRE=https: one CA and one server certificate (localhost, 127.0.0.1).
@@ -218,11 +225,32 @@ run_case() {
       extra=(--offer-wait-secs 15); buyer_exit=11
       expect_state=Aborted; expect_settled=0; expect_proofs=0
       expect_reason=no_answer; brefusals=(--expect-refusals 1) ;;
+    # The seller serves only a principal that is not the buyer's.
+    unlisted-principal)
+      buyer_exit=11; expect_state=Aborted; expect_settled=0; expect_proofs=0
+      expect_reason=refused_by_counterparty.principal_not_allowed
+      brefusals=(--expect-refusals 1); srefusals=(--min-refusals 1) ;;
     seller:*) sp=$name ;;
     buyer:*) bp=$name ;;
   esac
+  # Over HTTP these are refused before the seller's queue (SPEC 5.5), so
+  # the seller's principal log has no entry for them.
+  case "$WIRE:$name" in
+    http*:unlisted-principal | http*:tampered-accept) srefusals=(--expect-refusals 0) ;;
+  esac
   local allow=()
   [ "$RAIL" = sim ] && allow=(--allow-sim)
+  if [ "$name" = unlisted-principal ]; then
+    printf '# not the buyer\n%s\n' "$(python3 -c 'import os; print(os.urandom(32).hex())')" >"$dir/allowed.txt"
+    sextra+=(--allow-principals "$dir/allowed.txt")
+  elif [ "$ALLOW" = buyer ]; then
+    grep '^buyer:' "$dir/setup.txt" | sed 's/.* principal //' >"$dir/allowed.txt"
+    if [ "$(grep -cE '^[0-9a-f]{64}$' "$dir/allowed.txt")" != 1 ]; then
+      printf '%-22s FAIL  no buyer principal in setup.txt\n' "$name" | tee -a "$OUT/summary.txt"
+      return 1
+    fi
+    sextra+=(--allow-principals "$dir/allowed.txt")
+  fi
   local swire=(--inbox "$dir/seller-inbox" --peer-inbox "$dir/buyer-inbox")
   local bwire=(--inbox "$dir/buyer-inbox" --peer-inbox "$dir/seller-inbox")
   if [ "$WIRE" = http ]; then

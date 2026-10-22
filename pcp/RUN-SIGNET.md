@@ -68,7 +68,15 @@ PCP_BUYER_LND_MACAROON=$PCP_LND_MACAROON \
   ./pcp/target/release/pcp-setup --root pcp-run --buyer-node from-env:PCP_BUYER_LND_ --buyer-only
 ```
 
-This makes you a principal key (`pcp-run/buyer-principal.key`, kept outside the agent's directory), an agent key and a mandate: at most 10,000 sat per deal and 50,000 sat in total, for a week. The agent cannot spend beyond it.
+This makes you a principal key (`pcp-run/buyer-principal.key`, kept outside the agent's directory), an agent key and a mandate: at most 10,000 sat per deal and 50,000 sat in total, for a week (`--valid-secs` sets another length). The agent cannot spend beyond it. Make it within a week of the window, or the mandate expires before you buy.
+
+**Windows are by invitation.** The seller serves only principals it has been told about; anyone else is refused before any work (`principal_not_allowed`). To be invited, send the window's operator your principal's public key: the 64 hex characters after `principal` on the `buyer:` line `pcp-setup` printed, or
+
+```bash
+jq -r .principal_key pcp-run/buyer/mandate.json
+```
+
+This key is public; it names who answers for the purchases. Never send `buyer-principal.key`, the file that holds its secret.
 
 ## 7. Buy
 
@@ -104,6 +112,7 @@ The window closes its channels when it ends. If it could not close yours coopera
 |---|---|
 | `202` or `HTTP 503 (will ask again)` | The seller is proving or busy. Normal; the buyer keeps asking |
 | `offer refused: backend_not_accepted` | The offer names another guest than your pinned id. Do not pass `--image-id` from the offer |
+| `refused_by_counterparty.principal_not_allowed` | Your principal is not invited to this window, or you made a new agent with a new principal. Send the key from section 6 |
 | `refused_by_counterparty.seller_busy` | Another buyer is being served. Try again in a few minutes |
 | `price_too_high` | The price is above `--max-price-msat` |
 | `certificate verify failed` | The URL is wrong or not the window's. Use the URL from `WINDOW.md` exactly |

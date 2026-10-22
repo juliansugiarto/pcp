@@ -176,6 +176,9 @@ jobs:
             done
           done
           grep -h "prove-row\|proof verified" twoproc*/*/*.log | tee out/two-process-costs.txt || true
+          # M6, minimum: the real RISC Zero receipts the buyers received before
+          # paying must not contain k, the derived key or R (pcp/tools/leakcheck.py).
+          python3 pcp/tools/leakcheck.py twoproc*/*/buyer/state.json 2>&1 | tee out/leakcheck.txt || rc=1
           exit $rc
       - name: Dump node state
         if: always()

@@ -422,6 +422,9 @@ pub enum PcpError {
     /// Seller-side: too many open offers (in total, or for this principal)
     /// to quote another now. Nothing was proven or reserved; ask later.
     SellerBusy,
+    /// Seller-side: this seller serves only listed principals (an invited
+    /// window), and the request's principal is not on the list.
+    PrincipalNotAllowed,
 }
 
 impl PcpError {
@@ -475,6 +478,7 @@ impl PcpError {
             PcpError::Recorded(code) => return code.clone(),
             PcpError::NoAnswer => "no_answer",
             PcpError::SellerBusy => "seller_busy",
+            PcpError::PrincipalNotAllowed => "principal_not_allowed",
         };
         s.to_string()
     }
@@ -1609,6 +1613,11 @@ pub struct SellerConfig {
     /// Most refusals of requests and accepts logged per minute. More are
     /// counted, not logged, so a flood of bad requests cannot grow the log.
     pub refusals_logged_per_minute: u32,
+    /// Serve only these principals (public keys), checked before anything
+    /// else in a request: the defence for an invited window (SPEC 2.1, T2).
+    /// `None` serves everyone. Offers issued before a restart with another
+    /// list stay acceptable until they expire.
+    pub allowed_principals: Option<Vec<Hash32>>,
 }
 
 impl SellerConfig {
@@ -1646,6 +1655,7 @@ impl Default for SellerConfig {
             max_open_per_principal: 1,
             max_unproven: 1,
             refusals_logged_per_minute: 10,
+            allowed_principals: None,
         }
     }
 }
@@ -2050,6 +2060,18 @@ impl Seller {
         let price = self.cfg.price_msat;
         if req.version != VERSION {
             return Err(PcpError::Version);
+        }
+        // Before any other work: a 32-byte comparison. A listed key still
+        // goes through the full mandate check below; with a list, a request
+        // without a mandate names no listed principal and is refused here.
+        if let Some(list) = &self.cfg.allowed_principals {
+            if !req
+                .mandate
+                .as_ref()
+                .is_some_and(|m| list.contains(&m.principal_key))
+            {
+                return Err(PcpError::PrincipalNotAllowed);
+            }
         }
         if req.job_id != self.job.job_id() || req.spec_hash != spec {
             return Err(PcpError::JobMismatch);

@@ -81,3 +81,32 @@ fn f3_reaches_the_state_it_guards() {
     );
     assert!(changed > 500, "only {changed} inputs changed a bound field");
 }
+
+/// Writes the differential corpus when PCP_CORPUS_OUT names a file
+/// (JSON lines), for the independent verifier in pcp/tools/independent/.
+#[test]
+fn write_differential_corpus() {
+    // Also a check that the boundary corpus builds and covers both verdicts.
+    let b = pcp_fuzz::boundary_cases();
+    assert!(b.iter().any(|c| c["verdict"]["stage"] == "accepted"));
+    assert!(b.iter().any(|c| c["verdict"]["stage"] != "accepted"));
+    let Ok(path) = std::env::var("PCP_CORPUS_OUT") else {
+        return;
+    };
+    let mut out = String::new();
+    let mut n = 0;
+    for x in inputs(4000, 99) {
+        if let Some(c) = pcp_fuzz::differential_case(&x) {
+            out.push_str(&serde_json::to_string(&c).unwrap());
+            out.push('\n');
+            n += 1;
+        }
+    }
+    for c in pcp_fuzz::boundary_cases() {
+        out.push_str(&serde_json::to_string(&c).unwrap());
+        out.push('\n');
+        n += 1;
+    }
+    std::fs::write(&path, out).unwrap();
+    eprintln!("{n} cases written to {path}");
+}

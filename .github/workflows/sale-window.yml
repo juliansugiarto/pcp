@@ -35,6 +35,10 @@ on:
         description: "Sales before the seller stops"
         type: number
         default: 3
+      principals:
+        description: "Invited principals: public keys (64 hex characters each), separated by spaces or commas. Required unless dry run."
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -54,6 +58,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Window parameters
         id: p
+        env:
+          PRINCIPALS: ${{ inputs.principals }}
         run: |
           mkdir -p out
           m=${{ inputs.minutes }}; [ "${{ inputs.dry_run }}" = true ] && m=10
@@ -63,7 +69,17 @@ jobs:
           [ "${{ inputs.sales }}" -ge 1 ] || { echo "sales must be at least 1"; exit 1; }
           price=${{ inputs.price_sat }}
           [ "$price" -ge 1 ] && [ "$price" -le 10000 ] || { echo "price_sat must be 1 to 10000 (the seller mandate's per-deal limit)"; exit 1; }
-          { echo "minutes=$m"; echo "price_sat=$price"; echo "sales=${{ inputs.sales }}"; echo "dry_run=${{ inputs.dry_run }}"; } | tee -a "$GITHUB_OUTPUT" out/parameters.txt
+          # Invited principals only (design note 19). The keys are public, but
+          # never echoed or published here; only the count is.
+          printf '%s\n' "$PRINCIPALS" | tr -s ' \t\r,' '\n' | tr 'A-F' 'a-f' | sed '/^$/d' > tokens.txt
+          bad=$(grep -cvE '^[0-9a-f]{64}$' tokens.txt || true)
+          [ "$bad" = 0 ] || { echo "$bad principal(s) are not 64 hex characters; nothing started"; exit 1; }
+          sort -u tokens.txt > allowed.txt; rm tokens.txt
+          n=$(wc -l < allowed.txt)
+          if [ "${{ inputs.dry_run }}" != true ] && [ "$n" -lt 1 ]; then
+            echo "a window needs at least one invited principal (64 hex characters)"; exit 1
+          fi
+          { echo "minutes=$m"; echo "price_sat=$price"; echo "sales=${{ inputs.sales }}"; echo "dry_run=${{ inputs.dry_run }}"; echo "invited=$n"; } | tee -a "$GITHUB_OUTPUT" out/parameters.txt
           { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; nproc; free -m; } | tee out/machine.txt
       - name: Install RISC Zero toolchain
         env:
@@ -147,7 +163,8 @@ jobs:
           nohup ./pcp-risc0/target/release/pcp-risc0 --role sell --state win/seller \
             --listen 127.0.0.1:8650 --rail lnd --job sudoku9 \
             --price-msat $(( ${{ steps.p.outputs.price_sat }} * 1000 )) --sales ${{ steps.p.outputs.sales }} \
-            --quiet-exit-secs "$secs" --deadline-secs $((secs + 600)) > out/seller.log 2>&1 &
+            --quiet-exit-secs "$secs" --deadline-secs $((secs + 600)) \
+            --allow-principals allowed.txt > out/seller.log 2>&1 &
           echo $! > seller.pid
           # HTTPS: Cloudflare quick tunnel (no account; the hostname changes every run).
           # Pinned versions (the ones window-probe ran); the hash is recorded.
@@ -199,6 +216,7 @@ jobs:
             echo "| Software | commit \`$GITHUB_SHA\` |"
             echo
             echo "A short test of this software on signet. Signet coins have no value."
+            echo "Invited principals only (${{ steps.p.outputs.invited }}); other requests are refused before any work."
             echo
             echo "Open a direct channel of at least 20,000 sat to the node, then follow pcp/RUN-SIGNET.md."
             echo "Cloudflare terminates TLS and sees the request, the offer and the encrypted result, never the key."

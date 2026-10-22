@@ -38,6 +38,17 @@ const NOW: u64 = 1_000;
 const PRICE: u64 = 1_500_000;
 
 fn agent(seed: u64, role: Role, node: &str, scope: Vec<[u8; 32]>) -> Agent {
+    agent_with(seed, role, node, scope, 2_000_000, 10_000_000)
+}
+
+fn agent_with(
+    seed: u64,
+    role: Role,
+    node: &str,
+    scope: Vec<[u8; 32]>,
+    per_deal_max_msat: u64,
+    cap_msat: u64,
+) -> Agent {
     let mut rng = StdRng::seed_from_u64(seed);
     let principal = SecretKey::generate(&mut rng);
     let key = SecretKey::generate(&mut rng);
@@ -47,8 +58,8 @@ fn agent(seed: u64, role: Role, node: &str, scope: Vec<[u8; 32]>) -> Agent {
         MandateTerms {
             role,
             scope,
-            cap_msat: 10_000_000,
-            per_deal_max_msat: 2_000_000,
+            cap_msat,
+            per_deal_max_msat,
             payout_node: node.to_string(),
             expires_at: 86_400,
         },
@@ -498,4 +509,193 @@ pub fn f6_restore(data: &[u8]) {
 pub fn f7_lnd(data: &[u8]) {
     let text = String::from_utf8_lossy(data);
     pcp::rail::lnd::fuzzing::parse_all(&text, &[7u8; 32]);
+}
+
+// ---------------------------------------------------------------------------
+// Differential corpus for an independent verifier (written from the SPEC,
+// not from this code): the buyer's inputs and this implementation's verdict.
+
+/// One case: the messages a buyer receives (one field possibly changed),
+/// what the buyer knows, and where this implementation stopped and why.
+pub fn differential_case(data: &[u8]) -> Option<Value> {
+    let h = honest();
+    let mut b = Bytes(data);
+    let target = b.u8() % 4;
+    let (mut o, mut bu, mut bi) = (h.offer.clone(), h.bundle.clone(), h.binding.clone());
+    let mut changed_path = Vec::new();
+    if target < 3 {
+        let slot = match target {
+            0 => &mut o,
+            1 => &mut bu,
+            _ => &mut bi,
+        };
+        let (m, path) = mutate(slot, &mut b);
+        *slot = m;
+        changed_path = path;
+    }
+    let offer: Offer = serde_json::from_value(o.clone()).ok()?;
+    let bundle: ProofBundle = serde_json::from_value(bu.clone()).ok()?;
+    let binding: InvoiceBinding = serde_json::from_value(bi.clone()).ok()?;
+    let (mut buyer, _) = buyer();
+    let p = policy();
+    let verdict = match buyer.accept_offer(&offer, NOW) {
+        Err(e) => serde_json::json!({ "stage": "offer", "code": e.code() }),
+        Ok(()) => match buyer.verify_bundle(&bundle) {
+            Err(e) => serde_json::json!({ "stage": "bundle", "code": e.code() }),
+            Ok(()) => match buyer.check_invoice(&binding, NOW) {
+                Err(e) => serde_json::json!({ "stage": "invoice", "code": e.code() }),
+                Ok(()) => serde_json::json!({ "stage": "accepted", "code": null }),
+            },
+        },
+    };
+    Some(serde_json::json!({
+        "changed": changed_path,
+        "request": h.request,
+        "offer": o,
+        "bundle": bu,
+        "binding": bi,
+        "now": NOW,
+        "buyer": {
+            "max_price_msat": 2_000_000u64,
+            "accepted_backend_id": "INSECURE-dev-transparent/0",
+            "allow_insecure_dev_backend": p.allow_insecure_dev_backend,
+            "htlc_secs": p.htlc_secs,
+            "min_invoice_remaining_secs": p.min_invoice_remaining_secs,
+            "max_deal_msat": p.max_deal_msat,
+            "rail": p.rail,
+            "payout_node": "alice-node",
+        },
+        "verdict": verdict,
+    }))
+}
+
+// ---------------------------------------------------------------------------
+// Boundary corpus for the independent checker (pcp/tools/independent): the
+// honest offer, bundle and binding, judged by buyers whose limits sit at,
+// just below and just above what the deal needs, at times around each
+// deadline. Single-field mutations (differential_case) never reach these.
+
+/// One buyer policy and clock, as the corpus records it.
+struct Edge {
+    now: u64,
+    max_price_msat: u64,
+    max_deal_msat: u64,
+    htlc_secs: u64,
+    min_invoice_remaining_secs: u64,
+    allow_insecure: bool,
+    own_per_deal_msat: u64,
+    own_cap_msat: u64,
+}
+
+fn judge(e: &Edge) -> Value {
+    let h = honest();
+    let offer: Offer = serde_json::from_value(h.offer.clone()).expect("offer");
+    let bundle: ProofBundle = serde_json::from_value(h.bundle.clone()).expect("bundle");
+    let binding: InvoiceBinding = serde_json::from_value(h.binding.clone()).expect("binding");
+    let a = agent_with(
+        1,
+        Role::Buyer,
+        "alice-node",
+        vec![job().spec_hash()],
+        e.own_per_deal_msat,
+        e.own_cap_msat,
+    );
+    let p = BuyerPolicy {
+        allow_insecure_dev_backend: e.allow_insecure,
+        htlc_secs: e.htlc_secs,
+        min_invoice_remaining_secs: e.min_invoice_remaining_secs,
+        max_deal_msat: e.max_deal_msat,
+        ..BuyerPolicy::default()
+    };
+    let mut rng = StdRng::seed_from_u64(11);
+    let (mut buyer, req) = Buyer::new(
+        &a,
+        Box::new(job()),
+        Box::new(InsecureDevTransparentBackend),
+        p.clone(),
+        puzzle(),
+        e.max_price_msat,
+        NOW,
+        &mut rng,
+    )
+    .expect("buyer");
+    let verdict = match buyer.accept_offer(&offer, e.now) {
+        Err(x) => serde_json::json!({ "stage": "offer", "code": x.code() }),
+        Ok(()) => match buyer.verify_bundle(&bundle) {
+            Err(x) => serde_json::json!({ "stage": "bundle", "code": x.code() }),
+            Ok(()) => match buyer.check_invoice(&binding, e.now) {
+                Err(x) => serde_json::json!({ "stage": "invoice", "code": x.code() }),
+                Ok(()) => serde_json::json!({ "stage": "accepted", "code": null }),
+            },
+        },
+    };
+    serde_json::json!({
+        "changed": ["boundary"],
+        "request": serde_json::to_value(&req).expect("request"),
+        "offer": h.offer,
+        "bundle": h.bundle,
+        "binding": h.binding,
+        "now": e.now,
+        "buyer": {
+            "max_price_msat": e.max_price_msat,
+            "accepted_backend_id": "INSECURE-dev-transparent/0",
+            "allow_insecure_dev_backend": p.allow_insecure_dev_backend,
+            "htlc_secs": p.htlc_secs,
+            "min_invoice_remaining_secs": p.min_invoice_remaining_secs,
+            "max_deal_msat": p.max_deal_msat,
+            "rail": p.rail,
+            "payout_node": "alice-node",
+        },
+        "verdict": verdict,
+    })
+}
+
+/// Every combination of limits at, below and above the deal, at times
+/// around the offer's and the invoice's deadlines.
+pub fn boundary_cases() -> Vec<Value> {
+    let h = honest();
+    let offer: Offer = serde_json::from_value(h.offer.clone()).expect("offer");
+    let binding: InvoiceBinding = serde_json::from_value(h.binding.clone()).expect("binding");
+    let inv = &binding.invoice;
+    let price = offer.price_msat;
+    let lock = inv.min_htlc_secs;
+    let remain = BuyerPolicy::default().min_invoice_remaining_secs;
+    // The last second the invoice still has `remain` left, and the offer's end.
+    let inv_edge = inv.expires_at().saturating_sub(remain);
+    let off_edge = offer.offer_expires_at;
+    let mut times = vec![NOW];
+    for t in [inv_edge, off_edge] {
+        times.extend([t.saturating_sub(1), t, t + 1]);
+    }
+    times.sort_unstable();
+    times.dedup();
+    let mut out = Vec::new();
+    for &now in &times {
+        for max_price_msat in [price, price - 1] {
+            for max_deal_msat in [price, price - 1] {
+                for htlc_secs in [lock, lock - 1] {
+                    for allow_insecure in [true, false] {
+                        for (own_per_deal_msat, own_cap_msat) in [
+                            (2_000_000, 10_000_000),
+                            (price, price),
+                            (price - 1, 10_000_000),
+                            (2_000_000, price - 1),
+                        ] {
+                            out.push(judge(&Edge {
+                                now,
+                                max_price_msat,
+                                max_deal_msat,
+                                htlc_secs,
+                                min_invoice_remaining_secs: remain,
+                                allow_insecure,
+                                own_per_deal_msat,
+                                own_cap_msat,
+                            }));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    out
 }

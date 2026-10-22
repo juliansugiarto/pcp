@@ -15,12 +15,14 @@ const USAGE: &str = "\
 pcp-sell --state DIR (--listen ADDR | --inbox DIR --peer-inbox DIR)
          --rail (sim:FILE:NODE|lnd) [--allow-public-bind] [--job sudoku9|sudoku4] [--price-msat N] [--sales N]
          [--quiet-exit-secs N] [--deadline-secs N] [--poll-ms N] [--allow-sim]
-         [--work-delay-ms N] [--invoice-expiry-secs N]
+         [--work-delay-ms N] [--invoice-expiry-secs N] [--allow-principals FILE]
 
 Proof backend: InsecureDevTransparentBackend (NO zero knowledge; tests only).
 Exit 0 when --sales sales are over and nothing is pending, or when nothing
 is pending and no message came for --quiet-exit-secs. --work-delay-ms (tests)
 makes each job take at least that long, so messages arrive during the work.
+--allow-principals FILE serves only the principals listed (one hex public key
+per line; pcp-setup prints them): the defence for an invited window.
 --listen serves the HTTP binding (feature http, SPEC 5.5) on a loopback
 address; put a TLS proxy in front. --allow-public-bind permits other addresses.";
 
@@ -38,6 +40,7 @@ fn main() {
         }
     };
     cfg.invoice_expiry_secs = a.num("invoice-expiry-secs", cfg.invoice_expiry_secs);
+    cfg.allowed_principals = cli::allowed_principals(&a, USAGE);
     let wire = cli::wire(&a, USAGE);
     println!("WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).");
     let make_job = job_factory(job);
