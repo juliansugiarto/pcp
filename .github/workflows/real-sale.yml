@@ -179,6 +179,17 @@ jobs:
           # M6, minimum: the real RISC Zero receipts the buyers received before
           # paying must not contain k, the derived key or R (pcp/tools/leakcheck.py).
           python3 pcp/tools/leakcheck.py twoproc*/*/buyer/state.json 2>&1 | tee out/leakcheck.txt || rc=1
+          # Seed for F8 (note 21): one real bundle as a seller sends it before
+          # payment (no k, no R; leakcheck above). Its own artifact, not out/.
+          mkdir -p seed
+          python3 - twoproc-verify/clean/buyer/state.json seed <<'PY' || true
+          import json, sys
+          d = json.load(open(sys.argv[1]))["state"]["state"]
+          assert d.get("state") == "delivered"
+          json.dump(d["bundle"], open(sys.argv[2] + "/bundle.json", "w"))
+          open(sys.argv[2] + "/receipt.bin", "wb").write(bytes.fromhex(d["bundle"]["proof"]))
+          PY
+          sha256sum seed/* 2>/dev/null | tee out/seed-sha256.txt || true
           exit $rc
       - name: Dump node state
         if: always()
@@ -188,6 +199,12 @@ jobs:
         run: |
           { echo "sale: ${{ steps.sale.outcome }}"; echo "two processes: ${{ steps.twoproc.outcome }}"; cat out/image-id.txt 2>/dev/null;
             grep -h -E "offer accepted|SETTLED|FAILED|cost-row|Elapsed|Maximum resident" out/sale-*.txt 2>/dev/null; } | tee out/summary.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: receipt-seed-${{ github.run_id }}
+          path: seed/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:

@@ -34,6 +34,11 @@ pub const PINNED_IMAGE_ID: &str =
 /// Largest receipt deserialised (a succinct receipt is about 224 KB).
 pub const MAX_RECEIPT_BYTES: usize = 512 * 1024;
 
+/// Depth of RISC Zero's tree of allowed recursion programs
+/// (`ALLOWED_CODE_MERKLE_DEPTH` in risc0-zkvm 3.0.6, not exported). Every
+/// honest inclusion proof has exactly this many digests.
+pub const CONTROL_TREE_DEPTH: usize = 8;
+
 /// `risc0_zkvm::Receipt` as it is serialised, with only the succinct inner
 /// receipt allowed. Deserialising `Receipt` itself would accept a
 /// composite receipt, which nests (`CompositeReceipt` holds assumption
@@ -72,7 +77,16 @@ pub fn decode_receipt(bytes: &[u8]) -> Result<Receipt, VerifyError> {
     }
     let w: WireReceipt = bincode::deserialize(bytes).map_err(|_| VerifyError::ProofMalformed)?;
     match w.inner {
-        SuccinctOnly::Succinct(s) => Ok(Receipt::new(InnerReceipt::Succinct(*s), w.journal.bytes)),
+        SuccinctOnly::Succinct(s) => {
+            // The verifier hashes one pair per digest (up to about 16 K in
+            // 512 KiB) and never reads index bits past the depth, so a
+            // longer path or a larger index is refused here (Fable, note 22).
+            let p = &s.control_inclusion_proof;
+            if p.digests.len() != CONTROL_TREE_DEPTH || p.index >= 1 << CONTROL_TREE_DEPTH {
+                return Err(VerifyError::ProofMalformed);
+            }
+            Ok(Receipt::new(InnerReceipt::Succinct(*s), w.journal.bytes))
+        }
         _ => Err(VerifyError::ProofMalformed),
     }
 }
