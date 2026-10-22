@@ -1,0 +1,38 @@
+out:
+total 224
+drwxr-xr-x  4 runner runner  4096 Oct 22 04:56 .
+drwxr-xr-x 13 runner runner  4096 Oct 22 04:53 ..
+-rw-r--r--  1 runner runner  2811 Oct 22 04:56 alice-state.txt
+-rw-r--r--  1 runner runner  2811 Oct 22 04:56 bob-state.txt
+-rw-r--r--  1 runner runner  7453 Oct 22 04:53 cargo-test-lnd.txt
+drwxr-xr-x 26 runner runner  4096 Oct 22 04:56 crash-matrix
+-rw-r--r--  1 runner runner  1622 Oct 22 04:56 crash-matrix-summary.txt
+-rw-r--r--  1 runner runner  4247 Oct 22 04:56 crash-matrix.txt
+-rw-r--r--  1 runner runner 49824 Oct 22 04:56 docker-alice.log
+-rw-r--r--  1 runner runner 63510 Oct 22 04:56 docker-bitcoind.log
+-rw-r--r--  1 runner runner 39012 Oct 22 04:56 docker-bob.log
+-rw-r--r--  1 runner runner     0 Oct 22 04:56 dump.txt
+-rw-r--r--  1 runner runner    80 Oct 22 04:52 images.txt
+-rw-r--r--  1 runner runner   506 Oct 22 04:53 lnd-regtest-tests.txt
+-rw-r--r--  1 runner runner  1047 Oct 22 04:53 lnd-sale.txt
+-rw-r--r--  1 runner runner   277 Oct 22 04:52 machine.txt
+-rw-r--r--  1 runner runner  1249 Oct 22 04:56 probe.txt
+drwxr-xr-x  2 runner runner  4096 Oct 22 04:56 rest
+-rw-r--r--  1 runner runner  1204 Oct 22 04:53 setup.txt
+
+out/rest:
+total 156
+drwxr-xr-x 2 runner runner  4096 Oct 22 04:56 .
+drwxr-xr-x 4 runner runner  4096 Oct 22 04:56 ..
+-rw-r--r-- 1 runner runner 42648 Oct 22 04:56 alice-v1-payments.json
+-rw-r--r-- 1 runner runner   700 Oct 22 04:56 alice-v1-payreq.json
+-rw-r--r-- 1 runner runner  1872 Oct 22 04:56 bob-v1-getinfo.json
+-rw-r--r-- 1 runner runner  1494 Oct 22 04:56 bob-v1-invoice-by-hash.json
+-rw-r--r-- 1 runner runner    70 Oct 22 04:56 bob-v1-invoice-unknown.txt
+-rw-r--r-- 1 runner runner 47262 Oct 22 04:56 bob-v1-invoices.json
+-rw-r--r-- 1 runner runner   359 Oct 22 04:56 probe-1-hodl.json
+-rw-r--r-- 1 runner runner  2310 Oct 22 04:56 probe-2-send-stream.jsonl
+-rw-r--r-- 1 runner runner  1434 Oct 22 04:56 probe-3-invoice-held.json
+-rw-r--r-- 1 runner runner  8202 Oct 22 04:56 probe-4-payments-inflight.json
+-rw-r--r-- 1 runner runner     2 Oct 22 04:56 probe-5-settle.json
+-rw-r--r-- 1 runner runner  8264 Oct 22 04:56 probe-6-payments-settled.json
