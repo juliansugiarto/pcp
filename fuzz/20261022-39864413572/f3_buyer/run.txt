@@ -1,0 +1,40 @@
+#1210415	NEW    cov: 4194 ft: 8811 corp: 1275/95Kb lim: 4096 exec/s: 1350 rss: 521Mb L: 649/3126 MS: 1 CopyPart-
+#1210621	REDUCE cov: 4194 ft: 8811 corp: 1275/95Kb lim: 4096 exec/s: 1351 rss: 521Mb L: 75/3126 MS: 1 EraseBytes-
+#1210834	NEW    cov: 4194 ft: 8812 corp: 1276/95Kb lim: 4096 exec/s: 1351 rss: 521Mb L: 46/3126 MS: 3 CMP-PersAutoDict-CopyPart- DE: "\377\020\000\000"-"4\000\000\000"-
+#1210925	REDUCE cov: 4194 ft: 8812 corp: 1276/95Kb lim: 4096 exec/s: 1349 rss: 521Mb L: 68/3126 MS: 1 EraseBytes-
+#1212226	REDUCE cov: 4194 ft: 8812 corp: 1276/95Kb lim: 4096 exec/s: 1349 rss: 521Mb L: 37/3126 MS: 1 EraseBytes-
+#1214062	REDUCE cov: 4194 ft: 8812 corp: 1276/95Kb lim: 4096 exec/s: 1350 rss: 521Mb L: 193/3126 MS: 1 EraseBytes-
+#1216327	DONE   cov: 4194 ft: 8812 corp: 1276/95Kb lim: 4096 exec/s: 1349 rss: 521Mb
+###### Recommended dictionary. ######
+"4\000\000\000" # Uses: 9913
+"\377\377\377\377" # Uses: 8690
+"\006\377\377\377\377\377\377\377" # Uses: 6256
+"\026\000\000\000\000\000\000\000" # Uses: 5759
+"\376\377\377\377" # Uses: 5926
+"\001\000\000f" # Uses: 5207
+"\000\000\0002" # Uses: 5019
+"\377\377\377\377\377\377\377O" # Uses: 4496
+"\037\000\000\000\000\000\000\000" # Uses: 4668
+"\377\377\377\377\377\377\377\377" # Uses: 4352
+"\001\000\000e" # Uses: 4570
+"spec_hash" # Uses: 3827
+"\000\000\000\000" # Uses: 4255
+"mandate" # Uses: 3989
+"input_comm" # Uses: 3683
+"\001\021\000\000" # Uses: 3339
+"\000\006\244\262\222\342\245\007" # Uses: 3144
+"principal_key" # Uses: 2600
+"ciphertex" # Uses: 2307
+"seller" # Uses: 1949
+"\001\000\000\000\000\000\000\000" # Uses: 1814
+"backend_id" # Uses: 1620
+"\033\000\000\000\000\000\000\000" # Uses: 1508
+"version" # Uses: 1317
+"stateme" # Uses: 1161
+"\377\377\377\377\377\377\377\037" # Uses: 858
+"payment_has" # Uses: 553
+"\377?\000\000\000\000\000\000" # Uses: 561
+"\005\000\000\000\000\000\000\000" # Uses: 490
+"\377\020\000\000" # Uses: 23
+###### End of recommended dictionary. ######
+Done 1216327 runs in 901 second(s)
