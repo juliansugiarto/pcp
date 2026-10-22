@@ -207,10 +207,18 @@ jobs:
           # ...and a Lightning connection through bore from another node.
           docker run -d --name probe --entrypoint lnd "$LND_IMAGE" --bitcoin.signet --bitcoin.node=neutrino \
             --noseedbackup --norest --listen=0.0.0.0:9736 >/dev/null
-          for i in $(seq 60); do docker exec probe lncli --network=signet getinfo >/dev/null 2>&1 && break; sleep 5; done
+          # LND refuses `connect` until its server has started, which waits
+          # for the chain sync (dry run of 22 October: "server is still in
+          # the process of starting").
+          for i in $(seq 90); do
+            [ "$(docker exec probe lncli --network=signet getinfo 2>/dev/null | jq -r .synced_to_chain)" = true ] && break
+            sleep 5
+          done
           probe=$(docker exec probe lncli --network=signet getinfo | jq -r .identity_pubkey)
           for i in 1 2 3 4 5 6; do
-            docker exec probe lncli --network=signet connect "${{ steps.open.outputs.pubkey }}@bore.pub:${{ steps.open.outputs.port }}" 2>&1 | tee -a out/selfcheck.txt && break
+            if docker exec probe lncli --network=signet connect "${{ steps.open.outputs.pubkey }}@bore.pub:${{ steps.open.outputs.port }}" >> out/selfcheck.txt 2>&1; then
+              echo "connect: ok (attempt $i)" | tee -a out/selfcheck.txt; break
+            fi
             sleep 20
           done
           sleep 5
