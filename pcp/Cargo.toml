@@ -14,6 +14,27 @@ name = "demo"
 path = "src/bin/demo.rs"
 required-features = ["std"]
 
+# Two-process PCP (S1): see src/node/.
+[[bin]]
+name = "pcp-setup"
+path = "src/bin/pcp_setup.rs"
+required-features = ["std"]
+
+[[bin]]
+name = "pcp-sell"
+path = "src/bin/pcp_sell.rs"
+required-features = ["std"]
+
+[[bin]]
+name = "pcp-buy"
+path = "src/bin/pcp_buy.rs"
+required-features = ["std"]
+
+[[bin]]
+name = "pcp-audit"
+path = "src/bin/pcp_audit.rs"
+required-features = ["std"]
+
 [[bin]]
 name = "lnd_sale"
 path = "src/bin/lnd_sale.rs"

@@ -14,6 +14,7 @@
 //! | `pay_invoice` | `GET /v1/payreq/{bolt11}` (the payer's own node decodes), then `POST /v2/router/send` (SendPaymentV2, streaming; returns once an HTLC attempt is `IN_FLIGHT`) |
 //! | `settle_invoice` | `POST /v2/invoices/settle` (SettleInvoice) |
 //! | `lookup_invoice` | `GET /v1/invoice/{hash_hex}` (LookupInvoice) and `GET /v1/getinfo` for the block height |
+//! | `find_invoice` | `GET /v1/invoice/{hash_hex}`, then `GET /v1/payreq/{bolt11}` on its `payment_request` |
 //! | `lookup_payment` | `GET /v1/payments?include_incomplete=true` (ListPayments) |
 //!
 //! Why hold invoices: an ordinary LND invoice is created with its preimage
@@ -372,6 +373,20 @@ impl Rail for LndRail {
             self.now(),
             self.cfg.secs_per_block,
         ))
+    }
+
+    fn find_invoice(&mut self, payment_hash: &Hash32) -> Result<Option<Invoice>, RailError> {
+        let Some(v) = self.get_opt(&format!("/v1/invoice/{}", hex::encode(payment_hash)))? else {
+            return Ok(None);
+        };
+        let bolt11 = v["payment_request"]
+            .as_str()
+            .ok_or_else(|| RailError::Node("invoice: no payment_request".into()))?;
+        let inv = self.decode(bolt11)?;
+        if inv.payment_hash != *payment_hash || inv.payee != self.node_id {
+            return Err(RailError::InvoiceMismatch("payment_hash"));
+        }
+        Ok(Some(inv))
     }
 
     fn lookup_payment(

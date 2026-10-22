@@ -173,6 +173,9 @@ pub fn run_sale(
                     SaleOutcome::Withheld { reason, .. } => {
                         log(&format!("7 seller withholds k: {}", reason.code()))
                     }
+                    SaleOutcome::Cancelled { reason, .. } => {
+                        log(&format!("7 seller cancelled the sale: {}", reason.code()))
+                    }
                     SaleOutcome::NotPaid { .. } => {}
                 }
             }

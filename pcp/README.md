@@ -57,13 +57,15 @@ An imitation version with stablecoins can be built, but that version always carr
 - The `Rail` trait (`src/rail.rs`): create invoice, pay, settle with preimage, look up status. The simulated ledger implements it, and the buyer and seller state machines talk only through this trait.
 - The LND rail (`src/rail/lnd.rs`, feature `lnd`, off by default): hold invoices through the LND REST API. Run against real LND v0.19.3 and v0.21.4 nodes on regtest by the `lnd-regtest` CI workflow: a full sale settles, and `tests/lnd_regtest.rs` (ignored by default) checks a reused hash, a presented invoice with other terms, and a cancelled hold invoice.
 - `src/sale.rs`: one sale from start to finish on any backend and rail, with timing measurements for the cost table.
-- A demo with four principals and four agents, and 66 tests (73 with `--features lnd`, plus 4 real-node tests that run against LND regtest in CI).
+- Buyer and seller as two processes (`src/node/`, binaries `pcp-sell`, `pcp-buy`, `pcp-audit`): each has its own state directory, saves its state after every step, and resumes after a restart. They talk over a directory of JSON messages. The seller proves only after the buyer's signed Accept (SPEC 5.1a). `tools/crash-matrix.sh` kills each side at 19 named points (before and after each save), restarts it, and checks both state directories with `pcp-audit`; the `two-process` and `lnd-regtest` CI workflows run it on the simulated network and on two real LND nodes.
+- A demo with four principals and four agents, and 85 tests (92 with `--features lnd`, plus 4 real-node tests that run against LND regtest in CI).
 
 ## What v0 does not do yet
 
 - **Zero knowledge runs outside this crate.** The RISC Zero backend is in [`../pcp-risc0/`](../pcp-risc0/), outside this crate's build. It was first run in CI on 21 October 2026. Proving a 9x9 sudoku with the reproducible (Docker-built) guest, the one a buyer can check, takes 62 to 102 s on a 4-vCPU CI runner (runner speed varies) and about 1.4 GiB of memory; the receipt is 224 KB and verifies in about 0.02 s (see `../pcp-risc0/COSTS.md`). Inside this crate's own tests, the only backend, `InsecureDevTransparentBackend`, puts the witness (result and key) inside a seal whose key is written in the source code. Its verification still checks the full relation, so the protocol flow is tested. But anyone who reads the code can open that seal and get the result without paying. The buyer refuses this backend unless it is explicitly allowed for testing.
 - **Real Lightning only on regtest.** The LND rail has settled sales between two real regtest nodes in CI, including a sale with a real RISC Zero proof (21 October 2026, see `../pcp-risc0/COSTS.md`). It has never run on signet or mainnet.
 - There is no "data matches schema" job class yet, although its shape is the same as the two existing classes.
+- **Two processes, but only over a shared directory.** `pcp-sell` and `pcp-buy` exchange messages as files; there is no network transport (HTTP) yet, and one state directory holds one purchase. Timelocks are still expressed in seconds, not blocks, and a sale has not yet been routed through an intermediate Lightning node.
 
 ## Running
 
@@ -77,6 +79,7 @@ cargo run --bin demo
 cargo test --features lnd                  # LND rail, no network
 cargo build --no-default-features          # statement core only, no_std (what the zkVM guest uses)
 python3 tools/vectors.py                   # SPEC Appendix A vectors 1 to 17 in Python (needs `cryptography`)
+tools/crash-matrix.sh /tmp/matrix          # two processes, killed and restarted at every point (simulated network)
 ```
 
 With RISC Zero proofs and two regtest LND nodes: see [`RUN.md`](RUN.md).

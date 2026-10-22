@@ -102,6 +102,7 @@ The single exception is the payment hash `H = SHA256(k)`, which is plain SHA-256
 | `request_id` | `tagged_hash("request", [version, job_id, spec_hash, input_commitment, buyer_nonce, u64(max_price_msat), u64(mandate_spent_msat)])` |
 | `request_auth` | `tagged_hash("request-auth", [request_id, mandate_id])`, signed by the buyer agent |
 | `offer_auth` | `tagged_hash("offer-auth", [offer_id, mandate_id])`, signed by the seller agent |
+| `accept_auth` | `tagged_hash("accept-auth", [offer_id, mandate_id])`, signed by the buyer agent |
 | `receipt_id` | `tagged_hash("receipt", [version, role, mandate_id, principal_key, counterparty_mandate_id, counterparty_principal_key, agent_key, offer_id, statement_hash, bundle_id, payment_hash, preimage, u64(amount_msat), u64(settled_at)])` |
 | `refusal_id` | `tagged_hash("refusal", [version, role, mandate_id, agent_key, subject_id, counterparty_agent_key or empty, reason, detail, u64(at)])` |
 
@@ -161,6 +162,16 @@ All messages carry `"version": "PCP/0"`.
 | `agent_sig` | 64 bytes | `Ed25519(agent_sk, offer_auth)`. Required by default |
 
 `offer_id` (section 3.2) commits to every terms field; `mandate` and `agent_sig` are bound to it by `offer_auth`.
+
+### 5.1a Accept (buyer to seller)
+
+| Field | Type | Meaning |
+|---|---|---|
+| `offer_id` | hash | The offer the buyer accepts |
+| `mandate` | object | The buyer agent's mandate: the same one it sent with the request. Required |
+| `agent_sig` | 64 bytes | `Ed25519(agent_sk, accept_auth)`. Required |
+
+The seller proves only after a valid Accept (S1o). The buyer does not echo the offer: the seller keeps the offers it issued and looks the `offer_id` up. A changed term changes `offer_id`, so a tampered offer is simply an offer the seller never issued (`offer_not_issued`). The signature ties the proving cost to the agent that sent the request: anyone who saw the offer, but does not hold that agent's key, cannot make the seller prove. A repeated Accept is not an error: the seller answers it with the bundle and invoice it already made, or nothing while it is still working, and never proves twice.
 
 ### 5.2 Proof bundle (seller to buyer)
 
@@ -333,6 +344,7 @@ The buyer performs these steps in this order. A failure at any step aborts the p
 | R0 | Before sending the request: the job class is registered (6.4); own mandate is valid, a `buyer` mandate, unexpired, covers the class, has cap left | `JobClassNotRegistered`, `OwnMandate(…)` |
 | O1 | Offer: version, `job_id`/`spec_hash` as requested, `input_commitment` of own input, `buyer_nonce` is own, `price_msat <= max`, `price_msat <=` the policy's per-deal value ceiling (default 10 000 sat: PCP/0 is for small, capped, repeatable jobs), not expired, backend is one the buyer runs and (unless testing) secure, `enc_scheme`, `rail` | `JobMismatch`, `InputCommitmentMismatch`, `ReplayedOrMisdirected`, `PriceTooHigh`, `DealAboveCeiling`, `OfferExpired`, `BackendNotAccepted`, `InsecureBackendRefused`, … |
 | O2 | **Mandates**: the seller's mandate and `agent_sig` (section 2.1), `seller_node = payout_node`, price within the seller's per-deal maximum; then own mandate: unexpired, price within own per-deal maximum and remaining cap | `CounterpartyMandate(…)`, `OwnMandate(…)` |
+| A1 | Send the signed Accept (5.1a). Resend it, unchanged, until the bundle arrives or the offer expires | `OfferExpired` (gives up at `offer_expires_at`) |
 | V1 | Bundle: version, `backend_id`, `statement.buyer_nonce` is own | `ReplayedOrMisdirected` |
 | V2 | `statement.offer_id = offer_id` of the accepted offer; `job_id`, `spec_hash`, `input_commitment` as expected | `OfferMismatch`, `JobMismatch`, `InputCommitmentMismatch` |
 | V3 | `tagged_hash("ciphertext", [C]) = statement.ciphertext_hash` | `CiphertextHashMismatch` |
@@ -341,7 +353,7 @@ The buyer performs these steps in this order. A failure at any step aborts the p
 | V6 | **`invoice.payment_hash = H`** (the proven `statement.payment_hash`) | `InvoiceHashMismatch` |
 | V7 | `invoice.amount_msat = price_msat`; `invoice.payee = seller_node = payout_node` of the seller mandate; `invoice.description_hash = statement_hash` | `InvoiceAmountMismatch`, `InvoicePayeeMismatch`, `InvoiceDescriptionMismatch` |
 | V8 | **Expiry**: at least `min_invoice_remaining_secs` left; `min_htlc_secs <= htlc_secs` (buyer's maximum lock) | `InvoiceExpiresTooSoon`, `HtlcLockTooLong` |
-| P1 | **Pay**: reserve the price against the mandate's cap (refused if expired or over cap), then HTLC to `H` from the principal's node, locked for `htlc_secs` | `OwnMandate(…)`; ledger error (reservation released, state unchanged) |
+| P1 | **Pay**: reserve the price against the mandate's cap (refused if expired or over cap) and record the state `Paying`, then HTLC to `H` from the principal's node, locked for `htlc_secs`. If the payment call fails, look the payment up at the node: in flight or settled means paid; known never to have left (or failed) releases the reservation; a lookup that fails keeps `Paying` and the reservation, and is retried. A buyer MUST NOT release a reservation while the payment may be out | `OwnMandate(…)`; rail error (state `Paying` or back to `InvoiceAccepted`) |
 | P2 | **Receive preimage** `k` when the HTLC settles; if it times out, funds return and the reservation is released | `Refunded` |
 | P3 | **`SHA256(k) = H`** | `PreimageMismatch` |
 | P4 | **Decrypt** `C` with `k` under `offer_id` | `DecryptionFailed` |
@@ -358,10 +370,10 @@ The seller, for its part:
 |---|---|
 | S1 | Check the request (`input_commitment` opens to `input`, job is one it serves and is registered, price within the buyer's maximum) |
 | S1m | **Mandates**: own mandate valid for `seller`, unexpired, covers the class, price within own per-deal maximum and cap; the buyer's mandate and `agent_sig` (section 2.1), price within its per-deal maximum and within `cap_msat - mandate_spent_msat`. Then quote an offer naming `payout_node` as `seller_node`, signed over `offer_auth` |
-| S1o | **Own offer**: fulfil only an offer this seller issued, unchanged: its own `agent_sig` verifies over `offer_auth`, and `seller_node`, `backend_id`, `job_id` and `spec_hash` match its configuration; otherwise refuse (`OfferMismatch`). Refuse an expired offer, before proving and again before invoicing (`OfferExpired`) |
+| S1o | **Accept**: prove only for an offer this seller issued (`offer_not_issued` otherwise), still valid (`OfferExpired`), accepted by an Accept signed over `accept_auth` by the agent of the mandate that came with the request (`CounterpartyMandate(…)`). A repeated Accept is answered, never refused and never proven again. A request sent again gets the same offer while it is valid. A seller that is handed an offer instead (one process, `fulfil`) checks it is its own, unchanged: its own `agent_sig` verifies over `offer_auth`, and `seller_node`, `backend_id`, `job_id` and `spec_hash` match its configuration (`OfferMismatch`). Refuse an expired offer before proving and again before invoicing |
 | S2 | Do the work; run `check` locally; refuse to package a failing result (`SellerResultInvalid`) |
-| S3 | Draw a fresh `k`; compute `H`, `C`, the statement; prove; create the invoice to `H`, payable to `payout_node` |
-| S4 | When an HTLC to `H` is locked for at least the price **and** its timeout is at least `settle_margin_secs` away **and** the sale stays within the seller's cap, settle with `k`. Otherwise withhold `k` (`SettleMarginTooShort`, `OwnMandate(CapExceeded)`). `k` MUST NOT be disclosed by any other means. When it withholds for a reason that cannot clear (amount short, too close to the timeout), it SHOULD cancel the HTLC so the buyer's funds return at once. If a settle call fails, it MUST look the HTLC up before reporting failure: a settled HTLC means `k` reached the node, and the sale is recorded. On Lightning, express margins in blocks and keep the margin above the payee node's own hold-expiry cancel (LND `invoices.holdexpirydelta`, 12 blocks by default) |
+| S3 | Draw a fresh `k`; compute `H`, `C`, the statement; prove; **record `k` before the invoice exists**; create the invoice to `H`, payable to `payout_node`. After a restart, find the invoice the node already issued for `H` and reuse it (a second invoice to the same hash is refused) |
+| S4 | When an HTLC to `H` is locked for at least the price **and** its timeout is at least `settle_margin_secs` away **and** the sale stays within the seller's cap, settle with `k`. Otherwise withhold `k` (`SettleMarginTooShort`, `OwnMandate(CapExceeded)`). `k` MUST NOT be disclosed by any other means. When it withholds for a reason that cannot clear (amount short, too close to the timeout, own cap now exceeded: the cap only grows), it SHOULD cancel the HTLC so the buyer's funds return at once, and the sale ends (`Cancelled`, logged). A sale also ends when its invoice has expired with no HTLC held, or its HTLC was cancelled. If a settle call fails, it MUST look the HTLC up before reporting failure: a settled HTLC means `k` reached the node, and the sale is recorded. On Lightning, express margins in blocks and keep the margin above the payee node's own hold-expiry cancel (LND `invoices.holdexpirydelta`, 12 blocks by default) |
 | S5 | Sign the receipt and append it, with the bundle and input, to the principal's log. Refusals at S1, S1m and S2 are logged too |
 
 ### 9.1 What each party can lose, by step
@@ -378,9 +390,17 @@ There is no row in which one side has the other's part without giving up its own
 
 ## 10. Protocol state machines (reference)
 
-Buyer: `Requested → OfferAccepted → BundleVerified → InvoiceAccepted → Paid → Delivered`, with `Refunded` (HTLC timeout) and `Aborted(error)` as terminal states. `result()` returns `NotPaid` in every state except `Delivered`. `Delivered` appends a receipt to the principal's log; `Refunded` and `Aborted` append a refusal.
+Buyer: `Requested → OfferAccepted → BundleVerified → InvoiceAccepted → Paying → Paid → Delivered`, with `Refunded` (HTLC timeout) and `Aborted(error)` as terminal states. `Paying` is the state between the cap reservation and a known payment outcome (P1); `Paying → InvoiceAccepted` when the payment is known never to have left. `result()` returns `NotPaid` in every state except `Delivered`. `Delivered` appends a receipt to the principal's log; `Refunded` and `Aborted` append a refusal. A buyer gives up where waiting can no longer succeed: no offer within its wait, offer expired before the invoice was accepted, invoice expired before paying. It never gives up in `Paying` or `Paid`: only the rail decides those.
 
-Seller: per sale, `Offered → Fulfilled (bundle + invoice issued, k held) → Settled`. `k` leaves the seller only through `Ledger::settle`. `Settled` appends a receipt to the principal's log; a refused request or result appends a refusal.
+Seller: per offer, `Issued → Accepted → Proven (k recorded) → Invoiced (bundle + invoice issued) → Settled` or `Cancelled`, and `Issued`/`Accepted → Closed` when the offer expires first. `k` leaves the seller only by settling the HTLC. `Settled` appends a receipt to the principal's log; `Cancelled`, `Closed` after an accept, and a refused request, accept or result append a refusal.
+
+### 10.1 Restarts
+
+A party that runs as a process SHOULD save its state after every step and before every side effect that depends on it, so that a process killed at any point restarts into a state from which the sale still ends delivered, refunded or refused with a logged reason. In particular: the seller records `k` before creating the invoice (S3); the buyer records `Paying`, with the reservation, before the payment call (P1); the protocol state and the principal log are saved together, so a sale is never logged twice or lost from the log; each side's cap is recomputed from its records (settled sales; each purchase's held amount, which stays held after a settled payment whose result then failed its checks), never kept as a separate counter. Receiving a message twice is harmless: every step is idempotent or does nothing in the wrong state.
+
+The saved state contains `k` (seller) or `R` (buyer) and the agent key. It is as sensitive as a Lightning node's credentials.
+
+The reference implementation (`src/node/`, binaries `pcp-sell`, `pcp-buy`, `pcp-audit`) does this over a directory transport, and `tools/crash-matrix.sh` kills each side at every named point and checks the result.
 
 The mandate's budget and the log belong to the agent, not to one purchase: parallel purchases under one mandate share one cap and one log.
 
@@ -389,7 +409,7 @@ The mandate's budget and the log belong to the agent, not to one purchase: paral
 | # | Threat | Defence | Test |
 |---|---|---|---|
 | T1 | **Seller sends a wrong `C`**: ciphertext of a result that fails the check, or of something other than the proven result, or swapped after proving | V3 and V4 (relations `job_check` and `C = Enc_k(R)`; dev seal bound to statement hash). An honest backend refuses to prove a false statement | `wrong_result_fails_verification_and_nothing_is_paid`, `ciphertext_of_other_result_than_proven_fails`, `swapped_ciphertext_after_proving_fails`, `honest_seller_and_backend_refuse_wrong_result` |
-| T2 | **Buyer refuses to pay** after receiving the bundle | The buyer learns nothing about `R` (zero knowledge; with the dev backend only by API discipline, see 7.3). The seller loses work and proving cost, never `R`. Mitigations outside PCP/0: price proving cost in, rate-limit unknown buyers, ZKCSP-style service payments | `buyer_who_never_pays_never_gets_k`, `buyer_cannot_learn_result_before_paying` |
+| T2 | **Buyer refuses to pay** after receiving the bundle; or makes the seller prove for nothing | The buyer learns nothing about `R` (zero knowledge; with the dev backend only by API discipline, see 7.3). The seller loses work and proving cost, never `R`. The seller proves only on a signed Accept from the agent that sent the request (S1o, 5.1a), so a third party who saw the offer cannot trigger proving, and a repeated Accept never proves twice. Mitigations outside PCP/0: price proving cost in, rate-limit unknown buyers, ZKCSP-style service payments | `buyer_who_never_pays_never_gets_k`, `buyer_cannot_learn_result_before_paying`, `accept_for_an_offer_not_issued_or_not_signed_is_refused_without_proving`, `accept_runs_the_work_once_and_repeats_resend` |
 | T3 | **Invoice hash mismatch**: invoice to a hash whose preimage does not decrypt `C` (money with no delivery) | V6 | `invoice_payment_hash_mismatch_is_refused` |
 | T4 | Invoice amount, payee, description, binding altered | V5, V7 | `invoice_amount_payee_description_and_timing_are_checked` |
 | T5 | **Replay of a proof for another buyer** (forwarding a bundle or invoice made for Alice to Bob, or rewriting its public fields) | `buyer_nonce` and `offer_id` in the statement (V1, V2); `C` bound to `offer_id` via AEAD; proof bound to the statement hash; invoice bound to `statement_hash` (V5); fresh `k` per sale. Buyers SHOULD also refuse any `H` they have seen before | `proof_replayed_to_another_buyer_fails` |

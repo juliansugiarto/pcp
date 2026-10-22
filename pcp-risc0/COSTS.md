@@ -24,16 +24,17 @@ Execute-only runs, which count cycles without proving, took about 0.02 s per job
 
 `methods/build.rs` pins the Docker builder `risczero/risc0-guest-builder:r0.1.97.0` (Rust 1.97, the same toolchain rzup installs). With risc0-build 3.0.6's default builder `r0.1.88.0` (Rust 1.88), the same source needed about 10,300 more cycles, and the 9x9 sudoku padded to 2^18. Two independent Docker builds give image id `cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328` and the same guest ELF SHA-256. The guest source and the journal (261 bytes) are unchanged.
 
-Two real sales over LND v0.21.4 regtest (`real-sale` workflow) with this guest, both `SETTLED`:
+Three `real-sale` runs over LND v0.21.4 regtest with this guest; in each, both sales ended `SETTLED`:
 
 | Result folder (`ci-results-lnd`) | `pcp/sudoku/v0` n=9: user / total cycles | Prove | Verify | Peak RSS | `pcp/testsuite-toyexpr/v0` (2^18) prove | Peak RSS |
 |---|---|---|---|---|---|---|
 | `real-sale/20261021T170434Z` | 88,606 / 131,072 | 62.0 s | 0.012 s | 1,424 MiB | 97.3 s | 2,359 MiB |
 | `real-sale/20261021T173907Z` | 88,606 / 131,072 | 102.4 s | 0.019 s | 1,428 MiB | 158.9 s | 2,359 MiB |
+| `real-sale/20261021T175527Z` | 88,606 / 131,072 | 78.7 s | 0.015 s | 1,428 MiB | 122.5 s | 2,358 MiB |
 
-The receipt stays 223,748 bytes. The second folder is the run whose expected image id was already `cc6e7b82…` (`match: yes`); the first ran the same guest before that check was updated.
+The receipt stays 223,748 bytes. The second and third folders checked the image id against the expected `cc6e7b82…` (`match: yes`); the first ran the same guest before that check was updated. The third run is public commit `de0beb8`.
 
-Both runs used the same guest; the second runner was about 1.6 times slower on both jobs. GitHub-hosted runners vary that much, so compare times only within one run. Within one run, the 2^17 sudoku took 0.64 times as long as the 2^18 test-suite job (62.0 / 97.3 and 102.4 / 158.9), and peak memory fell from 2,359 MiB to about 1,425 MiB. An earlier note here expected "151 s to about 65 s"; that compared different runners. The like-for-like gain is about 1.55 times, not 2.3.
+All three runs used the same guest; the slowest runner was about 1.6 times slower than the fastest on both jobs. GitHub-hosted runners vary that much, so compare times only within one run. Within one run, the 2^17 sudoku took 0.64 times as long as the 2^18 test-suite job (62.0 / 97.3, 102.4 / 158.9 and 78.7 / 122.5), and peak memory fell from 2,359 MiB to about 1,425 MiB. An earlier note here expected "151 s to about 65 s"; that compared different runners. The like-for-like gain is about 1.55 times, not 2.3.
 
 How close 88,606 user cycles are to the 2^17 limit (user plus paging cycles) is not measured; a guest change that adds a few thousand cycles could push it back to 2^18. `--execute-only` now prints the padded total, so this can be checked without proving.
 

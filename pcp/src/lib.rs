@@ -51,6 +51,8 @@ pub mod lightning;
 #[cfg(feature = "std")]
 pub mod mandate;
 #[cfg(feature = "std")]
+pub mod node;
+#[cfg(feature = "std")]
 pub mod proof;
 #[cfg(feature = "std")]
 pub mod protocol;

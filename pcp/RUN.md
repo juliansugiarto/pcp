@@ -23,6 +23,26 @@ python3 tools/vectors.py         # recomputes SPEC Appendix A vectors 1 to 17 in
 
 `tools/vectors.py` prints one `PASS` or `FAIL` line per vector and exits nonzero if any vector differs from the table in `SPEC.md`.
 
+### Two processes
+
+A buyer and a seller as separate processes, each with its own state directory, on the TEST-ONLY simulated network file (dev proof backend, no zero knowledge):
+
+```bash
+cd pcp && cargo build --bins
+R=/tmp/pcp-run
+./target/debug/pcp-setup --root $R --seller-node seller --buyer-node buyer --sim $R/sim.json
+./target/debug/pcp-sell --state $R/seller --inbox $R/seller-inbox --peer-inbox $R/buyer-inbox \
+  --rail sim:$R/sim.json:seller --allow-sim &
+./target/debug/pcp-buy --state $R/buyer --inbox $R/buyer-inbox --peer-inbox $R/seller-inbox \
+  --rail sim:$R/sim.json:buyer --allow-sim
+./target/debug/pcp-audit --state $R/buyer --expect-state Delivered
+./target/debug/pcp-audit --state $R/seller --expect-settled 1
+```
+
+Kill either process at any time and start it again with the same arguments: it resumes from its state directory. `PCP_CRASH_AT=<point>` aborts at a named point (the list is `CRASH_POINTS` in `src/node/mod.rs`). `tools/crash-matrix.sh OUT` runs every point; with `RAIL=lnd` and the `PCP_{BUYER,SELLER}_LND_*` variables of section 4 it runs against two LND nodes (build with `--features lnd`).
+
+A state directory holds the agent key and, for the seller, `k`; for the buyer, the result. Treat it like a Lightning node's macaroons. `pcp-setup` keeps the principals' keys outside the agents' directories, as a principal would.
+
 ## 2. The halo2 CLI (`pcp-zk`)
 
 ```bash

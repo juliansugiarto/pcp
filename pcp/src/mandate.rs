@@ -103,6 +103,11 @@ impl SecretKey {
         self.0.verifying_key().to_bytes()
     }
 
+    /// The 32-byte seed, to store the key. Keep it as secret as the key.
+    pub fn to_seed(&self) -> [u8; 32] {
+        self.0.to_bytes()
+    }
+
     pub fn sign(&self, msg: &[u8]) -> Sig {
         Sig(self.0.sign(msg).to_bytes())
     }
@@ -402,6 +407,25 @@ impl Agent {
         })
     }
 
+    /// Rebuild an agent after a restart: its key, its mandate, what it had
+    /// committed against the cap, and the principal log saved with its
+    /// state. The caller computes `committed_msat` from saved records
+    /// (settled sales, or purchases' held amounts), never from the log.
+    pub fn restore(
+        key: SecretKey,
+        mandate: Mandate,
+        committed_msat: u64,
+        log: PrincipalLog,
+    ) -> Result<Agent, PcpError> {
+        let a = Agent::new(key, mandate)?;
+        {
+            let mut book = a.book();
+            book.committed_msat = committed_msat;
+            book.log = log;
+        }
+        Ok(a)
+    }
+
     pub fn public_key(&self) -> PublicKey {
         self.inner.key.public_key()
     }
@@ -644,6 +668,11 @@ impl PrincipalLog {
             .iter()
             .map(|e| serde_json::to_string(e).expect("log entries serialise") + "\n")
             .collect()
+    }
+
+    /// A log from its entries (as saved with an agent's state).
+    pub fn from_entries(entries: Vec<LogEntry>) -> PrincipalLog {
+        PrincipalLog { entries }
     }
 
     /// Parse an exported log.

@@ -76,22 +76,28 @@ impl Invoice {
 pub type HtlcId = u64;
 
 /// State of an HTLC.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum HtlcState {
     /// Funds locked, waiting for the preimage or the timeout.
     Locked,
     /// Settled with this preimage; funds moved to the payee.
-    Settled { preimage: [u8; 32], at: u64 },
+    Settled {
+        #[serde(with = "hex32")]
+        preimage: [u8; 32],
+        at: u64,
+    },
     /// Timed out; funds returned to the payer.
     Refunded { at: u64 },
 }
 
 /// A hash-time-locked contract.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Htlc {
     pub id: HtlcId,
     pub payer: NodeId,
     pub payee: NodeId,
+    #[serde(with = "hex32")]
     pub payment_hash: Hash32,
     pub amount_msat: u64,
     /// Absolute time at and after which the HTLC can only be refunded.
@@ -127,12 +133,36 @@ pub enum LedgerError {
     NotYetExpired,
 }
 
-/// The simulated network.
-#[derive(Debug, Default)]
+mod invoice_list {
+    use super::{BTreeMap, Hash32, Invoice};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S: Serializer>(
+        m: &BTreeMap<Hash32, Invoice>,
+        s: S,
+    ) -> Result<S::Ok, S::Error> {
+        m.values().collect::<Vec<_>>().serialize(s)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(
+        d: D,
+    ) -> Result<BTreeMap<Hash32, Invoice>, D::Error> {
+        Ok(Vec::<Invoice>::deserialize(d)?
+            .into_iter()
+            .map(|i| (i.payment_hash, i))
+            .collect())
+    }
+}
+
+/// The simulated network. Serialisable so that two processes can share one
+/// simulated network through a file (`node::sim_file`, tests only).
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Ledger {
     now: u64,
     balances: BTreeMap<NodeId, u64>,
     owners: BTreeMap<NodeId, Hash32>,
+    /// Keyed by payment hash; saved as a list (JSON keys are strings).
+    #[serde(with = "invoice_list")]
     invoices: BTreeMap<Hash32, Invoice>,
     htlcs: BTreeMap<HtlcId, Htlc>,
     next_id: HtlcId,
@@ -342,6 +372,11 @@ impl Ledger {
             .find(|h| h.payer == payer && h.payment_hash == *payment_hash)
     }
 
+    /// The invoice issued to a payment hash, if any.
+    pub fn invoice(&self, payment_hash: &Hash32) -> Option<&Invoice> {
+        self.invoices.get(payment_hash)
+    }
+
     /// Find the live or settled HTLC paying a given hash, if any (what the
     /// payee's node sees when a payment arrives).
     pub fn htlc_for(&self, payment_hash: &Hash32) -> Option<&Htlc> {
@@ -442,5 +477,25 @@ mod tests {
         );
         l.advance(600);
         assert_eq!(l.pay("alice", &inv, 3600), Err(LedgerError::InvoiceExpired));
+    }
+}
+
+#[cfg(test)]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn ledger_round_trips_through_json() {
+        let mut l = Ledger::new();
+        l.open_principal_node("alice", [1u8; 32], 10_000);
+        l.open_node("bob", 0);
+        let k = [42u8; 32];
+        let inv = l
+            .create_invoice("bob", sha256(&k), 1_000, 600, 60, [9u8; 32])
+            .unwrap();
+        l.pay("alice", &inv, 3600).unwrap();
+        l.advance(7);
+        let back: Ledger = serde_json::from_str(&serde_json::to_string(&l).unwrap()).unwrap();
+        assert_eq!(format!("{back:?}"), format!("{l:?}"));
     }
 }

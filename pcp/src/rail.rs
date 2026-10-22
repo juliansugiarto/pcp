@@ -143,6 +143,12 @@ pub trait Rail {
     /// Payee: the live or settled HTLC paying `payment_hash`, if any.
     fn lookup_invoice(&mut self, payment_hash: &Hash32) -> Result<Option<IncomingHtlc>, RailError>;
 
+    /// Payee: the invoice this node issued to `payment_hash`, whatever its
+    /// state, or `None` if it issued none. A seller that restarts after
+    /// creating an invoice but before recording it uses this to find the
+    /// invoice again, since a second invoice to the same hash is refused.
+    fn find_invoice(&mut self, payment_hash: &Hash32) -> Result<Option<Invoice>, RailError>;
+
     /// Payer: the status of the latest payment from `payer` to `payment_hash`.
     fn lookup_payment(
         &mut self,
@@ -212,6 +218,10 @@ impl Rail for Ledger {
         }))
     }
 
+    fn find_invoice(&mut self, payment_hash: &Hash32) -> Result<Option<Invoice>, RailError> {
+        Ok(self.invoice(payment_hash).cloned())
+    }
+
     fn lookup_payment(
         &mut self,
         payer: &str,
@@ -266,6 +276,9 @@ mod tests {
             Err(RailError::Ledger(LedgerError::DuplicatePaymentHash))
         );
         assert_eq!(rail.lookup_invoice(&h), Ok(None));
+        // An unpaid invoice is not an HTLC, but the payee can still find it.
+        assert_eq!(rail.find_invoice(&h), Ok(Some(inv.clone())));
+        assert_eq!(rail.find_invoice(&[0u8; 32]), Ok(None));
         assert_eq!(rail.lookup_payment("alice", &h), Ok(PaymentStatus::Unknown));
         rail.pay_invoice("alice", &inv, 3600).unwrap();
         let held = rail.lookup_invoice(&h).unwrap().unwrap();

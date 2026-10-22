@@ -54,6 +54,8 @@ fn dev_policy() -> BuyerPolicy {
 pub(crate) struct Party {
     pub principal: SecretKey,
     pub agent: Agent,
+    /// The agent key's seed, to rebuild the agent after a simulated restart.
+    pub agent_seed: [u8; 32],
 }
 
 impl Party {
@@ -83,9 +85,14 @@ fn terms(role: Role, node: &str) -> MandateTerms {
 
 fn party_with(principal: SecretKey, t: MandateTerms) -> Party {
     let agent_key = SecretKey::generate(&mut OsRng);
+    let agent_seed = agent_key.to_seed();
     let m = Mandate::sign(&principal, agent_key.public_key(), t, &mut OsRng);
     let agent = Agent::new(agent_key, m).unwrap();
-    Party { principal, agent }
+    Party {
+        principal,
+        agent,
+        agent_seed,
+    }
 }
 
 fn party(t: MandateTerms) -> Party {
@@ -165,7 +172,7 @@ fn fixture_named<J: JobClass + Clone + 'static>(
         &mut OsRng,
     )
     .unwrap();
-    let seller = Seller::new(
+    let mut seller = Seller::new(
         &sp.agent,
         Box::new(job),
         Box::new(InsecureDevTransparentBackend),
@@ -649,7 +656,7 @@ fn expiry_refunds_and_seller_does_not_reveal_late() {
     let out = fx.seller.settle_paid(&mut fx.ledger);
     assert!(matches!(
         out.as_slice(),
-        [SaleOutcome::Withheld {
+        [SaleOutcome::Cancelled {
             reason: PcpError::SettleMarginTooShort,
             ..
         }]
@@ -660,11 +667,17 @@ fn expiry_refunds_and_seller_does_not_reveal_late() {
     ));
     assert_eq!(fx.buyer.poll(&mut fx.ledger), Err(PcpError::Refunded));
     assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
-    // After the refund the seller finds nothing to settle; k stays secret.
-    assert!(matches!(
-        fx.seller.settle_paid(&mut fx.ledger).as_slice(),
-        [SaleOutcome::NotPaid { .. }]
-    ));
+    // The sale is over: never polled again, k stays secret, and the
+    // seller's principal sees why in the log.
+    assert!(fx.seller.settle_paid(&mut fx.ledger).is_empty());
+    let log = fx.seller.agent().log();
+    assert_eq!(
+        log.refusals()
+            .map(|r| r.reason.as_str())
+            .collect::<Vec<_>>(),
+        ["settle_margin_too_short"]
+    );
+    assert_eq!(log.receipts().count(), 0);
     assert_atomic(&fx, "buyer");
 }
 
@@ -678,6 +691,22 @@ fn unpaid_invoice_expires() {
         Err(PcpError::Ledger(LedgerError::InvoiceExpired))
     );
     assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+    // The payment never left: the reservation is back and the buyer can
+    // still decide (here: walk away).
+    assert!(matches!(
+        fx.buyer.state(),
+        BuyerState::InvoiceAccepted { .. }
+    ));
+    assert_eq!(fx.bp.agent.committed_msat(), 0);
+    // The seller ends the sale once the invoice has expired.
+    assert!(matches!(
+        fx.seller.settle_paid(&mut fx.ledger).as_slice(),
+        [SaleOutcome::Cancelled {
+            reason: PcpError::InvoiceExpired,
+            ..
+        }]
+    ));
+    assert!(fx.seller.settle_paid(&mut fx.ledger).is_empty());
 }
 
 #[test]
@@ -759,7 +788,7 @@ fn buyer_refuses_insecure_backend_by_default() {
         &mut OsRng,
     )
     .unwrap();
-    let s = Seller::new(
+    let mut s = Seller::new(
         &sp.agent,
         Box::new(job),
         Box::new(InsecureDevTransparentBackend),
@@ -794,7 +823,7 @@ fn offer_checks() {
         )
         .unwrap()
     };
-    let s = Seller::new(
+    let mut s = Seller::new(
         &sp.agent,
         Box::new(job),
         Box::new(InsecureDevTransparentBackend),
@@ -1131,7 +1160,7 @@ fn last_reason(agent: &Agent) -> String {
 fn missing_mandate_is_refused_by_both_sides() {
     let bp = party(terms(Role::Buyer, "b"));
     let sp = party(terms(Role::Seller, "s"));
-    let s = new_seller(&sp.agent, PRICE);
+    let mut s = new_seller(&sp.agent, PRICE);
 
     // Seller side: a request with no mandate, or no agent signature.
     let (_, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
@@ -1175,7 +1204,7 @@ fn missing_mandate_is_refused_by_both_sides() {
 fn wrong_signatures_are_refused() {
     let bp = party(terms(Role::Buyer, "b"));
     let sp = party(terms(Role::Seller, "s"));
-    let s = new_seller(&sp.agent, PRICE);
+    let mut s = new_seller(&sp.agent, PRICE);
     let (_, req) = new_buyer(&bp.agent, PRICE, 0).unwrap();
 
     // The agent raises its own cap after the principal signed.
@@ -1932,4 +1961,763 @@ fn run_sale_drives_a_whole_sale_over_a_rail() {
     assert_eq!(report.receipt.amount_msat, PRICE);
     assert_eq!(ledger.principal_balance(&sp.principal_key()), PRICE);
     assert!(lines.iter().any(|l| l.starts_with("8 buyer has k")));
+}
+
+// ---------------------------------------------------------------------------
+// S1: payment calls that fail, and sales that end without payment
+
+/// A rail over the simulated ledger whose calls can be made to fail, to
+/// model a lost reply or an unreachable node.
+struct FlakyRail<'a> {
+    inner: &'a mut Ledger,
+    /// `pay_invoice` locks the HTLC, then reports an error (lost reply).
+    pay_lost_reply: bool,
+    /// `pay_invoice` reports an error without paying.
+    pay_fails: bool,
+    /// `lookup_payment` reports an error (node unreachable).
+    lookup_fails: bool,
+}
+
+impl<'a> FlakyRail<'a> {
+    fn new(inner: &'a mut Ledger) -> Self {
+        FlakyRail {
+            inner,
+            pay_lost_reply: false,
+            pay_fails: false,
+            lookup_fails: false,
+        }
+    }
+}
+
+impl crate::rail::Rail for FlakyRail<'_> {
+    fn rail_id(&self) -> &'static str {
+        self.inner.rail_id()
+    }
+    fn now(&self) -> u64 {
+        crate::rail::Rail::now(self.inner)
+    }
+    fn create_invoice(
+        &mut self,
+        req: &crate::rail::InvoiceRequest,
+    ) -> Result<crate::lightning::Invoice, crate::rail::RailError> {
+        crate::rail::Rail::create_invoice(self.inner, req)
+    }
+    fn pay_invoice(
+        &mut self,
+        payer: &str,
+        invoice: &crate::lightning::Invoice,
+        max_htlc_secs: u64,
+    ) -> Result<(), crate::rail::RailError> {
+        if self.pay_fails {
+            return Err(crate::rail::RailError::Node("connection reset".into()));
+        }
+        self.inner.pay_invoice(payer, invoice, max_htlc_secs)?;
+        if self.pay_lost_reply {
+            return Err(crate::rail::RailError::Node("reply lost".into()));
+        }
+        Ok(())
+    }
+    fn settle_invoice(
+        &mut self,
+        payee: &str,
+        h: &Hash32,
+        k: [u8; 32],
+    ) -> Result<(), crate::rail::RailError> {
+        self.inner.settle_invoice(payee, h, k)
+    }
+    fn cancel_invoice(&mut self, payee: &str, h: &Hash32) -> Result<(), crate::rail::RailError> {
+        self.inner.cancel_invoice(payee, h)
+    }
+    fn lookup_invoice(
+        &mut self,
+        h: &Hash32,
+    ) -> Result<Option<crate::rail::IncomingHtlc>, crate::rail::RailError> {
+        self.inner.lookup_invoice(h)
+    }
+    fn find_invoice(
+        &mut self,
+        h: &Hash32,
+    ) -> Result<Option<crate::lightning::Invoice>, crate::rail::RailError> {
+        self.inner.find_invoice(h)
+    }
+    fn lookup_payment(
+        &mut self,
+        payer: &str,
+        h: &Hash32,
+    ) -> Result<crate::rail::PaymentStatus, crate::rail::RailError> {
+        if self.lookup_fails {
+            return Err(crate::rail::RailError::Node("node unreachable".into()));
+        }
+        self.inner.lookup_payment(payer, h)
+    }
+}
+
+#[test]
+fn pay_with_lost_reply_and_unreachable_node_keeps_the_reservation() {
+    // The HTLC leaves, the reply is lost, and the lookup that should find
+    // it fails too. The buyer must not release the reservation: the money
+    // is out. Once the node answers, the payment is found and stands.
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    {
+        let mut rail = FlakyRail::new(&mut fx.ledger);
+        rail.pay_lost_reply = true;
+        rail.lookup_fails = true;
+        assert!(matches!(
+            fx.buyer.pay_via(&mut rail),
+            Err(PcpError::Rail(crate::rail::RailError::Node(_)))
+        ));
+    }
+    assert!(matches!(fx.buyer.state(), BuyerState::Paying { .. }));
+    assert_eq!(fx.bp.agent.committed_msat(), PRICE);
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS - PRICE);
+    // Paying again from Paying is refused; only recovery leaves it.
+    assert!(matches!(
+        fx.buyer.pay(&mut fx.ledger),
+        Err(PcpError::WrongState(_))
+    ));
+    {
+        let mut rail = FlakyRail::new(&mut fx.ledger);
+        rail.lookup_fails = true;
+        assert!(fx.buyer.recover_payment(&mut rail).is_err());
+    }
+    assert!(matches!(fx.buyer.state(), BuyerState::Paying { .. }));
+    assert_eq!(fx.bp.agent.committed_msat(), PRICE);
+    fx.buyer.recover_payment(&mut fx.ledger).unwrap();
+    assert!(matches!(fx.buyer.state(), BuyerState::Paid { .. }));
+    fx.seller.settle_paid(&mut fx.ledger);
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Ok(BuyerProgress::Delivered));
+    assert_eq!(fx.bp.agent.committed_msat(), PRICE);
+    assert_atomic(&fx, "buyer");
+}
+
+#[test]
+fn pay_with_lost_reply_is_found_by_the_lookup() {
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    let mut rail = FlakyRail::new(&mut fx.ledger);
+    rail.pay_lost_reply = true;
+    fx.buyer.pay_via(&mut rail).unwrap();
+    assert!(matches!(fx.buyer.state(), BuyerState::Paid { .. }));
+    assert_eq!(fx.bp.agent.committed_msat(), PRICE);
+}
+
+#[test]
+fn pay_that_never_left_releases_and_can_be_retried() {
+    let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
+    fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
+    {
+        let mut rail = FlakyRail::new(&mut fx.ledger);
+        rail.pay_fails = true;
+        assert!(fx.buyer.pay_via(&mut rail).is_err());
+    }
+    assert!(matches!(
+        fx.buyer.state(),
+        BuyerState::InvoiceAccepted { .. }
+    ));
+    assert_eq!(fx.bp.agent.committed_msat(), 0);
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
+    fx.buyer.pay(&mut fx.ledger).unwrap();
+    fx.seller.settle_paid(&mut fx.ledger);
+    assert_eq!(fx.buyer.poll(&mut fx.ledger), Ok(BuyerProgress::Delivered));
+    assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS - PRICE);
+    assert_atomic(&fx, "buyer");
+}
+
+#[test]
+fn seller_cap_exceeded_at_settle_cancels_the_htlc() {
+    // A seller whose cap fits one sale quotes two buyers (each quote fits on
+    // its own). Both pay. The first settles; the second would exceed the
+    // cap, which only grows, so the seller cancels that HTLC at once and
+    // the second buyer is refunded without waiting for the timeout.
+    let sp = party(MandateTerms {
+        cap_msat: PRICE,
+        ..terms(Role::Seller, "seller")
+    });
+    let mut ledger = Ledger::new();
+    ledger.open_principal_node("seller", sp.principal_key(), 0);
+    let mut seller = Seller::new(
+        &sp.agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        SellerConfig {
+            price_msat: PRICE,
+            ..SellerConfig::default()
+        },
+    );
+    let mut buyers = Vec::new();
+    for name in ["b1", "b2"] {
+        let bp = party(terms(Role::Buyer, name));
+        ledger.open_principal_node(name, bp.principal_key(), BUYER_FUNDS);
+        let (mut b, req) = Buyer::new(
+            &bp.agent,
+            Box::new(TestSuiteJob),
+            Box::new(InsecureDevTransparentBackend),
+            dev_policy(),
+            clamp_suite(),
+            2 * PRICE,
+            ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+        let offer = seller.make_offer(&req, ledger.now()).unwrap();
+        b.accept_offer(&offer, ledger.now()).unwrap();
+        let (bundle, binding) = seller
+            .fulfil(
+                &req,
+                &offer,
+                CLAMP_OK.as_bytes().to_vec(),
+                &mut ledger,
+                &mut OsRng,
+            )
+            .unwrap();
+        b.verify_bundle(&bundle).unwrap();
+        b.check_invoice(&binding, ledger.now()).unwrap();
+        b.pay(&mut ledger).unwrap();
+        buyers.push((name, b, bp));
+    }
+    let out = seller.settle_paid(&mut ledger);
+    let settled = out
+        .iter()
+        .filter(|o| matches!(o, SaleOutcome::Settled { .. }))
+        .count();
+    let cancelled: Vec<_> = out
+        .iter()
+        .filter_map(|o| match o {
+            SaleOutcome::Cancelled { reason, .. } => Some(reason.code()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(settled, 1);
+    assert_eq!(cancelled, ["own_mandate.cap_exceeded"]);
+    assert_eq!(sp.agent.committed_msat(), PRICE);
+    assert!(seller.settle_paid(&mut ledger).is_empty());
+    let mut delivered = 0;
+    let mut refunded = 0;
+    for (name, mut b, _bp) in buyers {
+        match b.poll(&mut ledger) {
+            Ok(BuyerProgress::Delivered) => {
+                delivered += 1;
+                assert_eq!(ledger.balance(name), BUYER_FUNDS - PRICE);
+            }
+            Err(PcpError::Refunded) => {
+                refunded += 1;
+                assert_eq!(ledger.balance(name), BUYER_FUNDS);
+            }
+            other => panic!("{name}: {other:?}"),
+        }
+    }
+    assert_eq!((delivered, refunded), (1, 1));
+}
+
+// ---------------------------------------------------------------------------
+// S1: Accept, and restarts at every step
+
+fn sim_seller_cfg() -> SellerConfig {
+    SellerConfig {
+        price_msat: PRICE,
+        ..SellerConfig::default()
+    }
+}
+
+/// A restarted seller: the snapshot and the log go through JSON, as they
+/// would through a file, and the agent is rebuilt from its key.
+fn restart_seller(p: &Party, seller: &Seller) -> (Agent, Seller) {
+    let snap: SellerSnapshot =
+        serde_json::from_str(&serde_json::to_string(&seller.snapshot()).unwrap()).unwrap();
+    let log = PrincipalLog::from_jsonl(&seller.agent().log().to_jsonl()).unwrap();
+    let agent = Agent::restore(
+        SecretKey::from_seed(p.agent_seed),
+        p.agent.mandate().clone(),
+        snap.committed_msat(),
+        log,
+    )
+    .unwrap();
+    let s = Seller::restore(
+        &agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        sim_seller_cfg(),
+        snap,
+    )
+    .unwrap();
+    (agent, s)
+}
+
+/// A restarted buyer, the same way.
+fn restart_buyer(p: &Party, buyer: &Buyer) -> (Agent, Buyer) {
+    let snap: BuyerSnapshot =
+        serde_json::from_str(&serde_json::to_string(&buyer.snapshot()).unwrap()).unwrap();
+    let log = PrincipalLog::from_jsonl(&buyer.agent().log().to_jsonl()).unwrap();
+    let agent = Agent::restore(
+        SecretKey::from_seed(p.agent_seed),
+        p.agent.mandate().clone(),
+        snap.spent_msat,
+        log,
+    )
+    .unwrap();
+    let b = Buyer::restore(
+        &agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        snap,
+    )
+    .unwrap();
+    (agent, b)
+}
+
+/// Two principals on one ledger, a buyer that has sent its request and a
+/// seller that has quoted. No proving yet.
+struct Wire {
+    ledger: Ledger,
+    bp: Party,
+    sp: Party,
+    buyer: Buyer,
+    seller: Seller,
+    offer: Offer,
+}
+
+fn wire() -> Wire {
+    let sp = party(terms(Role::Seller, "seller"));
+    let bp = party(terms(Role::Buyer, "buyer"));
+    let mut ledger = Ledger::new();
+    ledger.open_principal_node("seller", sp.principal_key(), 0);
+    ledger.open_principal_node("buyer", bp.principal_key(), BUYER_FUNDS);
+    let (buyer, req) = Buyer::new(
+        &bp.agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        clamp_suite(),
+        2 * PRICE,
+        ledger.now(),
+        &mut OsRng,
+    )
+    .unwrap();
+    let mut seller = Seller::new(
+        &sp.agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        sim_seller_cfg(),
+    );
+    let offer = seller.make_offer(&req, ledger.now()).unwrap();
+    Wire {
+        ledger,
+        bp,
+        sp,
+        buyer,
+        seller,
+        offer,
+    }
+}
+
+fn prove_count(seller: &Seller) -> usize {
+    seller.snapshot().sales.len()
+}
+
+#[test]
+fn accept_runs_the_work_once_and_repeats_resend() {
+    let mut w = wire();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    let id = w.offer.offer_id();
+    assert_eq!(w.seller.accept(&acc, w.ledger.now()), Ok(AcceptStep::Prove));
+    // Repeated while the work runs: nothing to do, nothing logged.
+    assert_eq!(
+        w.seller.accept(&acc, w.ledger.now()),
+        Ok(AcceptStep::Pending)
+    );
+    w.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    assert_eq!(
+        w.seller.accept(&acc, w.ledger.now()),
+        Ok(AcceptStep::Pending)
+    );
+    let (bundle, binding) = w.seller.invoice(&id, &mut w.ledger).unwrap();
+    // Repeated after invoicing: the same bundle and binding again.
+    assert_eq!(
+        w.seller.accept(&acc, w.ledger.now()),
+        Ok(AcceptStep::Resend(
+            Box::new(bundle.clone()),
+            Box::new(binding.clone())
+        ))
+    );
+    assert_eq!(prove_count(&w.seller), 1);
+    assert_eq!(w.seller.agent().log().refusals().count(), 0);
+    w.buyer.verify_bundle(&bundle).unwrap();
+    w.buyer.check_invoice(&binding, w.ledger.now()).unwrap();
+    w.buyer.pay(&mut w.ledger).unwrap();
+    w.seller.settle_paid(&mut w.ledger);
+    assert_eq!(w.buyer.poll(&mut w.ledger), Ok(BuyerProgress::Delivered));
+    assert!(w.seller.is_idle());
+}
+
+#[test]
+fn accept_for_an_offer_not_issued_or_not_signed_is_refused_without_proving() {
+    let mut w = wire();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let good = w.buyer.accept_message().unwrap();
+    // An offer id this seller never issued (a tampered or invented offer).
+    let mut other = good.clone();
+    other.offer_id = [7u8; 32];
+    assert_eq!(
+        w.seller.accept(&other, w.ledger.now()),
+        Err(PcpError::OfferNotIssued)
+    );
+    // Unsigned.
+    let mut bare = good.clone();
+    bare.agent_sig = None;
+    assert_eq!(
+        w.seller.accept(&bare, w.ledger.now()).map_err(|e| e.code()),
+        Err("counterparty_mandate.missing".to_string())
+    );
+    // Signed by another buyer agent (someone who saw the offer).
+    let mallory = party(terms(Role::Buyer, "mallory"));
+    let mut forged = good.clone();
+    forged.mandate = Some(mallory.agent.mandate().clone());
+    forged.agent_sig = Some(
+        mallory
+            .agent
+            .sign(&forged.auth_message(&mallory.agent.mandate_id())),
+    );
+    assert_eq!(
+        w.seller
+            .accept(&forged, w.ledger.now())
+            .map_err(|e| e.code()),
+        Err("counterparty_mandate.agent_key_mismatch".to_string())
+    );
+    assert_eq!(prove_count(&w.seller), 0);
+    assert_eq!(w.seller.agent().log().refusals().count(), 3);
+    // The real buyer's accept still works.
+    assert_eq!(
+        w.seller.accept(&good, w.ledger.now()),
+        Ok(AcceptStep::Prove)
+    );
+}
+
+#[test]
+fn an_offer_handed_back_with_a_lower_price_is_refused() {
+    // The audit's S1 case: a buyer returns the offer with its own price.
+    // The seller fulfils only the offer it signed.
+    let mut w = wire();
+    let mut cheap = w.offer.clone();
+    cheap.price_msat = 1;
+    let req = w.buyer.request().clone();
+    assert_eq!(
+        w.seller.fulfil(
+            &req,
+            &cheap,
+            CLAMP_OK.as_bytes().to_vec(),
+            &mut w.ledger,
+            &mut OsRng
+        ),
+        Err(PcpError::OfferMismatch)
+    );
+    assert_eq!(prove_count(&w.seller), 0);
+}
+
+#[test]
+fn a_request_sent_twice_gets_the_same_offer() {
+    let mut w = wire();
+    let req = w.buyer.request().clone();
+    assert_eq!(
+        w.seller.make_offer(&req, w.ledger.now()),
+        Ok(w.offer.clone())
+    );
+    assert_eq!(w.seller.snapshot().offers.len(), 1);
+}
+
+#[test]
+fn seller_restarts_after_proving_and_finds_the_invoice_it_created() {
+    // B1: the invoice reached the node, the seller died before recording it.
+    let mut w = wire();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    let id = w.offer.offer_id();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    w.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    // Saved here (k on disk, no invoice yet).
+    let (_a, mut restarted) = restart_seller(&w.sp, &w.seller);
+    let (_b0, first) = w.seller.invoice(&id, &mut w.ledger).unwrap();
+    // The process dies; the restarted seller resumes from the saved state.
+    assert_eq!(restarted.unfinished().len(), 1);
+    let (bundle, binding) = restarted.invoice(&id, &mut w.ledger).unwrap();
+    assert_eq!(binding, first, "the invoice found again is the one issued");
+    w.seller = restarted;
+    w.buyer.verify_bundle(&bundle).unwrap();
+    w.buyer.check_invoice(&binding, w.ledger.now()).unwrap();
+    w.buyer.pay(&mut w.ledger).unwrap();
+    w.seller.settle_paid(&mut w.ledger);
+    assert_eq!(w.buyer.poll(&mut w.ledger), Ok(BuyerProgress::Delivered));
+    assert_eq!(w.seller.agent().log().receipts().count(), 1);
+}
+
+#[test]
+fn every_step_survives_a_restart_on_both_sides() {
+    // Restart both sides after every step and finish the sale. One receipt
+    // on each side, caps restored from the saved records.
+    let mut w = wire();
+    let id = w.offer.offer_id();
+    let restart = |w: &mut Wire| {
+        let (_sa, s) = restart_seller(&w.sp, &w.seller);
+        let (_ba, b) = restart_buyer(&w.bp, &w.buyer);
+        w.seller = s;
+        w.buyer = b;
+    };
+    restart(&mut w);
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    restart(&mut w);
+    let acc = w.buyer.accept_message().unwrap();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    restart(&mut w);
+    w.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    restart(&mut w);
+    let (bundle, binding) = w.seller.invoice(&id, &mut w.ledger).unwrap();
+    restart(&mut w);
+    w.buyer.verify_bundle(&bundle).unwrap();
+    restart(&mut w);
+    w.buyer.check_invoice(&binding, w.ledger.now()).unwrap();
+    restart(&mut w);
+    w.buyer.pay(&mut w.ledger).unwrap();
+    restart(&mut w);
+    assert_eq!(w.buyer.agent().committed_msat(), PRICE);
+    assert!(matches!(
+        w.seller.settle_paid(&mut w.ledger).as_slice(),
+        [SaleOutcome::Settled { .. }]
+    ));
+    restart(&mut w);
+    assert_eq!(w.seller.agent().committed_msat(), PRICE);
+    assert!(w.seller.settle_paid(&mut w.ledger).is_empty());
+    assert_eq!(w.buyer.poll(&mut w.ledger), Ok(BuyerProgress::Delivered));
+    restart(&mut w);
+    assert!(w.buyer.is_done());
+    assert_eq!(w.buyer.result(), Ok(CLAMP_OK.as_bytes()));
+    assert_eq!(w.buyer.agent().committed_msat(), PRICE);
+    assert_eq!(w.buyer.agent().log().receipts().count(), 1);
+    assert_eq!(w.seller.agent().log().receipts().count(), 1);
+    let jobs: [&dyn JobClass; 1] = [&TestSuiteJob];
+    w.buyer
+        .agent()
+        .log()
+        .verify(w.bp.agent.mandate(), &jobs)
+        .unwrap();
+    w.seller
+        .agent()
+        .log()
+        .verify(w.sp.agent.mandate(), &jobs)
+        .unwrap();
+}
+
+#[test]
+fn a_settle_saved_before_it_happened_is_recorded_once() {
+    // B2: the seller saved its state, then settled at the node, then died
+    // before saving again. The restarted seller sees the HTLC settled and
+    // records the sale once: state and log were saved together.
+    let mut w = wire();
+    let id = w.offer.offer_id();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    w.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    let (bundle, binding) = w.seller.invoice(&id, &mut w.ledger).unwrap();
+    w.buyer.verify_bundle(&bundle).unwrap();
+    w.buyer.check_invoice(&binding, w.ledger.now()).unwrap();
+    w.buyer.pay(&mut w.ledger).unwrap();
+    let (_a, mut restarted) = restart_seller(&w.sp, &w.seller);
+    w.seller.settle_paid(&mut w.ledger);
+    // Dies here. Restart from the earlier save.
+    assert!(matches!(
+        restarted.settle_paid(&mut w.ledger).as_slice(),
+        [SaleOutcome::Settled { .. }]
+    ));
+    assert!(restarted.settle_paid(&mut w.ledger).is_empty());
+    assert_eq!(restarted.agent().log().receipts().count(), 1);
+    assert_eq!(restarted.agent().committed_msat(), PRICE);
+}
+
+#[test]
+fn buyer_restarted_in_paying_finds_the_payment() {
+    let mut w = wire();
+    let id = w.offer.offer_id();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    w.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    let (bundle, binding) = w.seller.invoice(&id, &mut w.ledger).unwrap();
+    w.buyer.verify_bundle(&bundle).unwrap();
+    w.buyer.check_invoice(&binding, w.ledger.now()).unwrap();
+    // The payment leaves; the node is unreachable for the lookup; the buyer
+    // saves `Paying` and dies.
+    {
+        let mut rail = FlakyRail::new(&mut w.ledger);
+        rail.pay_lost_reply = true;
+        rail.lookup_fails = true;
+        assert!(w.buyer.pay_via(&mut rail).is_err());
+    }
+    let (_a, mut b) = restart_buyer(&w.bp, &w.buyer);
+    assert!(matches!(b.state(), BuyerState::Paying { .. }));
+    assert_eq!(b.agent().committed_msat(), PRICE);
+    b.recover_payment(&mut w.ledger).unwrap();
+    w.seller.settle_paid(&mut w.ledger);
+    assert_eq!(b.poll(&mut w.ledger), Ok(BuyerProgress::Delivered));
+    assert_eq!(w.ledger.balance("buyer"), BUYER_FUNDS - PRICE);
+}
+
+#[test]
+fn buyer_gives_up_only_where_no_money_is_out() {
+    let mut w = wire();
+    // No offer within the wait.
+    let (bp2, _) = (party(terms(Role::Buyer, "b2")), ());
+    let (mut lonely, _req) = Buyer::new(
+        &bp2.agent,
+        Box::new(TestSuiteJob),
+        Box::new(InsecureDevTransparentBackend),
+        dev_policy(),
+        clamp_suite(),
+        PRICE,
+        0,
+        &mut OsRng,
+    )
+    .unwrap();
+    assert_eq!(lonely.check_timeouts(59, 60), None);
+    assert_eq!(lonely.check_timeouts(60, 60), Some(PcpError::NoAnswer));
+    assert!(lonely.is_done());
+    // Offer accepted, never answered: gives up when the offer expires.
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    assert_eq!(
+        w.buyer.check_timeouts(w.offer.offer_expires_at - 1, 60),
+        None
+    );
+    assert_eq!(
+        w.buyer.check_timeouts(w.offer.offer_expires_at, 60),
+        Some(PcpError::OfferExpired)
+    );
+    assert_eq!(
+        w.buyer
+            .agent()
+            .log()
+            .refusals()
+            .map(|r| r.reason.clone())
+            .collect::<Vec<_>>(),
+        ["offer_expired"]
+    );
+    // Paid: never gives up, however late.
+    let mut x = wire();
+    let id = x.offer.offer_id();
+    x.buyer.accept_offer(&x.offer, x.ledger.now()).unwrap();
+    let acc = x.buyer.accept_message().unwrap();
+    x.seller.accept(&acc, x.ledger.now()).unwrap();
+    x.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            x.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    let (bundle, binding) = x.seller.invoice(&id, &mut x.ledger).unwrap();
+    x.buyer.verify_bundle(&bundle).unwrap();
+    x.buyer.check_invoice(&binding, x.ledger.now()).unwrap();
+    x.buyer.pay(&mut x.ledger).unwrap();
+    assert_eq!(x.buyer.check_timeouts(u64::MAX, 60), None);
+}
+
+#[test]
+fn snapshots_from_another_schema_or_agent_are_refused() {
+    let w = wire();
+    let mut snap = w.seller.snapshot();
+    snap.schema = 2;
+    assert!(matches!(
+        Seller::restore(
+            &w.sp.agent,
+            Box::new(TestSuiteJob),
+            Box::new(InsecureDevTransparentBackend),
+            sim_seller_cfg(),
+            snap
+        ),
+        Err(PcpError::Version)
+    ));
+    let other = party(terms(Role::Buyer, "other"));
+    assert!(matches!(
+        Buyer::restore(
+            &other.agent,
+            Box::new(TestSuiteJob),
+            Box::new(InsecureDevTransparentBackend),
+            dev_policy(),
+            w.buyer.snapshot()
+        ),
+        Err(PcpError::RecordNotBound)
+    ));
+    // A seller whose configured backend differs refuses the saved offers.
+    struct OtherBackend;
+    impl ProofBackend for OtherBackend {
+        fn backend_id(&self) -> &'static str {
+            "other/0"
+        }
+        fn is_secure(&self) -> bool {
+            false
+        }
+        fn prove(
+            &self,
+            _: &dyn JobClass,
+            _: &crate::proof::Statement,
+            _: &[u8],
+            _: &Witness,
+        ) -> Result<ProofBundle, ProveError> {
+            unreachable!()
+        }
+        fn verify(
+            &self,
+            _: &dyn JobClass,
+            _: &crate::proof::Statement,
+            _: &ProofBundle,
+        ) -> Result<(), VerifyError> {
+            unreachable!()
+        }
+    }
+    assert!(matches!(
+        Seller::restore(
+            &w.sp.agent,
+            Box::new(TestSuiteJob),
+            Box::new(OtherBackend),
+            sim_seller_cfg(),
+            w.seller.snapshot()
+        ),
+        Err(PcpError::OfferMismatch)
+    ));
 }

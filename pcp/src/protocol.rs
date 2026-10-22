@@ -158,6 +158,29 @@ impl Offer {
     }
 }
 
+/// Buyer -> seller: the buyer accepts an offer and asks the seller to prove
+/// (SPEC 5.1a). Signed by the buyer agent under the mandate it sent with
+/// the request, so only that agent can make the seller spend proving time.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Accept {
+    pub version: String,
+    #[serde(with = "hex32")]
+    pub offer_id: Hash32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mandate: Option<Mandate>,
+    /// `Ed25519(agent_sk, tagged_hash("accept-auth", [offer_id, mandate_id]))`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_sig: Option<Sig>,
+}
+
+impl Accept {
+    /// The message the buyer agent signs.
+    pub fn auth_message(&self, mandate_id: &Hash32) -> Hash32 {
+        tagged_hash("accept-auth", &[&self.offer_id, mandate_id])
+    }
+}
+
 /// Seller -> buyer: the invoice, and what it is for.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -311,6 +334,9 @@ pub enum PcpError {
     InputCommitmentMismatch,
     /// The message is for a different offer.
     OfferMismatch,
+    /// Seller-side: no offer with this id was issued here (or it was
+    /// purged after expiry). Nothing is proven for it.
+    OfferNotIssued,
     /// The buyer nonce is not this buyer's: a proof replayed from another
     /// purchase, or a message sent to the wrong buyer.
     ReplayedOrMisdirected,
@@ -345,6 +371,9 @@ pub enum PcpError {
     InvoiceDescriptionMismatch,
     /// Too little time left on the invoice for the buyer's policy.
     InvoiceExpiresTooSoon,
+    /// The invoice expired: seller-side with no HTLC held, buyer-side
+    /// before paying. The sale is over.
+    InvoiceExpired,
     /// The invoice asks for a longer HTLC lock than the buyer allows
     /// (liquidity griefing bound).
     HtlcLockTooLong {
@@ -385,6 +414,11 @@ pub enum PcpError {
     RecordNotBound,
     /// A receipt or refusal does not carry a valid agent signature.
     RecordSignatureInvalid,
+    /// An error recorded before a restart, by its reason code. The detail
+    /// is in the principal's log.
+    Recorded(String),
+    /// Buyer-side: no answer from the seller within the policy's wait.
+    NoAnswer,
 }
 
 impl PcpError {
@@ -396,6 +430,7 @@ impl PcpError {
             PcpError::JobMismatch => "job_mismatch",
             PcpError::InputCommitmentMismatch => "input_commitment_mismatch",
             PcpError::OfferMismatch => "offer_mismatch",
+            PcpError::OfferNotIssued => "offer_not_issued",
             PcpError::ReplayedOrMisdirected => "replayed_or_misdirected",
             PcpError::PriceTooHigh { .. } => "price_too_high",
             PcpError::OfferExpired => "offer_expired",
@@ -413,6 +448,7 @@ impl PcpError {
             PcpError::InvoicePayeeMismatch => "invoice_payee_mismatch",
             PcpError::InvoiceDescriptionMismatch => "invoice_description_mismatch",
             PcpError::InvoiceExpiresTooSoon => "invoice_expires_too_soon",
+            PcpError::InvoiceExpired => "invoice_expired",
             PcpError::HtlcLockTooLong { .. } => "htlc_lock_too_long",
             PcpError::SettleMarginTooShort => "settle_margin_too_short",
             PcpError::PreimageMismatch => "preimage_mismatch",
@@ -433,6 +469,8 @@ impl PcpError {
             }
             PcpError::RecordNotBound => "record_not_bound",
             PcpError::RecordSignatureInvalid => "record_signature_invalid",
+            PcpError::Recorded(code) => return code.clone(),
+            PcpError::NoAnswer => "no_answer",
         };
         s.to_string()
     }
@@ -551,6 +589,16 @@ pub enum BuyerState {
         bundle: ProofBundle,
         invoice: Invoice,
     },
+    /// The price is reserved against the cap and the payment call was made
+    /// (or is about to be), but it is not known whether the HTLC left. Only
+    /// [`Buyer::recover_payment`] leaves this state: a lookup that fails
+    /// keeps the reservation, because the money may be out.
+    Paying {
+        offer: Offer,
+        statement: Statement,
+        bundle: ProofBundle,
+        invoice: Invoice,
+    },
     /// HTLC to `statement.payment_hash` locked; waiting for `k`.
     Paid {
         offer: Offer,
@@ -575,12 +623,73 @@ impl BuyerState {
             BuyerState::OfferAccepted { .. } => "OfferAccepted",
             BuyerState::BundleVerified { .. } => "BundleVerified",
             BuyerState::InvoiceAccepted { .. } => "InvoiceAccepted",
+            BuyerState::Paying { .. } => "Paying",
             BuyerState::Paid { .. } => "Paid",
             BuyerState::Delivered { .. } => "Delivered",
             BuyerState::Refunded => "Refunded",
             BuyerState::Aborted(_) => "Aborted",
         }
     }
+}
+
+/// A buyer's state as saved. Mirrors [`BuyerState`]; an abort keeps only
+/// its reason code (the detail is in the principal's log).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "state")]
+pub enum BuyerStateRecord {
+    Requested,
+    OfferAccepted {
+        offer: Offer,
+    },
+    BundleVerified {
+        offer: Offer,
+        statement: Statement,
+        bundle: ProofBundle,
+    },
+    InvoiceAccepted {
+        offer: Offer,
+        statement: Statement,
+        bundle: ProofBundle,
+        invoice: Invoice,
+    },
+    Paying {
+        offer: Offer,
+        statement: Statement,
+        bundle: ProofBundle,
+        invoice: Invoice,
+    },
+    Paid {
+        offer: Offer,
+        statement: Statement,
+        bundle: ProofBundle,
+        invoice: Invoice,
+    },
+    Delivered {
+        receipt: Receipt,
+        bundle: ProofBundle,
+        #[serde(with = "hexbytes")]
+        result: Vec<u8>,
+    },
+    Refunded,
+    Aborted {
+        reason: String,
+    },
+}
+
+/// Everything a purchase must keep across a restart, except the agent key,
+/// mandate and principal log (kept by the caller with the agent).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BuyerSnapshot {
+    pub schema: u32,
+    pub request: Request,
+    pub started_at: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub seller_mandate: Option<Mandate>,
+    /// Held against the cap by this purchase ([`Buyer::spent_msat`]).
+    pub spent_msat: u64,
+    pub clock: u64,
+    pub state: BuyerStateRecord,
 }
 
 /// Result of [`Buyer::poll`].
@@ -606,6 +715,10 @@ pub struct Buyer {
     nonce: Hash32,
     max_price_msat: u64,
     request_id: Hash32,
+    /// The signed request, kept so it can be sent again after a restart.
+    request: Request,
+    /// When the request was made (for the wait-for-offer limit).
+    started_at: u64,
     /// The accepted offer's seller mandate.
     seller_mandate: Option<Mandate>,
     /// Amount reserved against the cap for this purchase.
@@ -680,6 +793,8 @@ impl Buyer {
             nonce,
             max_price_msat,
             request_id,
+            request: req.clone(),
+            started_at: now,
             seller_mandate: None,
             reserved_msat: 0,
             clock: now,
@@ -691,6 +806,240 @@ impl Buyer {
     /// Current state.
     pub fn state(&self) -> &BuyerState {
         &self.state
+    }
+
+    /// The signed request this purchase started with.
+    pub fn request(&self) -> &Request {
+        &self.request
+    }
+
+    /// What this purchase holds against the cap: the price from the
+    /// reservation until a refund or a payment known never to have left.
+    /// It stays counted after a payment that settled, including one whose
+    /// result then failed its checks.
+    pub fn spent_msat(&self) -> u64 {
+        self.reserved_msat
+    }
+
+    /// True when the purchase is over (delivered, refunded or aborted).
+    pub fn is_done(&self) -> bool {
+        matches!(
+            self.state,
+            BuyerState::Delivered { .. } | BuyerState::Refunded | BuyerState::Aborted(_)
+        )
+    }
+
+    /// The signed acceptance to send after [`Buyer::accept_offer`]. May be
+    /// sent again while waiting for the bundle: the seller treats a repeat
+    /// as a no-op.
+    pub fn accept_message(&self) -> Result<Accept, PcpError> {
+        let BuyerState::OfferAccepted { offer } = &self.state else {
+            return Err(PcpError::WrongState("accept_message needs OfferAccepted"));
+        };
+        let mid = self.agent.mandate_id();
+        let mut a = Accept {
+            version: VERSION.to_string(),
+            offer_id: offer.offer_id(),
+            mandate: None,
+            agent_sig: None,
+        };
+        a.agent_sig = Some(self.agent.sign(&a.auth_message(&mid)));
+        a.mandate = Some(self.agent.mandate().clone());
+        Ok(a)
+    }
+
+    /// Give up where waiting can no longer succeed, and log why: no offer
+    /// within `offer_wait_secs` of the request; offer expired before the
+    /// invoice was accepted; invoice expired before paying. Never gives up
+    /// once a payment may have left (`Paying`, `Paid`): only the rail
+    /// decides those. Returns the error if it gave up.
+    pub fn check_timeouts(&mut self, now: u64, offer_wait_secs: u64) -> Option<PcpError> {
+        self.clock = self.clock.max(now);
+        let e = match &self.state {
+            BuyerState::Requested if now >= self.started_at.saturating_add(offer_wait_secs) => {
+                PcpError::NoAnswer
+            }
+            BuyerState::OfferAccepted { offer } | BuyerState::BundleVerified { offer, .. }
+                if now >= offer.offer_expires_at =>
+            {
+                PcpError::OfferExpired
+            }
+            BuyerState::InvoiceAccepted { invoice, .. } if now >= invoice.expires_at() => {
+                PcpError::InvoiceExpired
+            }
+            _ => return None,
+        };
+        let _ = self.abort::<()>(e.clone());
+        Some(e)
+    }
+
+    /// Everything to save after a step. Pair it with the agent's log.
+    pub fn snapshot(&self) -> BuyerSnapshot {
+        let state = match &self.state {
+            BuyerState::Requested => BuyerStateRecord::Requested,
+            BuyerState::OfferAccepted { offer } => BuyerStateRecord::OfferAccepted {
+                offer: offer.clone(),
+            },
+            BuyerState::BundleVerified {
+                offer,
+                statement,
+                bundle,
+            } => BuyerStateRecord::BundleVerified {
+                offer: offer.clone(),
+                statement: statement.clone(),
+                bundle: bundle.clone(),
+            },
+            BuyerState::InvoiceAccepted {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            } => BuyerStateRecord::InvoiceAccepted {
+                offer: offer.clone(),
+                statement: statement.clone(),
+                bundle: bundle.clone(),
+                invoice: invoice.clone(),
+            },
+            BuyerState::Paying {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            } => BuyerStateRecord::Paying {
+                offer: offer.clone(),
+                statement: statement.clone(),
+                bundle: bundle.clone(),
+                invoice: invoice.clone(),
+            },
+            BuyerState::Paid {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            } => BuyerStateRecord::Paid {
+                offer: offer.clone(),
+                statement: statement.clone(),
+                bundle: bundle.clone(),
+                invoice: invoice.clone(),
+            },
+            BuyerState::Delivered {
+                receipt,
+                bundle,
+                result,
+            } => BuyerStateRecord::Delivered {
+                receipt: receipt.clone(),
+                bundle: bundle.clone(),
+                result: result.clone(),
+            },
+            BuyerState::Refunded => BuyerStateRecord::Refunded,
+            BuyerState::Aborted(e) => BuyerStateRecord::Aborted { reason: e.code() },
+        };
+        BuyerSnapshot {
+            schema: SNAPSHOT_SCHEMA,
+            request: self.request.clone(),
+            started_at: self.started_at,
+            seller_mandate: self.seller_mandate.clone(),
+            spent_msat: self.reserved_msat,
+            clock: self.clock,
+            state,
+        }
+    }
+
+    /// Rebuild a purchase from a snapshot. The agent must already carry the
+    /// cap (the sum of [`BuyerSnapshot::spent_msat`] over its purchases) and
+    /// the principal log saved with it. Refuses a snapshot from another
+    /// schema, another agent or mandate, or another job class.
+    pub fn restore(
+        agent: &Agent,
+        job: Box<dyn JobClass>,
+        backend: Box<dyn ProofBackend>,
+        policy: BuyerPolicy,
+        snap: BuyerSnapshot,
+    ) -> Result<Buyer, PcpError> {
+        if snap.schema != SNAPSHOT_SCHEMA {
+            return Err(PcpError::Version);
+        }
+        let req = snap.request;
+        if req.mandate.as_ref() != Some(agent.mandate()) {
+            return Err(PcpError::RecordNotBound);
+        }
+        if req.job_id != job.job_id() || req.spec_hash != job.spec_hash() {
+            return Err(PcpError::JobMismatch);
+        }
+        let state = match snap.state {
+            BuyerStateRecord::Requested => BuyerState::Requested,
+            BuyerStateRecord::OfferAccepted { offer } => BuyerState::OfferAccepted { offer },
+            BuyerStateRecord::BundleVerified {
+                offer,
+                statement,
+                bundle,
+            } => BuyerState::BundleVerified {
+                offer,
+                statement,
+                bundle,
+            },
+            BuyerStateRecord::InvoiceAccepted {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            } => BuyerState::InvoiceAccepted {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            },
+            BuyerStateRecord::Paying {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            } => BuyerState::Paying {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            },
+            BuyerStateRecord::Paid {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            } => BuyerState::Paid {
+                offer,
+                statement,
+                bundle,
+                invoice,
+            },
+            BuyerStateRecord::Delivered {
+                receipt,
+                bundle,
+                result,
+            } => BuyerState::Delivered {
+                receipt,
+                bundle,
+                result,
+            },
+            BuyerStateRecord::Refunded => BuyerState::Refunded,
+            BuyerStateRecord::Aborted { reason } => BuyerState::Aborted(PcpError::Recorded(reason)),
+        };
+        Ok(Buyer {
+            agent: agent.clone(),
+            node: agent.mandate().payout_node.clone(),
+            job,
+            backend,
+            policy,
+            input: req.input.clone(),
+            nonce: req.buyer_nonce,
+            max_price_msat: req.max_price_msat,
+            request_id: req.request_id(),
+            request: req,
+            started_at: snap.started_at,
+            seller_mandate: snap.seller_mandate,
+            reserved_msat: snap.spent_msat,
+            clock: snap.clock,
+            state,
+        })
     }
 
     /// The node this buyer pays from: its principal's.
@@ -708,6 +1057,7 @@ impl Buyer {
             BuyerState::OfferAccepted { offer }
             | BuyerState::BundleVerified { offer, .. }
             | BuyerState::InvoiceAccepted { offer, .. }
+            | BuyerState::Paying { offer, .. }
             | BuyerState::Paid { offer, .. } => offer.offer_id(),
             _ => self.request_id,
         }
@@ -727,9 +1077,14 @@ impl Buyer {
 
     /// The seller refused the request (its `make_offer` returned `err`).
     /// Records the refusal in the principal's log and ends the purchase.
+    /// Also valid after an accept was sent: the seller may refuse the
+    /// accept (offer expired, not issued).
     pub fn refused_by_seller(&mut self, err: &PcpError) -> PcpError {
-        if !matches!(self.state, BuyerState::Requested) {
-            return PcpError::WrongState("refused_by_seller needs Requested");
+        if !matches!(
+            self.state,
+            BuyerState::Requested | BuyerState::OfferAccepted { .. }
+        ) {
+            return PcpError::WrongState("refused_by_seller needs Requested or OfferAccepted");
         }
         let e = PcpError::RefusedByCounterparty(err.code());
         let _ = self.abort::<()>(e.clone());
@@ -938,23 +1293,88 @@ impl Buyer {
     /// Step 4 (P1): reserve the price against the mandate's cap, then lock
     /// it in an HTLC to `H` from the principal's node, on any [`Rail`].
     ///
-    /// On a rail error the reservation is released and the state stays
-    /// `InvoiceAccepted`. On a real node a transport error can hide a
-    /// payment that did go out: look it up (`Rail::lookup_payment`) before
-    /// paying again.
+    /// The state is `Paying` from the reservation until the rail answers. If
+    /// the payment call fails, the payment is looked up (a lost reply can
+    /// hide an HTLC that left): in flight or settled means `Paid`; known not
+    /// to have left means the reservation is released and the state goes
+    /// back to `InvoiceAccepted`; a lookup that itself fails leaves the state
+    /// `Paying` with the reservation held, for [`Buyer::recover_payment`].
     pub fn pay_via(&mut self, rail: &mut dyn Rail) -> Result<(), PcpError> {
+        self.begin_pay(rail.rail_id(), rail.now())?;
+        self.send_payment(rail)
+    }
+
+    /// First half of [`Buyer::pay_via`]: reserve the price against the cap
+    /// and enter `Paying`, without touching the rail. A caller that saves
+    /// state saves it here, before [`Buyer::send_payment`], so a crash
+    /// during the payment call restarts in `Paying` with the reservation.
+    pub fn begin_pay(&mut self, rail_id: &str, now: u64) -> Result<(), PcpError> {
         let BuyerState::InvoiceAccepted { invoice, offer, .. } = &self.state else {
             return Err(PcpError::WrongState("pay needs InvoiceAccepted"));
         };
-        if rail.rail_id() != offer.rail {
+        if rail_id != offer.rail {
             return Err(PcpError::RailNotSupported);
         }
         let amount = invoice.amount_msat;
-        let now = rail.now();
         self.clock = self.clock.max(now);
         if let Err(e) = self.agent.reserve(amount, now) {
             return self.abort(PcpError::OwnMandate(e));
         }
+        self.reserved_msat = amount;
+        self.enter_paying();
+        Ok(())
+    }
+
+    /// Second half of [`Buyer::pay_via`]: make the payment call from
+    /// `Paying`. On an error, looks the payment up ([`Buyer::recover_payment`]).
+    pub fn send_payment(&mut self, rail: &mut dyn Rail) -> Result<(), PcpError> {
+        let BuyerState::Paying { invoice, .. } = &self.state else {
+            return Err(PcpError::WrongState("send_payment needs Paying"));
+        };
+        let invoice = invoice.clone();
+        match rail.pay_invoice(&self.node, &invoice, self.policy.htlc_secs) {
+            Ok(()) => {
+                self.paying_to(true);
+                Ok(())
+            }
+            Err(e) => match self.recover_payment(rail) {
+                // The HTLC left despite the error: the payment stands.
+                Ok(()) => Ok(()),
+                // Known not to have left (released), or not known (held).
+                Err(_) => Err(e.into()),
+            },
+        }
+    }
+
+    /// Resolve a `Paying` state from the payer's node: in flight or settled
+    /// means `Paid` (returns `Ok`); never left or failed means the
+    /// reservation is released and the state is `InvoiceAccepted` again
+    /// (returns `Err(NotPaid)`; paying again re-checks the invoice's expiry);
+    /// a lookup error keeps `Paying` and the reservation (returns the error).
+    /// Called by [`Buyer::pay_via`], and after a restart in `Paying`.
+    pub fn recover_payment(&mut self, rail: &mut dyn Rail) -> Result<(), PcpError> {
+        let BuyerState::Paying { statement, .. } = &self.state else {
+            return Err(PcpError::WrongState("recover_payment needs Paying"));
+        };
+        let h = statement.payment_hash;
+        self.clock = self.clock.max(rail.now());
+        match rail.lookup_payment(&self.node, &h) {
+            Ok(PaymentStatus::InFlight) | Ok(PaymentStatus::Settled { .. }) => {
+                self.paying_to(true);
+                Ok(())
+            }
+            Ok(PaymentStatus::Unknown) | Ok(PaymentStatus::Failed { .. }) => {
+                self.agent.release(self.reserved_msat);
+                self.reserved_msat = 0;
+                self.paying_to(false);
+                Err(PcpError::NotPaid)
+            }
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    /// `InvoiceAccepted` -> `Paying`.
+    fn enter_paying(&mut self) {
         let BuyerState::InvoiceAccepted {
             offer,
             statement,
@@ -962,46 +1382,42 @@ impl Buyer {
             invoice,
         } = std::mem::replace(&mut self.state, BuyerState::Requested)
         else {
-            unreachable!()
+            unreachable!("enter_paying needs InvoiceAccepted")
         };
-        match rail.pay_invoice(&self.node, &invoice, self.policy.htlc_secs) {
-            Ok(()) => {
-                self.reserved_msat = amount;
-                self.state = BuyerState::Paid {
-                    offer,
-                    statement,
-                    bundle,
-                    invoice,
-                };
-                Ok(())
+        self.state = BuyerState::Paying {
+            offer,
+            statement,
+            bundle,
+            invoice,
+        };
+    }
+
+    /// `Paying` -> `Paid` (the HTLC left) or back to `InvoiceAccepted`.
+    fn paying_to(&mut self, left: bool) {
+        let BuyerState::Paying {
+            offer,
+            statement,
+            bundle,
+            invoice,
+        } = std::mem::replace(&mut self.state, BuyerState::Requested)
+        else {
+            unreachable!("paying_to needs Paying")
+        };
+        self.state = if left {
+            BuyerState::Paid {
+                offer,
+                statement,
+                bundle,
+                invoice,
             }
-            Err(e) => {
-                // The call failed, but the HTLC may have left anyway (a lost
-                // reply). If the node shows the payment in flight or settled,
-                // the money is out: keep the reservation and wait.
-                if matches!(
-                    rail.lookup_payment(&self.node, &invoice.payment_hash),
-                    Ok(PaymentStatus::InFlight) | Ok(PaymentStatus::Settled { .. })
-                ) {
-                    self.reserved_msat = amount;
-                    self.state = BuyerState::Paid {
-                        offer,
-                        statement,
-                        bundle,
-                        invoice,
-                    };
-                    return Ok(());
-                }
-                self.agent.release(amount);
-                self.state = BuyerState::InvoiceAccepted {
-                    offer,
-                    statement,
-                    bundle,
-                    invoice,
-                };
-                Err(e.into())
+        } else {
+            BuyerState::InvoiceAccepted {
+                offer,
+                statement,
+                bundle,
+                invoice,
             }
-        }
+        };
     }
 
     /// Steps P2-P6: watch the HTLC. When it settles, take `k`, check
@@ -1160,15 +1576,113 @@ impl Default for SellerConfig {
     }
 }
 
-struct Sale {
-    key: [u8; 32],
-    price_msat: u64,
-    settled: bool,
-    offer_id: Hash32,
-    statement_hash: Hash32,
-    bundle: ProofBundle,
-    input: Vec<u8>,
-    buyer_mandate: Mandate,
+/// Where an issued offer is (seller side).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "stage")]
+pub enum OfferStage {
+    /// Sent; the buyer has not accepted it.
+    Issued,
+    /// The buyer accepted it; the seller has not finished proving.
+    Accepted,
+    /// Proven: `k` exists and is recorded, the invoice may not exist yet.
+    Proven {
+        #[serde(with = "hex32")]
+        payment_hash: Hash32,
+    },
+    /// Invoiced: bundle and invoice binding can be sent (and re-sent).
+    Invoiced {
+        #[serde(with = "hex32")]
+        payment_hash: Hash32,
+    },
+    /// Over before an invoice existed (expired, or the seller refused).
+    Closed { reason: String },
+}
+
+/// An offer the seller issued, with the request it answers.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IssuedOffer {
+    pub request: Request,
+    pub offer: Offer,
+    pub stage: OfferStage,
+}
+
+/// One sale from the moment `k` exists. Contains `k`: a seller's state is
+/// as sensitive as the keys of its node.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SaleRecord {
+    #[serde(with = "hex32")]
+    pub key: [u8; 32],
+    pub price_msat: u64,
+    /// `k` was revealed and the receipt is in the principal's log.
+    pub settled: bool,
+    /// Amount settled (zero unless `settled`).
+    pub settled_msat: u64,
+    /// Ended without payment (cancelled, expired or refused).
+    pub closed: bool,
+    #[serde(with = "hex32")]
+    pub offer_id: Hash32,
+    pub bundle: ProofBundle,
+    /// The invoice to `H`, once created (or found again after a restart).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub invoice: Option<Invoice>,
+    #[serde(with = "hexbytes")]
+    pub input: Vec<u8>,
+    pub buyer_mandate: Mandate,
+}
+
+impl SaleRecord {
+    fn statement_hash(&self) -> Hash32 {
+        self.bundle.statement.hash()
+    }
+
+    fn binding(&self) -> Option<InvoiceBinding> {
+        self.invoice.as_ref().map(|invoice| InvoiceBinding {
+            version: VERSION.to_string(),
+            offer_id: self.offer_id,
+            statement_hash: self.statement_hash(),
+            invoice: invoice.clone(),
+        })
+    }
+}
+
+/// Everything a seller must keep across a restart, except its agent key,
+/// mandate and principal log (kept by the caller with the agent) and its
+/// configuration. Versioned separately from the wire messages.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SellerSnapshot {
+    pub schema: u32,
+    pub offers: Vec<IssuedOffer>,
+    pub sales: Vec<SaleRecord>,
+}
+
+/// Version of [`SellerSnapshot`] and [`BuyerSnapshot`].
+pub const SNAPSHOT_SCHEMA: u32 = 1;
+
+impl SellerSnapshot {
+    /// What the seller has sold under its mandate: the sum of settled sales.
+    /// The seller's cap is restored from this, never from a counter.
+    pub fn committed_msat(&self) -> u64 {
+        self.sales
+            .iter()
+            .filter(|s| s.settled)
+            .map(|s| s.settled_msat)
+            .sum()
+    }
+}
+
+/// What the seller does next after an [`Accept`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AcceptStep {
+    /// First accept: prove (call [`Seller::prove`], then [`Seller::invoice`]).
+    Prove,
+    /// Accepted before and not yet invoiced: the work is in progress (or
+    /// resumes after a restart). Nothing to send yet.
+    Pending,
+    /// Already invoiced: send these again.
+    Resend(Box<ProofBundle>, Box<InvoiceBinding>),
 }
 
 /// What happened to one open sale on [`Seller::settle_paid`].
@@ -1181,9 +1695,17 @@ pub enum SaleOutcome {
     },
     /// No acceptable HTLC yet.
     NotPaid { payment_hash: Hash32 },
-    /// HTLC found but `k` withheld (amount short, too close to timeout, or
-    /// the seller's own cap would be exceeded).
+    /// HTLC found but `k` withheld for now (the node could not be read or
+    /// the settle call failed). Tried again on the next pass.
     Withheld {
+        payment_hash: Hash32,
+        reason: PcpError,
+    },
+    /// The sale is over without payment: the seller cancelled the HTLC for a
+    /// reason that can never clear (amount short, too close to timeout, own
+    /// cap exceeded), or the invoice was cancelled or expired. Logged as a
+    /// refusal; never polled again.
+    Cancelled {
         payment_hash: Hash32,
         reason: PcpError,
     },
@@ -1192,6 +1714,13 @@ pub enum SaleOutcome {
 /// The seller's state machine. Holds `k` for each open sale and reveals it
 /// only by settling an HTLC that pays the agreed price to the principal's
 /// payout node.
+///
+/// Two ways to drive it. In one process: [`Seller::make_offer`] then
+/// [`Seller::fulfil`]. Over a wire, with state saved between steps:
+/// [`Seller::make_offer`], [`Seller::accept`] (the buyer's signed
+/// [`Accept`]), [`Seller::prove`], [`Seller::invoice`], then
+/// [`Seller::settle_paid`]; [`Seller::snapshot`] after each step, and
+/// [`Seller::restore`] after a restart.
 pub struct Seller {
     agent: Agent,
     /// The principal's payout node, from the mandate.
@@ -1199,7 +1728,12 @@ pub struct Seller {
     job: Box<dyn JobClass>,
     backend: Box<dyn ProofBackend>,
     cfg: SellerConfig,
-    sales: BTreeMap<Hash32, Sale>,
+    /// Issued offers by `offer_id`.
+    offers: BTreeMap<Hash32, IssuedOffer>,
+    /// `request_id` to `offer_id`: a request sent twice gets the same offer.
+    by_request: BTreeMap<Hash32, Hash32>,
+    /// Sales by payment hash `H`.
+    sales: BTreeMap<Hash32, SaleRecord>,
 }
 
 impl Seller {
@@ -1215,7 +1749,51 @@ impl Seller {
             job,
             backend,
             cfg,
+            offers: BTreeMap::new(),
+            by_request: BTreeMap::new(),
             sales: BTreeMap::new(),
+        }
+    }
+
+    /// Rebuild a seller from a snapshot. The agent must already carry the
+    /// cap ([`SellerSnapshot::committed_msat`]) and the principal log saved
+    /// with it. Refuses a snapshot from another schema, or whose offers name
+    /// another job class, backend or payout node than this configuration.
+    pub fn restore(
+        agent: &Agent,
+        job: Box<dyn JobClass>,
+        backend: Box<dyn ProofBackend>,
+        cfg: SellerConfig,
+        snap: SellerSnapshot,
+    ) -> Result<Seller, PcpError> {
+        if snap.schema != SNAPSHOT_SCHEMA {
+            return Err(PcpError::Version);
+        }
+        let mut s = Seller::new(agent, job, backend, cfg);
+        for o in snap.offers {
+            if o.offer.job_id != s.job.job_id()
+                || o.offer.spec_hash != s.job.spec_hash()
+                || o.offer.backend_id != s.backend.backend_id()
+                || o.offer.seller_node != s.node
+            {
+                return Err(PcpError::OfferMismatch);
+            }
+            let id = o.offer.offer_id();
+            s.by_request.insert(o.request.request_id(), id);
+            s.offers.insert(id, o);
+        }
+        for r in snap.sales {
+            s.sales.insert(r.bundle.statement.payment_hash, r);
+        }
+        Ok(s)
+    }
+
+    /// Everything to save after a step. Pair it with the agent's log.
+    pub fn snapshot(&self) -> SellerSnapshot {
+        SellerSnapshot {
+            schema: SNAPSHOT_SCHEMA,
+            offers: self.offers.values().cloned().collect(),
+            sales: self.sales.values().cloned().collect(),
         }
     }
 
@@ -1228,13 +1806,57 @@ impl Seller {
         &self.agent
     }
 
-    /// Quote terms for a request (SPEC 9, S1 and S1m). Refusals are
-    /// recorded in the principal's log.
-    pub fn make_offer(&self, req: &Request, now: u64) -> Result<Offer, PcpError> {
+    /// An issued offer, by `offer_id`.
+    pub fn issued(&self, offer_id: &Hash32) -> Option<&IssuedOffer> {
+        self.offers.get(offer_id)
+    }
+
+    /// Offers the buyer accepted that still need [`Seller::prove`] or
+    /// [`Seller::invoice`] (work to resume after a restart).
+    pub fn unfinished(&self) -> Vec<(Hash32, OfferStage)> {
+        self.offers
+            .iter()
+            .filter(|(_, o)| matches!(o.stage, OfferStage::Accepted | OfferStage::Proven { .. }))
+            .map(|(id, o)| (*id, o.stage.clone()))
+            .collect()
+    }
+
+    /// True when no offer awaits work and every sale is settled or closed.
+    pub fn is_idle(&self) -> bool {
+        self.unfinished().is_empty() && self.sales.values().all(|s| s.settled || s.closed)
+    }
+
+    /// Quote terms for a request (SPEC 9, S1 and S1m), and remember the
+    /// offer. The same request (same `request_id`) gets the same offer while
+    /// it is valid. Refusals are recorded in the principal's log.
+    pub fn make_offer(&mut self, req: &Request, now: u64) -> Result<Offer, PcpError> {
+        if let Some(o) = self
+            .by_request
+            .get(&req.request_id())
+            .and_then(|id| self.offers.get(id))
+        {
+            if now < o.offer.offer_expires_at && o.request == *req {
+                return Ok(o.offer.clone());
+            }
+        }
         let r = self.check_request(req, now);
-        if let Err(e) = &r {
-            let cp = req.mandate.as_ref().map(|m| m.agent_key);
-            self.agent.record_refusal(req.request_id(), cp, e, now);
+        match &r {
+            Ok(offer) => {
+                let id = offer.offer_id();
+                self.by_request.insert(req.request_id(), id);
+                self.offers.insert(
+                    id,
+                    IssuedOffer {
+                        request: req.clone(),
+                        offer: offer.clone(),
+                        stage: OfferStage::Issued,
+                    },
+                );
+            }
+            Err(e) => {
+                let cp = req.mandate.as_ref().map(|m| m.agent_key);
+                self.agent.record_refusal(req.request_id(), cp, e, now);
+            }
         }
         r
     }
@@ -1305,9 +1927,107 @@ impl Seller {
         Ok(offer)
     }
 
-    /// Package a result for sale: check it, pick a fresh `k`, encrypt,
-    /// prove, and create the invoice to `H = SHA256(k)`, payable to the
-    /// principal's payout node.
+    /// The buyer accepts an offer (SPEC 9, S1o). Checked before any proving:
+    /// the offer must be one this seller issued and still valid, and the
+    /// accept must be signed by the agent that sent the request, under its
+    /// mandate. A repeated accept is not an error: it returns
+    /// [`AcceptStep::Pending`] or [`AcceptStep::Resend`] and logs nothing.
+    pub fn accept(&mut self, acc: &Accept, now: u64) -> Result<AcceptStep, PcpError> {
+        let r = self.check_accept(acc, now);
+        if let Err(e) = &r {
+            let cp = acc.mandate.as_ref().map(|m| m.agent_key);
+            self.agent.record_refusal(acc.offer_id, cp, e, now);
+        }
+        r
+    }
+
+    fn check_accept(&mut self, acc: &Accept, now: u64) -> Result<AcceptStep, PcpError> {
+        if acc.version != VERSION {
+            return Err(PcpError::Version);
+        }
+        let spec = self.job.spec_hash();
+        let Some(issued) = self.offers.get(&acc.offer_id) else {
+            return Err(PcpError::OfferNotIssued);
+        };
+        // Signed by the agent that sent the request, under the same mandate.
+        let buyer_m = check_counterparty(
+            acc.mandate.as_ref(),
+            acc.agent_sig.as_ref(),
+            Role::Buyer,
+            &spec,
+            now,
+            |mid| acc.auth_message(mid),
+        )
+        .map_err(PcpError::CounterpartyMandate)?;
+        if issued.request.mandate.as_ref() != Some(buyer_m) {
+            return Err(PcpError::CounterpartyMandate(
+                MandateError::AgentKeyMismatch,
+            ));
+        }
+        match &issued.stage {
+            OfferStage::Issued => {}
+            OfferStage::Accepted | OfferStage::Proven { .. } => return Ok(AcceptStep::Pending),
+            OfferStage::Invoiced { payment_hash } => {
+                let sale = &self.sales[payment_hash];
+                return Ok(match sale.binding() {
+                    Some(b) => AcceptStep::Resend(Box::new(sale.bundle.clone()), Box::new(b)),
+                    None => AcceptStep::Pending,
+                });
+            }
+            OfferStage::Closed { reason } => {
+                return Err(PcpError::RefusedByCounterparty(reason.clone()))
+            }
+        }
+        if now >= issued.offer.offer_expires_at {
+            self.close_offer(&acc.offer_id, &PcpError::OfferExpired);
+            return Err(PcpError::OfferExpired);
+        }
+        self.offers
+            .get_mut(&acc.offer_id)
+            .expect("checked above")
+            .stage = OfferStage::Accepted;
+        Ok(AcceptStep::Prove)
+    }
+
+    fn close_offer(&mut self, offer_id: &Hash32, reason: &PcpError) {
+        if let Some(o) = self.offers.get_mut(offer_id) {
+            o.stage = OfferStage::Closed {
+                reason: reason.code(),
+            };
+        }
+    }
+
+    /// Close accepted offers that expired before they were proven (after a
+    /// long outage). Logs each as a refusal. Returns their ids.
+    pub fn expire_unproven(&mut self, now: u64) -> Vec<Hash32> {
+        let ids: Vec<Hash32> = self
+            .offers
+            .iter()
+            .filter(|(_, o)| {
+                matches!(o.stage, OfferStage::Issued | OfferStage::Accepted)
+                    && now >= o.offer.offer_expires_at
+            })
+            .map(|(id, _)| *id)
+            .collect();
+        for id in &ids {
+            let accepted = matches!(self.offers[id].stage, OfferStage::Accepted);
+            self.close_offer(id, &PcpError::OfferExpired);
+            if accepted {
+                let cp = self.offers[id]
+                    .request
+                    .mandate
+                    .as_ref()
+                    .map(|m| m.agent_key);
+                self.agent
+                    .record_refusal(*id, cp, &PcpError::OfferExpired, now);
+            }
+        }
+        ids
+    }
+
+    /// Package a result for sale in one call: check the offer, then
+    /// [`Seller::prove`] and [`Seller::invoice`]. For a seller that keeps
+    /// buyer and seller in one process; over a wire, use the steps.
     pub fn fulfil<R: RngCore + CryptoRng>(
         &mut self,
         req: &Request,
@@ -1316,23 +2036,32 @@ impl Seller {
         rail: &mut dyn Rail,
         rng: &mut R,
     ) -> Result<(ProofBundle, InvoiceBinding), PcpError> {
-        let r = self.fulfil_inner(req, offer, result, rail, rng);
-        if let Err(e) = &r {
+        let offer_id = offer.offer_id();
+        if let Err(e) = self.check_offer_is_mine(req, offer, rail) {
             let cp = req.mandate.as_ref().map(|m| m.agent_key);
-            self.agent
-                .record_refusal(offer.offer_id(), cp, e, rail.now());
+            self.agent.record_refusal(offer_id, cp, &e, rail.now());
+            return Err(e);
         }
-        r
+        let entry = self.offers.entry(offer_id).or_insert_with(|| IssuedOffer {
+            request: req.clone(),
+            offer: offer.clone(),
+            stage: OfferStage::Issued,
+        });
+        if entry.stage == OfferStage::Issued {
+            entry.stage = OfferStage::Accepted;
+        }
+        self.by_request.insert(req.request_id(), offer_id);
+        self.prove(&offer_id, result, rail.now(), rng)?;
+        self.invoice(&offer_id, rail)
     }
 
-    fn fulfil_inner<R: RngCore + CryptoRng>(
-        &mut self,
+    /// The offer is this seller's own, unchanged, for this request.
+    fn check_offer_is_mine(
+        &self,
         req: &Request,
         offer: &Offer,
-        result: Vec<u8>,
-        rail: &mut dyn Rail,
-        rng: &mut R,
-    ) -> Result<(ProofBundle, InvoiceBinding), PcpError> {
+        rail: &dyn Rail,
+    ) -> Result<(), PcpError> {
         if rail.rail_id() != offer.rail {
             return Err(PcpError::RailNotSupported);
         }
@@ -1361,12 +2090,61 @@ impl Seller {
         {
             return Err(PcpError::OfferMismatch);
         }
+        if req.mandate.is_none() {
+            return Err(PcpError::CounterpartyMandate(MandateError::Missing));
+        }
+        Ok(())
+    }
+
+    /// Prove an accepted offer: check the result, pick a fresh `k`, encrypt,
+    /// prove. Records the sale with `k` before any invoice exists, so save
+    /// a snapshot after this call and before [`Seller::invoice`]. Refusals
+    /// are logged and close the offer.
+    pub fn prove<R: RngCore + CryptoRng>(
+        &mut self,
+        offer_id: &Hash32,
+        result: Vec<u8>,
+        now: u64,
+        rng: &mut R,
+    ) -> Result<(), PcpError> {
+        let Some(issued) = self.offers.get(offer_id) else {
+            return Err(PcpError::OfferNotIssued);
+        };
+        if issued.stage != OfferStage::Accepted {
+            return Err(PcpError::WrongState("prove needs an accepted offer"));
+        }
+        let req = issued.request.clone();
+        let offer = issued.offer.clone();
+        let r = self.prove_inner(&req, &offer, result, now, rng);
+        match r {
+            Ok(h) => {
+                self.offers.get_mut(offer_id).expect("present").stage =
+                    OfferStage::Proven { payment_hash: h };
+                Ok(())
+            }
+            Err(e) => {
+                let cp = req.mandate.as_ref().map(|m| m.agent_key);
+                self.agent.record_refusal(*offer_id, cp, &e, now);
+                self.close_offer(offer_id, &e);
+                Err(e)
+            }
+        }
+    }
+
+    fn prove_inner<R: RngCore + CryptoRng>(
+        &mut self,
+        req: &Request,
+        offer: &Offer,
+        result: Vec<u8>,
+        now: u64,
+        rng: &mut R,
+    ) -> Result<Hash32, PcpError> {
         let Some(buyer_mandate) = req.mandate.clone() else {
             return Err(PcpError::CounterpartyMandate(MandateError::Missing));
         };
         // SPEC: the offer is void after offer_expires_at. Do not start (and,
-        // below, do not invoice) on a void offer.
-        if rail.now() >= offer.offer_expires_at {
+        // in `invoice`, do not invoice) on a void offer.
+        if now >= offer.offer_expires_at {
             return Err(PcpError::OfferExpired);
         }
         if !self.job.check(&req.input, &result) {
@@ -1393,43 +2171,104 @@ impl Seller {
             .backend
             .prove(self.job.as_ref(), &statement, &ciphertext, &witness)
             .map_err(PcpError::ProveFailed)?;
-        // Proving can take minutes: the offer may have lapsed meanwhile.
-        if rail.now() >= offer.offer_expires_at {
-            return Err(PcpError::OfferExpired);
-        }
-        let invoice = rail.create_invoice(&InvoiceRequest {
-            payee: self.node.clone(),
-            payment_hash: h,
-            amount_msat: offer.price_msat,
-            description_hash: statement.hash(),
-            expiry_secs: self.cfg.invoice_expiry_secs,
-            min_htlc_secs: self.cfg.min_htlc_secs,
-        })?;
         self.sales.insert(
             h,
-            Sale {
+            SaleRecord {
                 key,
                 price_msat: offer.price_msat,
                 settled: false,
+                settled_msat: 0,
+                closed: false,
                 offer_id,
-                statement_hash: statement.hash(),
-                bundle: bundle.clone(),
+                bundle,
+                invoice: None,
                 input: req.input.clone(),
                 buyer_mandate,
             },
         );
-        let binding = InvoiceBinding {
-            version: VERSION.to_string(),
-            offer_id,
-            statement_hash: statement.hash(),
-            invoice,
-        };
-        Ok((bundle, binding))
+        Ok(h)
     }
 
-    /// Settle every open sale whose HTLC is locked for the full price with
-    /// enough time left. This is the only place `k` ever leaves the seller.
-    /// Each settlement appends a signed receipt to the principal's log.
+    /// Create the invoice to `H` for a proven offer, payable to the
+    /// principal's payout node, and return what to send the buyer. After a
+    /// restart, an invoice the node already issued for `H` is found and
+    /// reused (a second invoice to the same hash is refused). Refuses, and
+    /// closes the sale, if the offer expired before an invoice existed.
+    pub fn invoice(
+        &mut self,
+        offer_id: &Hash32,
+        rail: &mut dyn Rail,
+    ) -> Result<(ProofBundle, InvoiceBinding), PcpError> {
+        let Some(issued) = self.offers.get(offer_id) else {
+            return Err(PcpError::OfferNotIssued);
+        };
+        let h = match &issued.stage {
+            OfferStage::Proven { payment_hash } | OfferStage::Invoiced { payment_hash } => {
+                *payment_hash
+            }
+            _ => return Err(PcpError::WrongState("invoice needs a proven offer")),
+        };
+        let offer = issued.offer.clone();
+        let cp = issued.request.mandate.as_ref().map(|m| m.agent_key);
+        let sale = self.sales.get(&h).expect("a proven offer has a sale");
+        if let Some(b) = sale.binding() {
+            return Ok((sale.bundle.clone(), b));
+        }
+        if rail.rail_id() != offer.rail {
+            return Err(PcpError::RailNotSupported);
+        }
+        let want = InvoiceRequest {
+            payee: self.node.clone(),
+            payment_hash: h,
+            amount_msat: offer.price_msat,
+            description_hash: sale.statement_hash(),
+            expiry_secs: self.cfg.invoice_expiry_secs,
+            min_htlc_secs: self.cfg.min_htlc_secs,
+        };
+        let found = match rail.find_invoice(&h)? {
+            Some(inv) => Some(inv),
+            None => {
+                // Proving can take minutes: the offer may have lapsed.
+                let now = rail.now();
+                if now >= offer.offer_expires_at {
+                    let e = PcpError::OfferExpired;
+                    self.agent.record_refusal(*offer_id, cp, &e, now);
+                    self.close_offer(offer_id, &e);
+                    if let Some(s) = self.sales.get_mut(&h) {
+                        s.closed = true;
+                    }
+                    return Err(e);
+                }
+                match rail.create_invoice(&want) {
+                    Ok(inv) => Some(inv),
+                    // The create may have reached the node although the call
+                    // failed: look before giving up.
+                    Err(e) => match rail.find_invoice(&h) {
+                        Ok(Some(inv)) => Some(inv),
+                        _ => return Err(e.into()),
+                    },
+                }
+            }
+        };
+        let inv = found.expect("set above");
+        if inv.payment_hash != h
+            || inv.amount_msat != want.amount_msat
+            || inv.description_hash != want.description_hash
+            || inv.payee != self.node
+        {
+            return Err(PcpError::Rail(RailError::InvoiceMismatch("found invoice")));
+        }
+        let sale = self.sales.get_mut(&h).expect("present");
+        sale.invoice = Some(inv);
+        let out = (
+            sale.bundle.clone(),
+            sale.binding().expect("invoice just set"),
+        );
+        self.offers.get_mut(offer_id).expect("present").stage =
+            OfferStage::Invoiced { payment_hash: h };
+        Ok(out)
+    }
+
     /// Test hook: the key of an open sale, to simulate a settle that reached
     /// the node while its reply was lost.
     #[cfg(test)]
@@ -1437,12 +2276,33 @@ impl Seller {
         self.sales.get(h).map(|s| s.key)
     }
 
+    /// Settle every open sale whose HTLC is locked for the full price with
+    /// enough time left. This is the only place `k` ever leaves the seller.
+    /// Each settlement appends a signed receipt to the principal's log.
     pub fn settle_paid(&mut self, rail: &mut dyn Rail) -> Vec<SaleOutcome> {
         let now = rail.now();
         let mut out = Vec::new();
-        for (h, sale) in self.sales.iter_mut().filter(|(_, s)| !s.settled) {
+        for (h, sale) in self
+            .sales
+            .iter_mut()
+            .filter(|(_, s)| !s.settled && !s.closed && s.invoice.is_some())
+        {
+            let invoice_expires_at = sale.invoice.as_ref().map_or(0, |i| i.expires_at());
             let htlc = match rail.lookup_invoice(h) {
                 Ok(Some(htlc)) => htlc,
+                // No HTLC held. Once the invoice has expired none can arrive
+                // any more (a refunded HTLC also reads as none), so the sale
+                // is over.
+                Ok(None) if now >= invoice_expires_at => {
+                    out.push(close_sale(
+                        &self.agent,
+                        h,
+                        sale,
+                        PcpError::InvoiceExpired,
+                        now,
+                    ));
+                    continue;
+                }
                 Ok(None) => {
                     out.push(SaleOutcome::NotPaid { payment_hash: *h });
                     continue;
@@ -1469,12 +2329,13 @@ impl Seller {
                     continue;
                 }
                 IncomingState::Canceled => {
-                    out.push(SaleOutcome::NotPaid { payment_hash: *h });
+                    out.push(close_sale(&self.agent, h, sale, PcpError::Refunded, now));
                     continue;
                 }
             }
             // Reasons that can never clear for this HTLC: cancel it so the
-            // buyer's funds come back now, not at the HTLC timeout.
+            // buyer's funds come back now, not at the HTLC timeout. The cap
+            // only grows, so a cap the HTLC would exceed never clears either.
             let permanent = if htlc.amount_msat < sale.price_msat {
                 Some(PcpError::InvoiceAmountMismatch {
                     invoice: htlc.amount_msat,
@@ -1482,22 +2343,21 @@ impl Seller {
                 })
             } else if htlc.timeout_at.saturating_sub(now) < self.cfg.settle_margin_secs {
                 Some(PcpError::SettleMarginTooShort)
+            } else if let Err(e) = self.agent.check_budget(htlc.amount_msat, now) {
+                Some(PcpError::OwnMandate(e))
             } else {
                 None
             };
             if let Some(reason) = permanent {
-                let _ = rail.cancel_invoice(&self.node, h);
-                out.push(SaleOutcome::Withheld {
-                    payment_hash: *h,
-                    reason,
-                });
-                continue;
-            }
-            if let Err(e) = self.agent.check_budget(htlc.amount_msat, now) {
-                out.push(SaleOutcome::Withheld {
-                    payment_hash: *h,
-                    reason: PcpError::OwnMandate(e),
-                });
+                // If the cancel call fails the HTLC is still held: report it
+                // as withheld and try the cancel again on the next pass.
+                match rail.cancel_invoice(&self.node, h) {
+                    Ok(()) => out.push(close_sale(&self.agent, h, sale, reason, now)),
+                    Err(e) => out.push(SaleOutcome::Withheld {
+                        payment_hash: *h,
+                        reason: e.into(),
+                    }),
+                }
                 continue;
             }
             match rail.settle_invoice(&self.node, h, sale.key) {
@@ -1524,16 +2384,39 @@ impl Seller {
     }
 }
 
+/// End a sale without payment: mark it closed and log the reason as a
+/// refusal about the offer.
+fn close_sale(
+    agent: &Agent,
+    h: &Hash32,
+    sale: &mut SaleRecord,
+    reason: PcpError,
+    at: u64,
+) -> SaleOutcome {
+    sale.closed = true;
+    agent.record_refusal(
+        sale.offer_id,
+        Some(sale.buyer_mandate.agent_key),
+        &reason,
+        at,
+    );
+    SaleOutcome::Cancelled {
+        payment_hash: *h,
+        reason,
+    }
+}
+
 /// Mark a sale settled, commit its amount against the seller's cap, and
 /// append the signed receipt to the principal's log.
 fn finish_sale(
     agent: &Agent,
     h: &Hash32,
-    sale: &mut Sale,
+    sale: &mut SaleRecord,
     amount_msat: u64,
     at: u64,
 ) -> SaleOutcome {
     sale.settled = true;
+    sale.settled_msat = amount_msat;
     agent.commit(amount_msat);
     agent.record_deal(
         Receipt {
@@ -1545,7 +2428,7 @@ fn finish_sale(
             counterparty_principal_key: sale.buyer_mandate.principal_key,
             agent_key: [0u8; 32],
             offer_id: sale.offer_id,
-            statement_hash: sale.statement_hash,
+            statement_hash: sale.statement_hash(),
             bundle_id: sale.bundle.bundle_id(),
             payment_hash: *h,
             preimage: sale.key,

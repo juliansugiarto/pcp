@@ -69,6 +69,12 @@ fn the_hold_invoice_reads_back_with_the_requested_terms() {
     assert!(inv.bolt11.as_deref().unwrap().starts_with("lnbcrt"));
     // Nothing paid yet: the payee sees no HTLC.
     assert_eq!(seller.lookup_invoice(&req.payment_hash), Ok(None));
+    // A seller that crashed before recording the invoice finds it again.
+    assert_eq!(
+        seller.find_invoice(&req.payment_hash),
+        Ok(Some(inv.clone()))
+    );
+    assert_eq!(seller.find_invoice(&fresh_key()), Ok(None));
     seller
         .cancel_hold_invoice(&req.payment_hash)
         .expect("cancel");

@@ -1,0 +1,77 @@
+# S1: buyer and seller as two processes with their own state directories,
+# killed and restarted at every named crash point (pcp/tools/crash-matrix.sh),
+# on the TEST-ONLY simulated network file. The same matrix runs against two
+# real LND nodes in lnd-regtest.yml. Results go to the `ci-results` branch
+# under two-process/<UTC ts>/ and to workflow artifacts, never to main.
+name: two-process
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pcp/src/**"
+      - "pcp/Cargo.*"
+      - "pcp/tools/crash-matrix.sh"
+      - ".github/workflows/two-process.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: two-process-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Machine
+        run: |
+          mkdir -p out
+          { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; nproc; rustc --version; } | tee out/machine.txt
+      - name: Build, test, clippy
+        run: |
+          cd pcp
+          set -o pipefail
+          cargo build --bins 2>&1 | tail -n 3
+          cargo test 2>&1 | grep -E "^test result|FAILED|panicked" | tee ../out/cargo-test.txt
+          cargo clippy --all-targets -- -D warnings 2>&1 | tail -n 3 | tee ../out/clippy.txt
+      - name: Crash matrix (sim)
+        id: matrix
+        continue-on-error: true
+        run: TIMEOUT=150 bash pcp/tools/crash-matrix.sh matrix 2>&1 | tee out/matrix.txt
+      - name: Collect
+        if: always()
+        run: |
+          # Logs, exit codes and audits only: the state directories hold the
+          # test agents' keys and are not published.
+          cp matrix/summary.txt out/ 2>/dev/null || true
+          for d in matrix/*/; do
+            n=$(basename "$d"); mkdir -p "out/cases/$n"
+            cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "$d"/setup.txt "out/cases/$n"/ 2>/dev/null || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: two-process-${{ github.run_id }}
+          path: out/
+      - name: Publish results to ci-results
+        if: always()
+        run: |
+          git config user.name "pcp-ci"
+          git config user.email "ci@users.noreply.github.com"
+          dest="two-process/$(date -u +%Y%m%dT%H%M%SZ)"
+          for i in 1 2 3 4 5; do
+            git fetch origin +refs/heads/ci-results:refs/remotes/origin/ci-results 2>/dev/null || true
+            git checkout -f -B ci-results origin/ci-results 2>/dev/null \
+              || { git checkout -f --orphan ci-results && git rm -rq --cached .; }
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add two-process && git commit -qm "two-process run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results && break
+            sleep $((RANDOM % 20 + 5))
+          done
+      - name: Fail if the matrix failed
+        if: steps.matrix.outcome != 'success'
+        run: exit 1
