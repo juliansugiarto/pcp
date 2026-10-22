@@ -30,6 +30,11 @@
 //! ```text
 //! cargo run --release -p pcp-risc0-host -- [--job sudoku9|sudoku4|testsuite] [--rail sim|lnd] [--execute-only]
 //! ```
+//!
+//! With `--role sell|buy` it runs one side as its own process instead
+//! (state directory, directory wire, restarts): see `two_process.rs`.
+
+mod two_process;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -325,6 +330,13 @@ fn execute_only(make_job: fn() -> Box<dyn JobClass>, input: Vec<u8>, result: Vec
 }
 
 fn main() {
+    if std::env::args().any(|a| a == "--role") {
+        println!(
+            "guest image id {}",
+            hex::encode(Digest::from(PCP_GUEST_ID).as_bytes())
+        );
+        two_process::run();
+    }
     let args = parse_args();
     let (make_job, input, result) = job_case(&args.job);
     println!(

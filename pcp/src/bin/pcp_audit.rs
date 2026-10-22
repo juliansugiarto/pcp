@@ -19,7 +19,7 @@ use pcp::protocol::{BuyerSnapshot, BuyerStateRecord, OfferStage, SellerSnapshot}
 const USAGE: &str = "\
 pcp-audit --state DIR [--expect-state Delivered|Refunded|Aborted]
           [--expect-reason CODE] [--expect-settled N] [--expect-proofs N]
-          [--expect-refusals N] [--out FILE]
+          [--expect-refusals N] [--min-refusals N] [--out FILE]
 
 The role is read from the mandate in DIR. Buyer: --expect-state and
 --expect-reason. Seller: --expect-settled (settled sales) and
@@ -134,10 +134,16 @@ fn main() {
             if by_hash.len() != r.settled {
                 push(&mut r.problems, "a receipt without a settled sale".into());
             }
-            if settled_total != r.committed_msat {
+            // The cap the seller restores (from its sale records) must equal
+            // what its log says it sold (from the receipts).
+            let logged: u64 = log.receipts().map(|rc| rc.amount_msat).sum();
+            if logged != r.committed_msat || settled_total != r.committed_msat {
                 push(
                     &mut r.problems,
-                    "cap does not equal the settled sales".into(),
+                    format!(
+                        "cap {} but the log's receipts sum to {logged}",
+                        r.committed_msat
+                    ),
                 );
             }
             for o in &snap.offers {
@@ -259,6 +265,14 @@ fn main() {
                     "expected {n} refusals in the log, found {} {:?}",
                     r.log_refusals, r.refusal_reasons
                 ),
+            );
+        }
+    }
+    if let Some(n) = a.get("min-refusals") {
+        if n.parse::<usize>().map_or(true, |n| r.log_refusals < n) {
+            push(
+                &mut r.problems,
+                format!("expected at least {n} refusals, found {}", r.log_refusals),
             );
         }
     }

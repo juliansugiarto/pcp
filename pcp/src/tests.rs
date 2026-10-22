@@ -686,17 +686,11 @@ fn unpaid_invoice_expires() {
     let (mut fx, _bundle, binding) = verified((TestSuiteJob, clamp_suite()));
     fx.buyer.check_invoice(&binding, fx.ledger.now()).unwrap();
     fx.ledger.advance(binding.invoice.expiry_secs);
-    assert_eq!(
-        fx.buyer.pay(&mut fx.ledger),
-        Err(PcpError::Ledger(LedgerError::InvoiceExpired))
-    );
+    // The offer lapsed with the invoice: the buyer refuses before paying
+    // (the ledger would refuse the expired invoice too).
+    assert_eq!(fx.buyer.pay(&mut fx.ledger), Err(PcpError::OfferExpired));
     assert_eq!(fx.ledger.balance("buyer"), BUYER_FUNDS);
-    // The payment never left: the reservation is back and the buyer can
-    // still decide (here: walk away).
-    assert!(matches!(
-        fx.buyer.state(),
-        BuyerState::InvoiceAccepted { .. }
-    ));
+    assert!(fx.buyer.is_done());
     assert_eq!(fx.bp.agent.committed_msat(), 0);
     // The seller ends the sale once the invoice has expired.
     assert!(matches!(
@@ -1976,6 +1970,8 @@ struct FlakyRail<'a> {
     pay_fails: bool,
     /// `lookup_payment` reports an error (node unreachable).
     lookup_fails: bool,
+    /// How many times `cancel_invoice` was called.
+    cancels: u32,
 }
 
 impl<'a> FlakyRail<'a> {
@@ -1985,6 +1981,7 @@ impl<'a> FlakyRail<'a> {
             pay_lost_reply: false,
             pay_fails: false,
             lookup_fails: false,
+            cancels: 0,
         }
     }
 }
@@ -2026,6 +2023,7 @@ impl crate::rail::Rail for FlakyRail<'_> {
         self.inner.settle_invoice(payee, h, k)
     }
     fn cancel_invoice(&mut self, payee: &str, h: &Hash32) -> Result<(), crate::rail::RailError> {
+        self.cancels += 1;
         self.inner.cancel_invoice(payee, h)
     }
     fn lookup_invoice(
@@ -2720,4 +2718,105 @@ fn snapshots_from_another_schema_or_agent_are_refused() {
         ),
         Err(PcpError::OfferMismatch)
     ));
+}
+
+// ---------------------------------------------------------------------------
+// S1 review fixes (Fable S-a, S-b, S-e)
+
+/// A wire sale up to `InvoiceAccepted`, with the invoice made one second
+/// after the offer (so the invoice outlives the offer by one second).
+fn wire_invoiced() -> (Wire, ProofBundle, InvoiceBinding) {
+    let mut w = wire();
+    let id = w.offer.offer_id();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    w.ledger.advance(1);
+    w.seller
+        .prove(
+            &id,
+            CLAMP_OK.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng,
+        )
+        .unwrap();
+    let (bundle, binding) = w.seller.invoice(&id, &mut w.ledger).unwrap();
+    w.buyer.verify_bundle(&bundle).unwrap();
+    w.buyer.check_invoice(&binding, w.ledger.now()).unwrap();
+    (w, bundle, binding)
+}
+
+#[test]
+fn buyer_never_pays_on_a_void_offer() {
+    // S-b: a buyer that comes back after the offer expired, with the
+    // invoice still payable, must not pay.
+    let (mut w, _b, binding) = wire_invoiced();
+    let wait = w.offer.offer_expires_at - w.ledger.now();
+    w.ledger.advance(wait);
+    assert!(w.ledger.now() < binding.invoice.expires_at());
+    assert_eq!(w.buyer.pay(&mut w.ledger), Err(PcpError::OfferExpired));
+    assert!(w.buyer.is_done());
+    assert_eq!(w.ledger.balance("buyer"), BUYER_FUNDS);
+    assert_eq!(w.buyer.agent().committed_msat(), 0);
+    // The give-up rule says the same before any pay attempt.
+    let (mut x, _b, _bd) = wire_invoiced();
+    assert_eq!(
+        x.buyer.check_timeouts(x.offer.offer_expires_at, 60),
+        Some(PcpError::OfferExpired)
+    );
+}
+
+#[test]
+fn seller_cancels_at_the_node_when_it_closes_an_expired_invoice() {
+    // S-a: when the seller ends a sale because its invoice expired unpaid,
+    // it also cancels the invoice at the node, so a late HTLC is refused
+    // instead of held by a seller that no longer looks.
+    let (mut w, _b, binding) = wire_invoiced();
+    let wait = binding.invoice.expires_at() - w.ledger.now();
+    w.ledger.advance(wait);
+    let mut rail = FlakyRail::new(&mut w.ledger);
+    let out = w.seller.settle_paid(&mut rail);
+    assert!(matches!(
+        out.as_slice(),
+        [SaleOutcome::Cancelled {
+            reason: PcpError::InvoiceExpired,
+            ..
+        }]
+    ));
+    assert_eq!(rail.cancels, 1);
+}
+
+#[test]
+fn a_repeat_accept_for_a_closed_offer_is_answered_not_logged_again() {
+    // S-e: the seller could not prove (its result fails the check). The
+    // offer is closed and logged once. Repeated accepts get the reason it
+    // ended, with nothing new in the seller's log.
+    let mut w = wire();
+    let id = w.offer.offer_id();
+    w.buyer.accept_offer(&w.offer, w.ledger.now()).unwrap();
+    let acc = w.buyer.accept_message().unwrap();
+    w.seller.accept(&acc, w.ledger.now()).unwrap();
+    assert_eq!(
+        w.seller.prove(
+            &id,
+            CLAMP_BAD.as_bytes().to_vec(),
+            w.ledger.now(),
+            &mut OsRng
+        ),
+        Err(PcpError::SellerResultInvalid)
+    );
+    let logged = w.seller.agent().log().refusals().count();
+    assert_eq!(logged, 1);
+    for _ in 0..3 {
+        assert_eq!(
+            w.seller.accept(&acc, w.ledger.now()),
+            Err(PcpError::Recorded("seller_result_invalid".into()))
+        );
+    }
+    assert_eq!(w.seller.agent().log().refusals().count(), logged);
+    // The buyer records the seller's own reason, once prefixed.
+    let e = w
+        .buyer
+        .refused_by_seller(&PcpError::Recorded("seller_result_invalid".into()));
+    assert_eq!(e.code(), "refused_by_counterparty.seller_result_invalid");
 }

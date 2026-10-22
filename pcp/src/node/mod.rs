@@ -76,6 +76,21 @@ pub fn crash_point(name: &str) {
     }
 }
 
+/// Sleep here if `PCP_PAUSE_AT` is `<name>:<seconds>`. A test hook, like
+/// [`crash_point`]: it lets a test change the world (stop a node) while the
+/// process is past a given point.
+pub fn pause_point(name: &str) {
+    if let Ok(v) = std::env::var("PCP_PAUSE_AT") {
+        if let Some((n, secs)) = v.rsplit_once(':') {
+            if n == name {
+                let secs: u64 = secs.parse().unwrap_or(0);
+                eprintln!("PCP_PAUSE_AT={name}: pausing {secs} s");
+                std::thread::sleep(Duration::from_secs(secs));
+            }
+        }
+    }
+}
+
 /// Errors that stop a loop. Protocol refusals do not: they are logged and
 /// the sale ends.
 #[derive(Debug)]
@@ -277,6 +292,11 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                     }
                     Err(e) => {
                         save(&seller)?;
+                        // The offer is closed: tell the buyer once, now.
+                        run.wire.send(&WireMsg::Refused {
+                            subject_id: id,
+                            reason: e.code(),
+                        })?;
                         (run.log)(&format!("not proven: {}", e.code()));
                         continue;
                     }
@@ -292,6 +312,17 @@ pub fn run_seller(run: SellerRun) -> Result<SellerSummary, NodeError> {
                 }
                 Err(e) => {
                     save(&seller)?;
+                    // Closed (the offer lapsed before an invoice existed):
+                    // tell the buyer once. Otherwise a rail error: retried.
+                    if matches!(
+                        seller.issued(&id).map(|o| &o.stage),
+                        Some(OfferStage::Closed { .. })
+                    ) {
+                        run.wire.send(&WireMsg::Refused {
+                            subject_id: id,
+                            reason: e.code(),
+                        })?;
+                    }
                     (run.log)(&format!("invoice {}: {}", short(&id), e.code()));
                 }
             }
@@ -448,6 +479,7 @@ pub fn run_buyer(run: BuyerRun) -> Result<BuyerSummary, NodeError> {
         (run.log)("request sent");
     } else {
         (run.log)(&format!("buyer resumed in {}", buyer.state().name()));
+        pause_point("buyer:resumed");
     }
     // After a restart in Paying: find out from the node whether the money
     // left. A lookup error keeps Paying and is retried below.

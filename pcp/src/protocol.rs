@@ -864,6 +864,9 @@ impl Buyer {
             {
                 PcpError::OfferExpired
             }
+            BuyerState::InvoiceAccepted { offer, .. } if now >= offer.offer_expires_at => {
+                PcpError::OfferExpired
+            }
             BuyerState::InvoiceAccepted { invoice, .. } if now >= invoice.expires_at() => {
                 PcpError::InvoiceExpired
             }
@@ -1314,6 +1317,12 @@ impl Buyer {
         };
         if rail_id != offer.rail {
             return Err(PcpError::RailNotSupported);
+        }
+        // SPEC: the offer is void after offer_expires_at; never pay on it
+        // (a buyer restarted late can reach here after the offer lapsed).
+        if now >= offer.offer_expires_at {
+            self.clock = self.clock.max(now);
+            return self.abort(PcpError::OfferExpired);
         }
         let amount = invoice.amount_msat;
         self.clock = self.clock.max(now);
@@ -1933,6 +1942,13 @@ impl Seller {
     /// mandate. A repeated accept is not an error: it returns
     /// [`AcceptStep::Pending`] or [`AcceptStep::Resend`] and logs nothing.
     pub fn accept(&mut self, acc: &Accept, now: u64) -> Result<AcceptStep, PcpError> {
+        // An offer that is already over: answer with the reason it ended,
+        // logged once when it ended, not again for every repeat.
+        if let Some(OfferStage::Closed { reason }) =
+            self.offers.get(&acc.offer_id).map(|o| &o.stage)
+        {
+            return Err(PcpError::Recorded(reason.clone()));
+        }
         let r = self.check_accept(acc, now);
         if let Err(e) = &r {
             let cp = acc.mandate.as_ref().map(|m| m.agent_key);
@@ -1974,9 +1990,7 @@ impl Seller {
                     None => AcceptStep::Pending,
                 });
             }
-            OfferStage::Closed { reason } => {
-                return Err(PcpError::RefusedByCounterparty(reason.clone()))
-            }
+            OfferStage::Closed { reason } => return Err(PcpError::Recorded(reason.clone())),
         }
         if now >= issued.offer.offer_expires_at {
             self.close_offer(&acc.offer_id, &PcpError::OfferExpired);
@@ -2294,6 +2308,11 @@ impl Seller {
                 // any more (a refunded HTLC also reads as none), so the sale
                 // is over.
                 Ok(None) if now >= invoice_expires_at => {
+                    // Also cancel the invoice at the node, so an HTLC that
+                    // arrives late is refused at once instead of being held
+                    // by a seller that no longer looks. Usually there is
+                    // nothing to cancel; that is not an error here.
+                    let _ = rail.cancel_invoice(&self.node, h);
                     out.push(close_sale(
                         &self.agent,
                         h,

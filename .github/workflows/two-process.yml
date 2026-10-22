@@ -32,13 +32,22 @@ jobs:
         run: |
           mkdir -p out
           { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; nproc; rustc --version; } | tee out/machine.txt
-      - name: Build, test, clippy
+      - name: Build and test
+        id: test
+        continue-on-error: true
         run: |
           cd pcp
           set -o pipefail
           cargo build --bins 2>&1 | tail -n 3
-          cargo test 2>&1 | grep -E "^test result|FAILED|panicked" | tee ../out/cargo-test.txt
-          cargo clippy --all-targets -- -D warnings 2>&1 | tail -n 3 | tee ../out/clippy.txt
+          cargo test 2>&1 | grep -E "^test result|FAILED|panicked|^error" | tee ../out/cargo-test.txt
+      - name: Clippy
+        id: clippy
+        continue-on-error: true
+        run: |
+          cd pcp
+          set -o pipefail
+          cargo clippy --version | tee ../out/clippy.txt
+          cargo clippy --all-targets -- -D warnings 2>&1 | grep -v "^ *Compiling\|^ *Checking" | tail -n 80 | tee -a ../out/clippy.txt
       - name: Crash matrix (sim)
         id: matrix
         continue-on-error: true
@@ -48,6 +57,8 @@ jobs:
         run: |
           # Logs, exit codes and audits only: the state directories hold the
           # test agents' keys and are not published.
+          { echo "test: ${{ steps.test.outcome }}"; echo "clippy: ${{ steps.clippy.outcome }}";
+            echo "matrix: ${{ steps.matrix.outcome }}"; } | tee out/outcomes.txt
           cp matrix/summary.txt out/ 2>/dev/null || true
           for d in matrix/*/; do
             n=$(basename "$d"); mkdir -p "out/cases/$n"
@@ -72,6 +83,8 @@ jobs:
             git add two-process && git commit -qm "two-process run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results && break
             sleep $((RANDOM % 20 + 5))
           done
-      - name: Fail if the matrix failed
-        if: steps.matrix.outcome != 'success'
-        run: exit 1
+      - name: Fail if the tests, clippy or the matrix failed
+        if: steps.test.outcome != 'success' || steps.clippy.outcome != 'success' || steps.matrix.outcome != 'success'
+        run: |
+          echo "test=${{ steps.test.outcome }} clippy=${{ steps.clippy.outcome }} matrix=${{ steps.matrix.outcome }}"
+          exit 1

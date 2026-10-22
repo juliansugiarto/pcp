@@ -17,6 +17,7 @@ on:
       - "pcp-risc0/**/*.rs"
       - "pcp-risc0/**/Cargo.*"
       - ".github/lnd-regtest/**"
+      - "pcp/tools/crash-matrix.sh"
       - ".github/workflows/real-sale.yml"
 
 permissions:
@@ -125,13 +126,38 @@ jobs:
           bash .github/lnd-regtest/sale-state.sh after-testsuite
           grep -h "cost-row" out/sale-testsuite.txt | sed 's/^\[[0-9:]*\] //' | tee out/cost-row-testsuite.txt || true
           [ "$rc" = 0 ] || { echo "testsuite sale exit $rc"; exit 1; }
+      - name: Build pcp-setup and pcp-audit
+        run: |
+          cd pcp
+          cargo build --features lnd --bins 2>&1 | tail -n 3
+      - name: Two processes with real proofs (clean, and the seller killed after invoicing)
+        id: twoproc
+        continue-on-error: true
+        run: |
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds/alice/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds/alice/admin.macaroon
+          export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8082
+          export PCP_SELLER_LND_TLS_CERT=$PWD/creds/bob/tls.cert
+          export PCP_SELLER_LND_MACAROON=$PWD/creds/bob/admin.macaroon
+          export RAIL=lnd TIMEOUT=900 BIN=$PWD/pcp/target/debug
+          export SELL_BIN=$PWD/pcp-risc0/target/release/pcp-risc0 SELL_PRE="--role sell"
+          export BUY_BIN=$PWD/pcp-risc0/target/release/pcp-risc0 BUY_PRE="--role buy"
+          set -o pipefail
+          bash pcp/tools/crash-matrix.sh twoproc clean seller:invoice:post 2>&1 | tee out/two-process.txt
+          for d in twoproc/*/; do
+            [ -d "$d" ] || continue
+            n=$(basename "$d"); mkdir -p "out/two-process/$n"
+            cp "$d"/*.log "$d"/*.codes "$d"/audit-*.json "out/two-process/$n"/ 2>/dev/null || true
+          done
+          grep -h "prove-row\|proof verified" twoproc/*/*.log | tee out/two-process-costs.txt || true
       - name: Dump node state
         if: always()
         run: bash .github/lnd-regtest/dump.sh > out/dump.txt 2>&1 || true
       - name: Summary
         if: always()
         run: |
-          { echo "sale: ${{ steps.sale.outcome }}"; cat out/image-id.txt 2>/dev/null;
+          { echo "sale: ${{ steps.sale.outcome }}"; echo "two processes: ${{ steps.twoproc.outcome }}"; cat out/image-id.txt 2>/dev/null;
             grep -h -E "offer accepted|SETTLED|FAILED|cost-row|Elapsed|Maximum resident" out/sale-*.txt 2>/dev/null; } | tee out/summary.txt
       - uses: actions/upload-artifact@v4
         if: always()
@@ -154,5 +180,5 @@ jobs:
             sleep $((RANDOM % 20 + 5))
           done
       - name: Fail if a sale failed
-        if: steps.sale.outcome != 'success'
+        if: steps.sale.outcome != 'success' || steps.twoproc.outcome != 'success'
         run: exit 1
