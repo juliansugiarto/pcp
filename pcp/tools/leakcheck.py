@@ -16,7 +16,12 @@ it for what must not be in it:
 A hit means the receipt carries the goods before payment. No hit is
 evidence, not proof, of zero knowledge: it rules out the plain leak (a
 secret copied into the journal or the seal), not a cryptographic one.
-Exit 1 on any hit, 2 if no delivered purchase was found.
+
+With two or more receipts it also checks: all have the same
+length (a length that depended on R would leak it), and any two differ in
+most bytes (a prover with a fixed random generator would repeat itself).
+Neither shows zero knowledge either; RISC Zero does not claim it (SPEC 7.2).
+Exit 1 on any hit or failed check, 2 if no delivered purchase was found.
 """
 
 import json
@@ -29,6 +34,7 @@ from vectors import tagged_hash  # noqa: E402  (SPEC 3.1 encoding)
 
 def main():
     checked, hits = 0, 0
+    proofs = []
     for path in sys.argv[1:]:
         try:
             st = json.load(open(path))["state"]["state"]
@@ -40,6 +46,7 @@ def main():
             print(f"{path}: not delivered, skipped")
             continue
         proof = bytes.fromhex(d["bundle"]["proof"])
+        proofs.append((path, proof))
         k = bytes.fromhex(d["receipt"]["preimage"])
         r = bytes.fromhex(d["result"])
         secrets = {"k": k, "enc_key": tagged_hash("enc-key", [k]), "R": r}
@@ -51,6 +58,21 @@ def main():
     if checked == 0:
         print("no delivered purchase found")
         return 2
+    lengths = {len(p) for _, p in proofs}
+    if len(lengths) > 1:
+        print(f"receipt lengths differ: {sorted(lengths)}")
+        hits += 1
+    for i in range(len(proofs)):
+        for j in range(i + 1, len(proofs)):
+            a, b = proofs[i][1], proofs[j][1]
+            n = min(len(a), len(b))
+            same = sum(1 for x, y in zip(a, b) if x == y) / max(n, 1)
+            print(f"{proofs[i][0]} vs {proofs[j][0]}: {same:.1%} of bytes equal")
+            # The journal, the claim and the fixed header match; the seal
+            # must not. Random bytes agree about 0.4% of the time.
+            if same > 0.10:
+                print("  too similar: is the prover's randomness fixed?")
+                hits += 1
     return 1 if hits else 0
 
 
