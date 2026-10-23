@@ -1,0 +1,11 @@
+listening on http://127.0.0.1:18702 (put a TLS proxy in front)
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+[seller 1792777573] seller up: 0 offers, 0 sales on record
+[seller 1792777574] offer a59eae53b12a sent
+[seller 1792777574] accept a59eae53b12a : proving
+[seller 1792777577] proved a59eae53b12a in 0.000 s
+[seller 1792777577] invoice a59eae53b12a sent
+[seller 1792777577] bundle a59eae53b12a sent again
+[seller 1792777577] SETTLED: revealed k, 1000000 msat
+[seller 1792777577] seller done: 1 sales over, committed 1000000 msat
+seller summary: settled 1 cancelled 0 refused 0 proofs 1 committed_msat 1000000

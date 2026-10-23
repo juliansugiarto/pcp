@@ -1,0 +1,23 @@
+seller node 02472c10f1a8a5288ecae54702c7fbadc052dcdd4db019286b3b04d46fab7930b4
+buyer node  0397ffd7d3ef9b3030af68c2e1ea67a64845a47363aafe5d615b9638ac2eabb78a
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+         This run tests the Lightning rail only. Regtest sats only.
+  [1 request sent]
+  [2 offer accepted: 1000000 msat, backend INSECURE-dev-transparent/0, rail lightning-bolt11/0]
+  [3 seller proved and invoiced in 0.011 s: C 97 bytes, proof 250 bytes]
+  [4 buyer verified the proof in 0.000 s, before paying]
+  [5 invoice checked: hash, amount, payee, description, expiry]
+  [6 paid: HTLC to H on its way]
+  [7 seller settled: revealed k, 1000000 msat received]
+  [8 buyer has k, decrypted C and re-checked R (0.522 s after paying)]
+SETTLED over LND: 1000000 msat, preimage 5c247e4daa5a51fdfd48dc34c40da685e23c55cc8153140fe5f123d64b13f687
+result:
+5 3 4 6 7 8 9 1 2
+6 7 2 1 9 5 3 4 8
+1 9 8 3 4 2 5 6 7
+8 5 9 7 6 1 4 2 3
+4 2 6 8 5 3 7 9 1
+7 1 3 9 2 4 8 5 6
+9 6 1 5 3 7 2 8 4
+2 8 7 4 1 9 6 3 5
+3 4 5 2 8 6 1 7 9
