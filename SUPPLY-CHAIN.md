@@ -19,6 +19,6 @@ Everything that runs in CI or in a sale window comes from somewhere. This file l
 
 ## Not pinned yet
 
-- The `rzup` binary the installer fetches, and the toolchain archives rzup downloads. Recorded since 23 October (`out/rzup-binaries.txt`: `rzup --version` and SHA-256 of `~/.risc0/bin/*`); pinned once two runs on different days agree. The pinned image id catches a tampered guest build (the guest is built with `cargo +risc0` inside the pinned builder image, not with the host toolchain); it does not catch a tampered `r0vm` or `cargo-risczero` on the seller's machine.
+- The `rzup` binary the installer fetches, and the toolchain archives rzup downloads. Recorded since 23 October (`out/rzup-binaries.txt`: `rzup --version` and SHA-256 of `rzup`, `r0vm`, `cargo-risczero`, and the `rustc` and `cargo` under `~/.risc0`); pinned once two runs on different days agree. The pinned image id catches a tampered guest build (the guest is built with `cargo +risc0` inside the pinned builder image, not with the host toolchain); it does not catch a tampered `r0vm` or `cargo-risczero` on the seller's machine.
 - The nightly toolchain `cargo fuzz` uses (`fuzz.yml`), and the macOS runner image.
 - nginx in the HTTPS test comes from Ubuntu's signed apt archive.

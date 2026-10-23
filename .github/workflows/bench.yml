@@ -61,7 +61,7 @@ jobs:
           grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.0\.6' || { echo "r0vm 3.0.6 not installed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
           # Recorded, not yet pinned (note 31): the binaries rzup wrote.
-          { "$HOME/.risc0/bin/rzup" --version; sha256sum "$HOME"/.risc0/bin/*; } > out/rzup-binaries.txt 2>&1 || true
+          { "$HOME/.risc0/bin/rzup" --version; find "$HOME/.risc0" -type f \( -name rzup -o -name r0vm -o -name cargo-risczero -o -name rustc -o -name cargo \) -exec sha256sum {} + | sort -k2; } > out/rzup-binaries.txt 2>&1 || true
       - name: Build pcp-risc0
         run: |
           cd pcp-risc0

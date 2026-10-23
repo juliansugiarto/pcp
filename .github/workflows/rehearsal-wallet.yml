@@ -1,0 +1,53 @@
+# The rehearsal buyer's wallet on signet (design note 30): restore it from
+# the Actions secret REHEARSAL_BUYER_XPRV, wait for sync and recovery, and
+# publish its balance and a receiving address (both public by nature) to
+# ci-results-lnd, rehearsal/<UTC ts>-wallet/. The owner funds that address
+# once from a signet faucet (about 120,000 sat); the rehearsal itself is
+# sale-window.yml with mode `rehearsal`. Manual only.
+name: rehearsal-wallet
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sale-window
+  cancel-in-progress: false
+
+jobs:
+  wallet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      LND_IMAGE: lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
+      OUT: out
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Restore the buyer wallet
+        env:
+          REHEARSAL_BUYER_XPRV: ${{ secrets.REHEARSAL_BUYER_XPRV }}
+        run: |
+          mkdir -p out; { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; } > out/machine.txt
+          bash .github/rehearsal/buyer-wallet.sh
+          docker exec buyer lncli --network=signet listchannels | jq -c '[.channels[] | {remote_pubkey: .remote_pubkey[0:16], capacity, local_balance, active}]' > out/buyer-channels.json || true
+          docker exec buyer lncli --network=signet pendingchannels | jq -c '{pending_open: (.pending_open_channels | length), waiting_close: (.waiting_close_channels | length), pending_force: (.pending_force_closing_channels | length)}' > out/buyer-pending.json || true
+      - name: Secret gate (before anything leaves the runner)
+        id: gate
+        if: always()
+        env:
+          REHEARSAL_BUYER_XPRV: ${{ secrets.REHEARSAL_BUYER_XPRV }}
+        run: bash .github/rehearsal/secret-gate.sh out creds-buyer/*.macaroon
+      - name: Publish to ci-results-lnd
+        if: always() && steps.gate.outcome == 'success'
+        run: |
+          git config user.name "pcp-ci"; git config user.email "ci@users.noreply.github.com"
+          dest="rehearsal/$(date -u +%Y%m%dT%H%M%SZ)-wallet"
+          for i in 1 2 3 4 5; do
+            git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
+            git checkout -f -B ci-results-lnd origin/ci-results-lnd
+            mkdir -p "$dest" && cp -r out/* "$dest"/
+            git add -- "$dest" && git commit -qm "rehearsal wallet run ${{ github.run_id }}" && git push origin ci-results-lnd && break
+            sleep $((RANDOM % 20 + 5))
+          done

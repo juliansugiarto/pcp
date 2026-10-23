@@ -80,7 +80,7 @@ jobs:
           [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
           # Recorded, not yet pinned (note 31): the binaries rzup wrote.
-          { "$HOME/.risc0/bin/rzup" --version; sha256sum "$HOME"/.risc0/bin/*; } > out/rzup-binaries.txt 2>&1 || true
+          { "$HOME/.risc0/bin/rzup" --version; find "$HOME/.risc0" -type f \( -name rzup -o -name r0vm -o -name cargo-risczero -o -name rustc -o -name cargo \) -exec sha256sum {} + | sort -k2; } > out/rzup-binaries.txt 2>&1 || true
       # Cache the cargo registry and pcp-risc0/target between iterations.
       # The image id is re-read and compared on every run, so a stale guest
       # would show up as a mismatch.

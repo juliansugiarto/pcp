@@ -9,20 +9,30 @@
 # software on a test network. Test coins only. Cloudflare terminates TLS
 # and sees requests, offers and bundles (the ciphertext), never the key.
 #
-# dry_run (the default) does not announce anything: a 10-minute window
-# that a second LND node on the same runner checks from outside (GET
-# /pcp/v0/info through the public URL, a Lightning connection through
-# bore). Results: branch ci-results-lnd, window/<UTC ts>/. A real window
-# also writes WINDOW.md on branch `window`.
+# mode:
+# - dry (the default) announces nothing: a 10-minute window that a second
+#   LND node on the same runner checks from outside (GET /pcp/v0/info
+#   through the public URL, a Lightning connection through bore).
+# - rehearsal (design note 30, Fable review 32) announces nothing: we are
+#   the stranger. A second LND on the same runner, restored from the secret
+#   REHEARSAL_BUYER_XPRV (funded once by the owner, see rehearsal-wallet.yml),
+#   reaches the seller only through the public paths (Cloudflare URL, bore),
+#   opens a direct channel, buys with pcp-buy-risc0, closes the channel
+#   cooperatively; .github/rehearsal/check.sh decides pass or fail.
+# - window: a real window, by invitation; writes WINDOW.md on branch `window`.
+# Results: branch ci-results-lnd, window/<UTC ts>[-dry]/ or rehearsal/<UTC ts>/.
+# Nothing is published or uploaded before .github/rehearsal/secret-gate.sh
+# has passed.
 name: sale-window
 
 on:
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: "Self-check only, nothing announced (10 minutes)"
-        type: boolean
-        default: true
+      mode:
+        description: "dry: 10-minute self-check; rehearsal: we buy, nothing announced; window: a real, invited window"
+        type: choice
+        options: [dry, rehearsal, window]
+        default: dry
       minutes:
         description: "How long the window stays open (at most 150)"
         type: number
@@ -35,8 +45,12 @@ on:
         description: "Sales before the seller stops"
         type: number
         default: 3
+      red_plant_secret:
+        description: "Red run only: plant a fake key in the results; the secret gate must refuse to publish"
+        type: boolean
+        default: false
       principals:
-        description: "Invited principals: public keys (64 hex characters each), separated by spaces or commas. Required unless dry run."
+        description: "Invited principals: public keys (64 hex characters each), separated by spaces or commas. Required for mode window."
         type: string
         default: ""
 
@@ -64,11 +78,15 @@ jobs:
           PRINCIPALS: ${{ inputs.principals }}
         run: |
           mkdir -p out
-          m=${{ inputs.minutes }}; [ "${{ inputs.dry_run }}" = true ] && m=10
+          mode="${{ inputs.mode }}"
+          m=${{ inputs.minutes }}; [ "$mode" = dry ] && m=10
+          # Rehearsal: one sale; the seller's quiet exit must outlive the
+          # channel wait (up to 60 minutes) and the purchase, so 120 regardless.
+          sales=${{ inputs.sales }}; [ "$mode" = rehearsal ] && { sales=1; m=120; }
           # 150 leaves the 240-minute job time for the toolchain, a guest
           # build on a cache miss, LND sync, closing and publishing.
           [ "$m" -ge 1 ] && [ "$m" -le 150 ] || { echo "minutes must be 1 to 150"; exit 1; }
-          [ "${{ inputs.sales }}" -ge 1 ] || { echo "sales must be at least 1"; exit 1; }
+          [ "$sales" -ge 1 ] || { echo "sales must be at least 1"; exit 1; }
           price=${{ inputs.price_sat }}
           [ "$price" -ge 1 ] && [ "$price" -le 10000 ] || { echo "price_sat must be 1 to 10000 (the seller mandate's per-deal limit)"; exit 1; }
           # Invited principals only (design note 19). The keys are public, but
@@ -78,10 +96,14 @@ jobs:
           [ "$bad" = 0 ] || { echo "$bad principal(s) are not 64 hex characters; nothing started"; exit 1; }
           sort -u tokens.txt > allowed.txt; rm tokens.txt
           n=$(wc -l < allowed.txt)
-          if [ "${{ inputs.dry_run }}" != true ] && [ "$n" -lt 1 ]; then
+          # A rehearsal adds its own buyer's principal once that buyer exists.
+          if [ "$mode" = window ] && [ "$n" -lt 1 ]; then
             echo "a window needs at least one invited principal (64 hex characters)"; exit 1
           fi
-          { echo "minutes=$m"; echo "price_sat=$price"; echo "sales=${{ inputs.sales }}"; echo "dry_run=${{ inputs.dry_run }}"; echo "invited=$n"; } | tee -a "$GITHUB_OUTPUT" out/parameters.txt
+          { echo "minutes=$m"; echo "price_sat=$price"; echo "sales=$sales"; echo "mode=$mode"; echo "invited=$n"; } | tee -a "$GITHUB_OUTPUT" out/parameters.txt
+          echo "$price" > out/price.txt
+          git ls-remote origin refs/heads/window | awk '{print "ref:" $1}' > out/window-ref-before.txt
+          [ -s out/window-ref-before.txt ] || echo "ref:none" > out/window-ref-before.txt
           { echo "date: $(date -u +%FT%TZ)"; echo "commit: $GITHUB_SHA"; uname -a; nproc; free -m; } | tee out/machine.txt
       - name: Install RISC Zero toolchain
         env:
@@ -106,7 +128,7 @@ jobs:
           [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
           # Recorded, not yet pinned (note 31): the binaries rzup wrote.
-          { "$HOME/.risc0/bin/rzup" --version; sha256sum "$HOME"/.risc0/bin/*; } > out/rzup-binaries.txt 2>&1 || true
+          { "$HOME/.risc0/bin/rzup" --version; find "$HOME/.risc0" -type f \( -name rzup -o -name r0vm -o -name cargo-risczero -o -name rustc -o -name cargo \) -exec sha256sum {} + | sort -k2; } > out/rzup-binaries.txt 2>&1 || true
       # The real-sale cache: the same build.
       - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
@@ -126,6 +148,9 @@ jobs:
           id=$(./target/release/pcp-risc0 --job sudoku9 --execute-only | grep -oE "guest image id [0-9a-f]{64}" | awk '{print $4}')
           { echo "image_id: $id"; echo "pinned:   $expected"; } | tee ../out/image-id.txt
           [ -n "$id" ] && [ "$id" = "$expected" ] || { echo "the guest is not the pinned one: no window"; exit 1; }
+          if [ "${{ steps.p.outputs.mode }}" = rehearsal ]; then
+            cargo build --locked --release -p pcp-risc0-verify --features lnd,http > ../out/build-verify.txt 2>&1 || { tail -n 100 ../out/build-verify.txt; exit 1; }
+          fi
           cd ../pcp && cargo build --locked --features lnd --bin pcp-setup --bin pcp-audit 2>&1 | tail -n 2
       - name: Start LND on signet (neutrino)
         run: |
@@ -150,6 +175,27 @@ jobs:
           mkdir -p creds
           docker cp window:/root/seller.macaroon creds/seller.macaroon
           docker cp window:/root/.lnd/tls.cert creds/tls.cert
+      - name: "Rehearsal: the buyer's wallet (restored from the secret)"
+        if: steps.p.outputs.mode == 'rehearsal'
+        env:
+          REHEARSAL_BUYER_XPRV: ${{ secrets.REHEARSAL_BUYER_XPRV }}
+        run: |
+          bash .github/rehearsal/buyer-wallet.sh
+          bal=$(grep '^confirmed_sat:' out/buyer-wallet.txt | awk '{print $2}')
+          echo "$bal" > out/balance-before.txt
+          # 50,000 for the channel, about 7,500 funding fee, 10,000 anchor reserve.
+          [ "${bal:-0}" -ge 80000 ] || { echo "the buyer wallet holds ${bal:-0} sat; fund the address above (rehearsal-wallet.yml) with about 120,000 signet sat"; exit 1; }
+          echo "buyer_ready: $(date -u +%T)" >> out/timeline.txt
+      - name: "Rehearsal: the buyer agent, invited"
+        if: steps.p.outputs.mode == 'rehearsal'
+        run: |
+          export PCP_BUYER_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_BUYER_LND_TLS_CERT=$PWD/creds-buyer/tls.cert
+          export PCP_BUYER_LND_MACAROON=$PWD/creds-buyer/buyer.macaroon
+          ./pcp/target/debug/pcp-setup --root reh --buyer-node from-env:PCP_BUYER_LND_ --buyer-only | tee out/buyer-setup.txt
+          grep '^buyer:' out/buyer-setup.txt | sed 's/.* principal //' > buyer-principal.txt
+          [ "$(grep -cE '^[0-9a-f]{64}$' buyer-principal.txt)" = 1 ] || { echo "no buyer principal in pcp-setup's output"; exit 1; }
+          cat buyer-principal.txt >> allowed.txt
       - name: Set up the seller agent
         run: |
           export PCP_SELLER_LND_REST_URL=https://127.0.0.1:8080
@@ -231,7 +277,7 @@ jobs:
           { echo "url=$url"; echo "port=$port"; echo "pubkey=$pubkey"; echo "closes=$closes"; } >> "$GITHUB_OUTPUT"
           echo "opened: $opens" | tee -a out/timeline.txt
       - name: Announce WINDOW.md on branch window
-        if: steps.p.outputs.dry_run != 'true'
+        if: steps.p.outputs.mode == 'window'
         run: |
           git config user.name "pcp-ci"; git config user.email "ci@users.noreply.github.com"
           cp out/WINDOW.md /tmp/WINDOW.md
@@ -240,7 +286,7 @@ jobs:
           cp /tmp/WINDOW.md WINDOW.md && git add WINDOW.md && git commit -qm "window open until ${{ steps.open.outputs.closes }}" && git push origin window
           git checkout -f "$GITHUB_SHA"
       - name: Self-check from a second node (dry run)
-        if: steps.p.outputs.dry_run == 'true'
+        if: steps.p.outputs.mode == 'dry'
         continue-on-error: true
         id: selfcheck
         run: |
@@ -269,7 +315,91 @@ jobs:
           echo "probe connected through bore: $n" | tee -a out/selfcheck.txt
           docker rm -f probe >/dev/null
           grep -q "HTTP 200" out/selfcheck.txt && [ "$n" = 1 ]
+      - name: "Rehearsal: a direct channel through bore"
+        id: channel
+        if: steps.p.outputs.mode == 'rehearsal'
+        run: |
+          ln() { docker exec buyer lncli --network=signet "$@"; }
+          seller="${{ steps.open.outputs.pubkey }}"
+          # The public path only: bore.pub, as a stranger would connect.
+          for i in 1 2 3 4 5 6; do ln connect "$seller@bore.pub:${{ steps.open.outputs.port }}" >> out/channel.txt 2>&1 && break; sleep 20; done
+          ln openchannel --node_key "$seller" --local_amt 50000 | tee -a out/channel.txt
+          txid=$(grep -oE '"funding_txid": *"[0-9a-f]{64}"' out/channel.txt | grep -oE '[0-9a-f]{64}' | tail -n 1)
+          [ -n "$txid" ] || { echo "no funding txid"; exit 1; }
+          echo "txid=$txid" >> "$GITHUB_OUTPUT"
+          echo "channel_opened: $(date -u +%T) height $(ln getinfo | jq -r .block_height)" | tee -a out/timeline.txt
+          # Encrypted with a key from the wallet's seed: lets a later run
+          # recover a channel this run leaves behind (restorechanbackup).
+          ln exportchanbackup --all --output_file /root/channel.backup >/dev/null && docker cp buyer:/root/channel.backup out/buyer-channel.backup || true
+          active=""
+          for i in $(seq 120); do
+            active=$(ln listchannels | jq -r --arg p "$seller" '[.channels[] | select(.remote_pubkey == $p and .active)] | length')
+            [ "$active" = 1 ] && break
+            # A dropped bore connection would leave the channel pending forever.
+            ln listpeers | jq -e --arg p "$seller" '.peers[] | select(.pub_key == $p)' >/dev/null 2>&1 \
+              || ln connect "$seller@bore.pub:${{ steps.open.outputs.port }}" >> out/channel.txt 2>&1 || true
+            sleep 30
+          done
+          [ "$active" = 1 ] || { echo "the channel did not become active within 60 minutes"; exit 1; }
+          echo "channel_active: $(date -u +%T) height $(ln getinfo | jq -r .block_height)" | tee -a out/timeline.txt
+          ln listchannels | jq -c --arg p "$seller" '.channels[] | select(.remote_pubkey == $p) | {channel_point, capacity, local_balance, commitment_type}' | tee out/channel-active.json
+          ln listchaintxns | jq -r --arg t "$txid" '.transactions[] | select(.tx_hash == $t) | .total_fees' > out/open-fee.txt
+          # The public path: the buyer's own peer entry for the seller is an
+          # outbound connection to bore.pub's address. (The seller's entry for
+          # the buyer always shows the bore client on the docker bridge.)
+          ln listpeers | jq -c --arg p "$seller" '.peers[] | select(.pub_key == $p) | {pub_key, address, inbound}' > out/buyer-peer.txt
+          getent ahostsv4 bore.pub | awk '{print $1}' | sort -u > out/bore-ip.txt || true
+          cat out/buyer-peer.txt
+      - name: "Rehearsal: buy"
+        id: buy
+        if: steps.p.outputs.mode == 'rehearsal' && steps.channel.outcome == 'success'
+        continue-on-error: true
+        run: |
+          export PCP_LND_REST_URL=https://127.0.0.1:8081
+          export PCP_LND_TLS_CERT=$PWD/creds-buyer/tls.cert
+          export PCP_LND_MACAROON=$PWD/creds-buyer/buyer.macaroon
+          echo "buy_start: $(date -u +%T)" >> out/timeline.txt
+          rc=0
+          timeout 1800 ./pcp-risc0/target/release/pcp-buy-risc0 --state reh/buyer \
+            --seller-url "${{ steps.open.outputs.url }}" --rail lnd --deadline-secs 1500 > out/buyer.log 2>&1 || rc=$?
+          echo "$rc" > out/buyer-exit.txt
+          echo "buy_end: $(date -u +%T) exit $rc" | tee -a out/timeline.txt
+          ./pcp/target/debug/pcp-audit --state reh/buyer --expect-state Delivered --out out/audit-buyer.json > out/audit-buyer.txt 2>&1 || true
+          tail -n 20 out/buyer.log
+          [ "$rc" = 0 ]
+      - name: "Rehearsal: close the channel cooperatively"
+        if: always() && steps.p.outputs.mode == 'rehearsal' && steps.channel.outputs.txid != ''
+        run: |
+          ln() { docker exec buyer lncli --network=signet "$@"; }
+          point=$(jq -r .channel_point out/channel-active.json 2>/dev/null)
+          txid=${point%:*}; idx=${point#*:}
+          [ -n "$point" ] && [ "$point" != null ] || { txid="${{ steps.channel.outputs.txid }}"; idx=0; }
+          # After the buyer has exited: a coop close is refused while an HTLC is in flight.
+          for i in 1 2 3 4 5; do
+            ln closechannel --funding_txid "$txid" --output_index "$idx" --block=false >> out/close-request.txt 2>&1 && break
+            sleep 30
+          done
+          echo "close_requested: $(date -u +%T)" >> out/timeline.txt
+          for i in $(seq 90); do
+            ln closedchannels | jq -c --arg p "$txid:$idx" '.channels[] | select(.channel_point == $p) | {close_type, settled_balance, closing_tx_hash, close_height}' > out/close.json
+            [ -s out/close.json ] && break
+            sleep 30
+          done
+          echo "close_confirmed: $(date -u +%T) $(cat out/close.json)" | tee -a out/timeline.txt
+          # The wallet credits the close output when it processes the block;
+          # the chain watcher may report the close first. Wait for the wallet.
+          settled=$(jq -r '.settled_balance // 0' out/close.json 2>/dev/null); settled=${settled:-0}
+          before=$(cat out/balance-before.txt); fee_open=$(cat out/open-fee.txt 2>/dev/null); fee_open=${fee_open:-0}
+          after=0
+          for i in $(seq 40); do
+            after=$(ln walletbalance | jq -r .confirmed_balance)
+            [ "$after" -ge $((before - 50000 - fee_open + settled - 1000)) ] && break
+            sleep 15
+          done
+          echo "$after" > out/balance-after.txt
+          echo "balance after: $(cat out/balance-after.txt)"
       - name: Keep the window open
+        if: steps.p.outputs.mode != 'rehearsal'
         run: |
           end=$(date -d "${{ steps.open.outputs.closes }}" +%s)
           while [ "$(date +%s)" -lt "$end" ] && kill -0 "$(cat seller.pid)" 2>/dev/null; do
@@ -319,7 +449,7 @@ jobs:
           cat out/audit.txt 2>/dev/null; cat out/close.txt 2>/dev/null | tail -n 5
           docker logs window 2>&1 | grep -E "\[ERR\]|\[WRN\]" | tail -n 50 > out/lnd-warnings.txt || true
       - name: Withdraw WINDOW.md
-        if: always() && steps.p.outputs.dry_run != 'true'
+        if: always() && steps.p.outputs.mode == 'window'
         run: |
           git config user.name "pcp-ci"; git config user.email "ci@users.noreply.github.com"
           git fetch origin +refs/heads/window:refs/remotes/origin/window 2>/dev/null || exit 0
@@ -327,25 +457,51 @@ jobs:
           printf '# PCP sale window\n\nClosed at %s. No window is open. Results: branch ci-results-lnd, folder window/.\n' "$(date -u +%FT%TZ)" > WINDOW.md
           git add WINDOW.md && git commit -qm "window closed" && git push origin window
           git checkout -f "$GITHUB_SHA"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - name: "Rehearsal: checks"
+        id: checks
+        if: always() && steps.p.outputs.mode == 'rehearsal'
+        continue-on-error: true
+        run: |
+          git ls-remote origin refs/heads/window | awk '{print "ref:" $1}' > out/window-ref-after.txt
+          [ -s out/window-ref-after.txt ] || echo "ref:none" > out/window-ref-after.txt
+          bash .github/rehearsal/check.sh out win/seller/log.jsonl reh/buyer/log.jsonl
+      - name: Secret gate (before anything leaves the runner)
+        id: gate
         if: always()
+        env:
+          REHEARSAL_BUYER_XPRV: ${{ secrets.REHEARSAL_BUYER_XPRV }}
+          RED_PLANT: ${{ inputs.red_plant_secret }}
+        run: |
+          # Red run: plant a fake extended private key; the gate must refuse.
+          [ "$RED_PLANT" = true ] && echo "tprv8ZgxMBicQKsPeWHBt7a68nPnvgTnuDhUgDWC8wZCgA8GahrQ3f3uWpq7wE7Uc1dLBnCe1hhCZ886K6ND37memRDWqsA9HgSKDXtwh2Qxo6J" > out/red-planted.txt
+          bash .github/rehearsal/secret-gate.sh out creds/*.macaroon creds-buyer/*.macaroon $(ls win/*.key win/*/agent.key reh/*.key reh/*/agent.key 2>/dev/null)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always() && steps.gate.outcome == 'success'
         with:
           name: sale-window-${{ github.run_id }}
           path: out/
       - name: Publish results to ci-results-lnd
-        if: always()
+        if: always() && steps.gate.outcome == 'success'
         run: |
           # Logs, audit and the window card only: win/ holds the agent key
           # and k, creds/ the macaroon; neither is published.
           git config user.name "pcp-ci"; git config user.email "ci@users.noreply.github.com"
-          dest="window/$(date -u +%Y%m%dT%H%M%SZ)$([ "${{ steps.p.outputs.dry_run }}" = true ] && echo -dry)"
+          ts=$(date -u +%Y%m%dT%H%M%SZ)
+          case "${{ steps.p.outputs.mode }}" in
+            rehearsal) dest="rehearsal/$ts" ;;
+            dry) dest="window/$ts-dry" ;;
+            *) dest="window/$ts" ;;
+          esac
           for i in 1 2 3 4 5; do
             git fetch origin +refs/heads/ci-results-lnd:refs/remotes/origin/ci-results-lnd 2>/dev/null || true
             git checkout -f -B ci-results-lnd origin/ci-results-lnd
             mkdir -p "$dest" && cp -r out/* "$dest"/
-            git add window && git commit -qm "sale window run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
+            git add -- "$dest" && git commit -qm "sale window (${{ steps.p.outputs.mode }}) run ${{ github.run_id }} $GITHUB_SHA" && git push origin ci-results-lnd && break
             sleep $((RANDOM % 20 + 5))
           done
-      - name: Fail if the dry-run self-check failed
-        if: steps.p.outputs.dry_run == 'true' && steps.selfcheck.outcome != 'success'
-        run: exit 1
+      - name: Fail if the dry-run self-check, a rehearsal check or the secret gate failed
+        if: always()
+        run: |
+          [ "${{ steps.gate.outcome }}" = success ] || { echo "secret gate failed: nothing was published"; exit 1; }
+          if [ "${{ steps.p.outputs.mode }}" = dry ]; then [ "${{ steps.selfcheck.outcome }}" = success ] || exit 1; fi
+          if [ "${{ steps.p.outputs.mode }}" = rehearsal ]; then cat out/checks.txt 2>/dev/null; [ "${{ steps.checks.outcome }}" = success ] || exit 1; fi
