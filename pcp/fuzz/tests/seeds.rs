@@ -90,23 +90,40 @@ fn write_differential_corpus() {
     let b = pcp_fuzz::boundary_cases();
     assert!(b.iter().any(|c| c["verdict"]["stage"] == "accepted"));
     assert!(b.iter().any(|c| c["verdict"]["stage"] != "accepted"));
+    // The second corpus (design note 28) builds, and reaches both verdicts.
+    let r = pcp_fuzz::request_cases();
+    assert!(r.iter().any(|c| c["verdict"]["stage"] == "request"));
+    assert!(r.iter().any(|c| c["verdict"]["stage"] == "accepted"));
+    let t = pcp_fuzz::transport_cases();
+    assert!(t.iter().any(|l| l.contains("\"code\":\"http_400\"")));
+    assert!(t.iter().any(|l| !l.contains("\"code\":\"http_400\"")));
     let Ok(path) = std::env::var("PCP_CORPUS_OUT") else {
         return;
     };
     let mut out = String::new();
     let mut n = 0;
+    let mut push = |set: &str, mut c: serde_json::Value| {
+        c["set"] = set.into();
+        out.push_str(&serde_json::to_string(&c).unwrap());
+        out.push('\n');
+        n += 1;
+    };
     for x in inputs(4000, 99) {
         if let Some(c) = pcp_fuzz::differential_case(&x) {
-            out.push_str(&serde_json::to_string(&c).unwrap());
-            out.push('\n');
-            n += 1;
+            push("mutation", c);
         }
     }
-    for c in pcp_fuzz::mandate_cases()
-        .into_iter()
-        .chain(pcp_fuzz::boundary_cases())
-    {
-        out.push_str(&serde_json::to_string(&c).unwrap());
+    for c in pcp_fuzz::mandate_cases() {
+        push("mandate", c);
+    }
+    for c in pcp_fuzz::boundary_cases() {
+        push("boundary", c);
+    }
+    for c in r {
+        push("request", c);
+    }
+    for line in t {
+        out.push_str(&line);
         out.push('\n');
         n += 1;
     }

@@ -152,7 +152,7 @@ The two backends are not measured on the same machine and the comparison is roug
 
 **Not quantum-resistant as a whole.** A large quantum computer breaks elliptic-curve discrete logarithms: Lightning and Bitcoin signatures (a bigger and older target), Ed25519 mandates, and the soundness of discrete-log proof systems including the halo2 backend, so such a seller could be paid for nothing. What holds, as far as is known: SHA-256 for H and the hash-based soundness of STARKs without a Groth16 wrapper, at about 128 bits for a 256-bit key under Grover. Mitigation is agility: a buyer policy can refuse discrete-log backends by backend_id, and mandates can move to a post-quantum signature in a later version. Settlement cannot be more quantum-resistant than the rail it settles on.
 
-**Not audited.** The specification, the Rust implementation (113 tests, 132 with the LND rail and HTTP binding, plus 4 run against real LND nodes, as of 23 October 2026), the zkVM guest and the halo2 circuit have been reviewed and tested inside the project. Nobody outside it has audited any of them. None of the rules in the specification is enforceable against a modified client; they are defaults, enforced by counterparties' refusal.
+**Not audited.** The specification, the Rust implementation (113 tests, 133 with the LND rail and HTTP binding, plus 4 run against real LND nodes, as of 23 October 2026), the zkVM guest and the halo2 circuit have been reviewed and tested inside the project. Nobody outside it has audited any of them. None of the rules in the specification is enforceable against a modified client; they are defaults, enforced by counterparties' refusal.
 
 ## 9. Conclusion
 

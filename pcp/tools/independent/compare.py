@@ -3,9 +3,12 @@
 
 Usage: python3 compare.py CORPUS.jsonl [--show N] [--dump FILE]
 
-Each corpus line: {request, offer, bundle, binding, now, buyer, verdict, changed}.
-``verdict`` is the Rust buyer's {stage, code}; ``changed`` the mutated JSON
-path (a list; empty when none).
+Each corpus line: {set, request, offer, bundle, binding, now, buyer, verdict,
+changed}, and optionally r0_now (when R0 ran before ``now``).  ``set`` names
+the generator (mutation, mandate, boundary, request, transport); ``buyer`` may
+carry allow_unregistered_job_classes and agent_key.  ``verdict`` is the Rust
+buyer's {stage, code}, stage one of request, offer, bundle, invoice, accepted;
+``changed`` the case label or mutated JSON path (a list; empty when none).
 
 Categories reported
 -------------------
@@ -40,12 +43,15 @@ def policy_from(buyer: dict) -> pcp0.BuyerPolicy:
         max_deal_msat=buyer["max_deal_msat"],
         rail=buyer["rail"],
         payout_node=buyer["payout_node"],
+        allow_unregistered_job_classes=buyer.get("allow_unregistered_job_classes", False),
+        agent_key=bytes.fromhex(buyer["agent_key"]) if buyer.get("agent_key") else None,
     )
 
 
 def run_case(case: dict):
     buyer = pcp0.Buyer(case["request"], policy_from(case["buyer"]))
-    return buyer.evaluate(case["offer"], case["bundle"], case["binding"], case["now"])
+    return buyer.evaluate(case["offer"], case["bundle"], case["binding"], case["now"],
+                          case.get("r0_now"))
 
 
 def classify(rust_stage, rust_code, our_stage, our_code):
@@ -72,6 +78,7 @@ def main():
     args = ap.parse_args()
 
     counts = collections.Counter()
+    by_set = collections.defaultdict(collections.Counter)
     by_class = collections.defaultdict(list)
     n = 0
     with open(args.corpus) as f:
@@ -88,6 +95,7 @@ def main():
                 our_stage, our_code, detail = "crash", type(e).__name__, str(e)
             cls = classify(rust["stage"], rust["code"], our_stage, our_code)
             counts[cls] += 1
+            by_set[case.get("set", "(none)")][cls] += 1
             changed = "/".join(map(str, case.get("changed") or [])) or "(none)"
             key = (cls, changed, rust["stage"], rust["code"], our_stage, our_code)
             by_class[key].append((lineno, detail))
@@ -103,6 +111,14 @@ def main():
         "same_stage_diff_code", "diff_stage", "ignored_proof_invalid")}
     for k, v in other.items():
         print("%-24s %6d" % (k, v))
+
+    # Per set, so a new set cannot hide inside the old totals.
+    print()
+    for name in sorted(by_set):
+        c = by_set[name]
+        div = sum(v for k, v in c.items() if k not in ("agree", "ignored_proof_invalid"))
+        print("set %-10s cases %5d  agree %5d  ignored %3d  divergent %d"
+              % (name, sum(c.values()), c["agree"], c["ignored_proof_invalid"], div))
 
     print()
     print("Agreed refusal codes (count per code, as named by the SPEC):")

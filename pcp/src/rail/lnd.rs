@@ -920,6 +920,32 @@ mod tests {
         assert!(track_line(r#"{"error":{"code":14,"message":"unavailable"}}"#, p).is_err());
     }
 
+    /// SPEC 8.1a: 600 s per block is a constant of the BOLT11 rail (the
+    /// buyer refuses a binding whose `min_htlc_secs` used another factor),
+    /// and the figures the SPEC quotes are the ones the presets use. The
+    /// rail and the protocol each define their own copy; they must agree.
+    #[test]
+    fn rail_and_protocol_timelock_constants_agree() {
+        use crate::protocol::{
+            BuyerPolicy, SellerConfig, LN_FINAL_CLTV_BLOCKS, LN_HOLD_EXPIRY_DELTA_BLOCKS,
+            SECS_PER_BLOCK,
+        };
+        let dir = std::env::temp_dir().join(format!("pcp-lnd-consts-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("m"), [1u8]).unwrap();
+        std::fs::write(dir.join("c"), b"cert").unwrap();
+        let c = LndConfig::from_files("https://127.0.0.1:8080", dir.join("m"), dir.join("c")).unwrap();
+        let _ = std::fs::remove_dir_all(&dir);
+        assert_eq!(c.secs_per_block, SECS_PER_BLOCK);
+        assert_eq!(SECS_PER_BLOCK, 600);
+        assert_eq!(LND_MIN_FINAL_CLTV, LN_FINAL_CLTV_BLOCKS);
+        assert_eq!(BuyerPolicy::lightning().htlc_secs, 204 * 600);
+        let s = SellerConfig::lightning(1_000);
+        assert_eq!(s.min_htlc_secs, 24 * 600);
+        assert_eq!(s.settle_margin_secs, (LN_HOLD_EXPIRY_DELTA_BLOCKS + 2) * 600);
+        assert_eq!(s.settle_margin_secs % SECS_PER_BLOCK, 0, "whole blocks (8.1a)");
+    }
+
     #[test]
     fn config_debug_hides_the_macaroon() {
         let c = LndConfig {

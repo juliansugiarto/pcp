@@ -533,21 +533,32 @@ pub fn differential_case(data: &[u8]) -> Option<Value> {
         *slot = m;
         changed_path = path;
     }
-    let offer: Offer = serde_json::from_value(o.clone()).ok()?;
-    let bundle: ProofBundle = serde_json::from_value(bu.clone()).ok()?;
-    let binding: InvoiceBinding = serde_json::from_value(bi.clone()).ok()?;
+    // A message that does not parse is an HTTP 400 at its stage (SPEC 5.5),
+    // recorded rather than dropped (Fable review 29, item 5).
     let (mut buyer, _) = buyer();
     let p = policy();
-    let verdict = match buyer.accept_offer(&offer, NOW) {
-        Err(e) => serde_json::json!({ "stage": "offer", "code": e.code() }),
-        Ok(()) => match buyer.verify_bundle(&bundle) {
-            Err(e) => serde_json::json!({ "stage": "bundle", "code": e.code() }),
-            Ok(()) => match buyer.check_invoice(&binding, NOW) {
-                Err(e) => serde_json::json!({ "stage": "invoice", "code": e.code() }),
-                Ok(()) => serde_json::json!({ "stage": "accepted", "code": null }),
-            },
-        },
-    };
+    let verdict = (|| {
+        let r400 = |stage: &str| serde_json::json!({ "stage": stage, "code": "http_400" });
+        let Ok(offer) = serde_json::from_value::<Offer>(o.clone()) else {
+            return r400("offer");
+        };
+        if let Err(e) = buyer.accept_offer(&offer, NOW) {
+            return serde_json::json!({ "stage": "offer", "code": e.code() });
+        }
+        let Ok(bundle) = serde_json::from_value::<ProofBundle>(bu.clone()) else {
+            return r400("bundle");
+        };
+        if let Err(e) = buyer.verify_bundle(&bundle) {
+            return serde_json::json!({ "stage": "bundle", "code": e.code() });
+        }
+        let Ok(binding) = serde_json::from_value::<InvoiceBinding>(bi.clone()) else {
+            return r400("invoice");
+        };
+        match buyer.check_invoice(&binding, NOW) {
+            Err(e) => serde_json::json!({ "stage": "invoice", "code": e.code() }),
+            Ok(()) => serde_json::json!({ "stage": "accepted", "code": null }),
+        }
+    })();
     Some(serde_json::json!({
         "changed": changed_path,
         "request": h.request,
@@ -832,4 +843,441 @@ pub fn mandate_cases() -> Vec<Value> {
             judge_offer(&e, &serde_json::to_value(&o).expect("offer"), name)
         })
         .collect()
+}
+
+// ---------------------------------------------------------------------------
+// Second corpus for the independent checker (design note 28): R0, the own
+// mandate at O2, and JSON transport (SPEC 3.3, 5.5).
+
+/// A job class that is not in the reference registry.
+struct Unregistered(&'static str, Vec<u8>);
+
+impl JobClass for Unregistered {
+    fn job_id(&self) -> &'static str {
+        self.0
+    }
+    fn params(&self) -> Vec<u8> {
+        self.1.clone()
+    }
+    fn check(&self, _input: &[u8], _result: &[u8]) -> bool {
+        false
+    }
+}
+
+fn hex_of(b: &[u8]) -> String {
+    b.iter().map(|x| format!("{x:02x}")).collect()
+}
+
+/// The buyer's principal and agent keys, as `agent(1, ...)` makes them.
+fn buyer_keys() -> (SecretKey, SecretKey) {
+    let mut rng = StdRng::seed_from_u64(1);
+    (SecretKey::generate(&mut rng), SecretKey::generate(&mut rng))
+}
+
+fn buyer_terms() -> MandateTerms {
+    MandateTerms {
+        role: Role::Buyer,
+        scope: vec![job().spec_hash()],
+        cap_msat: 10_000_000,
+        per_deal_max_msat: 2_000_000,
+        payout_node: "alice-node".to_string(),
+        expires_at: 86_400,
+    }
+}
+
+/// The request `Buyer::new` would send for this mandate and job, built
+/// without running R0 (so a request R0 refuses can still be recorded).
+fn request_for(key: &SecretKey, m: &Mandate, job: &dyn JobClass, committed: u64) -> Request {
+    use rand::RngCore;
+    let mut nonce = [0u8; 32];
+    StdRng::seed_from_u64(11).fill_bytes(&mut nonce);
+    let input = puzzle();
+    let mut req = Request {
+        version: pcp::encoding::VERSION.to_string(),
+        job_id: job.job_id().to_string(),
+        spec_hash: job.spec_hash(),
+        input_commitment: pcp::job::input_commitment(&input),
+        input,
+        buyer_nonce: nonce,
+        max_price_msat: 2_000_000,
+        mandate_spent_msat: committed,
+        mandate: None,
+        agent_sig: None,
+    };
+    req.agent_sig = Some(key.sign(&req.auth_message(&m.mandate_id())));
+    req.mandate = Some(m.clone());
+    req
+}
+
+/// One R0 case: the buyer's own mandate `m` (signed for the buyer's agent
+/// key), `committed` against its cap, R0 run at `r0_now`, the honest offer,
+/// bundle and binding judged at `now`. The Rust verdict at R0 is the
+/// refusal of `Agent::restore` (an agent is never bound to a mandate that
+/// does not verify) or of `Buyer::new`.
+#[allow(clippy::too_many_arguments)]
+fn judge_request(
+    label: &str,
+    m: Mandate,
+    job: Box<dyn JobClass>,
+    allow_unregistered: bool,
+    committed: u64,
+    r0_now: u64,
+    now: u64,
+) -> Value {
+    let h = honest();
+    let (_, key) = buyer_keys();
+    let agent_key = hex_of(&key.public_key());
+    let req = request_for(&key, &m, job.as_ref(), committed);
+    let p = BuyerPolicy {
+        allow_insecure_dev_backend: true,
+        allow_unregistered_job_classes: allow_unregistered,
+        ..BuyerPolicy::default()
+    };
+    let verdict = match Agent::restore(key, m, committed, Default::default()) {
+        Err(e) => serde_json::json!({ "stage": "request", "code": e.code() }),
+        Ok(a) => match Buyer::new(
+            &a,
+            job,
+            Box::new(InsecureDevTransparentBackend),
+            p.clone(),
+            puzzle(),
+            2_000_000,
+            r0_now,
+            &mut StdRng::seed_from_u64(11),
+        ) {
+            Err(e) => serde_json::json!({ "stage": "request", "code": e.code() }),
+            Ok((mut b, sent)) => {
+                // The request recorded is the one Buyer::new sends.
+                assert_eq!(sent, req, "request_for differs from Buyer::new ({label})");
+                let offer: Offer = serde_json::from_value(h.offer.clone()).expect("offer");
+                let bundle: ProofBundle =
+                    serde_json::from_value(h.bundle.clone()).expect("bundle");
+                let binding: InvoiceBinding =
+                    serde_json::from_value(h.binding.clone()).expect("binding");
+                match b.accept_offer(&offer, now) {
+                    Err(x) => serde_json::json!({ "stage": "offer", "code": x.code() }),
+                    Ok(()) => match b.verify_bundle(&bundle) {
+                        Err(x) => serde_json::json!({ "stage": "bundle", "code": x.code() }),
+                        Ok(()) => match b.check_invoice(&binding, now) {
+                            Err(x) => {
+                                serde_json::json!({ "stage": "invoice", "code": x.code() })
+                            }
+                            Ok(()) => serde_json::json!({ "stage": "accepted", "code": null }),
+                        },
+                    },
+                }
+            }
+        },
+    };
+    serde_json::json!({
+        "changed": [label],
+        "request": serde_json::to_value(&req).expect("request"),
+        "offer": h.offer,
+        "bundle": h.bundle,
+        "binding": h.binding,
+        "now": now,
+        "r0_now": r0_now,
+        "buyer": {
+            "max_price_msat": 2_000_000u64,
+            "accepted_backend_id": "INSECURE-dev-transparent/0",
+            "allow_insecure_dev_backend": p.allow_insecure_dev_backend,
+            "allow_unregistered_job_classes": p.allow_unregistered_job_classes,
+            "agent_key": agent_key,
+            "htlc_secs": p.htlc_secs,
+            "min_invoice_remaining_secs": p.min_invoice_remaining_secs,
+            "max_deal_msat": p.max_deal_msat,
+            "rail": p.rail,
+            "payout_node": "alice-node",
+        },
+        "verdict": verdict,
+    })
+}
+
+/// R0 and the own mandate at O2: registry, role, expiry, scope, version,
+/// signature, self-owned, cap, each at and around its boundary.
+pub fn request_cases() -> Vec<Value> {
+    let (principal, key) = buyer_keys();
+    let sign = |p: &SecretKey, t: MandateTerms| {
+        Mandate::sign(p, key.public_key(), t, &mut StdRng::seed_from_u64(5))
+    };
+    let honest_m = || sign(&principal, buyer_terms());
+    let sudoku = || -> Box<dyn JobClass> { Box::new(job()) };
+    let mut out = Vec::new();
+    let mut r0 = |label: &str, m: Mandate, job: Box<dyn JobClass>, allow: bool, committed: u64| {
+        out.push(judge_request(label, m, job, allow, committed, NOW, NOW));
+    };
+
+    r0("r0:honest", honest_m(), sudoku(), false, 0);
+    // Registry (6.4): a class with other parameters, and another job id.
+    for (name, id, params) in [
+        ("r0:unregistered_params", "pcp/sudoku/v0", vec![16u8]),
+        ("r0:unregistered_job", "pcp/unreviewed/v0", vec![4u8]),
+    ] {
+        for allow in [false, true] {
+            let class = Unregistered(id, params.clone());
+            let m = sign(
+                &principal,
+                MandateTerms {
+                    scope: vec![class.spec_hash()],
+                    ..buyer_terms()
+                },
+            );
+            r0(
+                &format!("{name}:allow={allow}"),
+                m,
+                Box::new(Unregistered(id, params.clone())),
+                allow,
+                0,
+            );
+        }
+    }
+    // The own mandate (2.1 order).
+    r0(
+        "r0:role",
+        sign(&principal, MandateTerms { role: Role::Seller, ..buyer_terms() }),
+        sudoku(),
+        false,
+        0,
+    );
+    for (name, at) in [
+        ("r0:expires_at_now", NOW),
+        ("r0:expires_at_now+1", NOW + 1),
+        ("r0:expires_at_now-1", NOW - 1),
+    ] {
+        r0(
+            name,
+            sign(&principal, MandateTerms { expires_at: at, ..buyer_terms() }),
+            sudoku(),
+            false,
+            0,
+        );
+    }
+    r0(
+        "r0:scope_other",
+        sign(&principal, MandateTerms { scope: vec![[9; 32]], ..buyer_terms() }),
+        sudoku(),
+        false,
+        0,
+    );
+    r0(
+        "r0:scope_empty",
+        sign(&principal, MandateTerms { scope: vec![], ..buyer_terms() }),
+        sudoku(),
+        false,
+        0,
+    );
+    let mut v = honest_m();
+    v.version = "PCP/1".into();
+    v.principal_sig = principal.sign(&v.mandate_id());
+    r0("r0:version", v, sudoku(), false, 0);
+    let mut bad = honest_m();
+    bad.principal_sig.0[0] ^= 1;
+    r0("r0:signature", bad, sudoku(), false, 0);
+    // The agent as its own principal: the key signs its own mandate.
+    r0("r0:self_owned", sign(&key, buyer_terms()), sudoku(), false, 0);
+    // A mandate made for another agent key (2.1, agent start).
+    let other = SecretKey::from_seed([7; 32]).public_key();
+    r0(
+        "r0:agent_key_mismatch",
+        Mandate::sign(&principal, other, buyer_terms(), &mut StdRng::seed_from_u64(5)),
+        sudoku(),
+        false,
+        0,
+    );
+    // Two faults at once: the order decides (agent start before R0).
+    let class = Unregistered("pcp/sudoku/v0", vec![16u8]);
+    let mut both = sign(
+        &principal,
+        MandateTerms {
+            scope: vec![class.spec_hash()],
+            ..buyer_terms()
+        },
+    );
+    both.principal_sig.0[0] ^= 1;
+    r0("r0:unregistered+signature", both, Box::new(class), false, 0);
+    // R0 does not check the price ceiling against the per-deal maximum
+    // (the price is not known yet): max_price 2,000,000 over 1,999,999.
+    r0(
+        "r0:max_price_over_per_deal",
+        sign(&principal, MandateTerms { per_deal_max_msat: 1_999_999, ..buyer_terms() }),
+        sudoku(),
+        false,
+        0,
+    );
+    // Cap: committed below, at and above it. R0 asks committed < cap.
+    let cap = buyer_terms().cap_msat;
+    for (name, c) in [
+        ("r0:committed_cap-price", cap - PRICE),
+        ("r0:committed_cap-price+1", cap - PRICE + 1),
+        ("r0:committed_cap-1", cap - 1),
+        ("r0:committed_cap", cap),
+        ("r0:committed_cap+1", cap + 1),
+    ] {
+        r0(name, honest_m(), sudoku(), false, c);
+    }
+    // The own mandate expires between R0 and the offer (O2).
+    let t = NOW + 100;
+    for (name, at) in [
+        ("o2:own_expires_at_t-1", t - 1),
+        ("o2:own_expires_at_t", t),
+        ("o2:own_expires_at_t+1", t + 1),
+    ] {
+        let m = sign(&principal, MandateTerms { expires_at: at, ..buyer_terms() });
+        out.push(judge_request(name, m, Box::new(job()), false, 0, NOW, t));
+    }
+    out
+}
+
+/// A u64 one past the largest, as JSON text (serde_json's `Value` cannot
+/// hold it): written as this string, then replaced in the serialized case.
+pub const OVERFLOW_SENTINEL: &str = "__pcp_u64_overflow__";
+const OVERFLOW_TEXT: &str = "18446744073709551616";
+
+/// Every single-leaf transport defect of the honest offer, bundle and
+/// binding: uppercase, short or non-hex hex; a number out of range, signed,
+/// fractional or quoted; a value replaced by null, removed, or upper-cased;
+/// an unknown field beside it. The Rust verdict parses each message from
+/// its JSON text at its stage (a parse failure is HTTP 400, SPEC 5.5).
+/// Returns the cases as JSON lines (text, because of the overflow value).
+pub fn transport_cases() -> Vec<String> {
+    let h = honest();
+    let msgs = [&h.offer, &h.bundle, &h.binding];
+    let mut out = Vec::new();
+    for (mi, msg) in msgs.iter().enumerate() {
+        let mut paths = Vec::new();
+        leaves(msg, &mut Vec::new(), &mut paths);
+        let mut parents: Vec<Vec<String>> = paths
+            .iter()
+            .filter(|p| !p.is_empty())
+            .map(|p| p[..p.len() - 1].to_vec())
+            .collect();
+        parents.sort();
+        parents.dedup();
+        let mut variants: Vec<(String, Value)> = Vec::new();
+        for path in &paths {
+            let leaf = at(&mut (*msg).clone(), path).expect("leaf").clone();
+            let name = path.join(".");
+            let mut put = |kind: &str, x: Option<Value>| {
+                let mut m = (*msg).clone();
+                match x {
+                    Some(x) => *at(&mut m, path).expect("leaf") = x,
+                    None => {
+                        let (last, parent) = path.split_last().expect("path");
+                        match at(&mut m, parent).expect("parent") {
+                            Value::Object(o) => {
+                                o.remove(last);
+                            }
+                            Value::Array(a) => {
+                                a.remove(last.parse::<usize>().expect("index"));
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                }
+                variants.push((format!("{name}:{kind}"), m));
+            };
+            match &leaf {
+                Value::String(s) => {
+                    let hex = !s.is_empty() && s.bytes().all(|c| c.is_ascii_hexdigit());
+                    if hex {
+                        if s.bytes().any(|c| c.is_ascii_lowercase()) {
+                            put("upper", Some(Value::from(s.to_ascii_uppercase())));
+                        }
+                        put("short", Some(Value::from(&s[..s.len() - 1])));
+                        put("nonhex", Some(Value::from(format!("g{}", &s[1..]))));
+                    } else if s.bytes().any(|c| c.is_ascii_lowercase()) {
+                        put("upper", Some(Value::from(s.to_ascii_uppercase())));
+                    }
+                }
+                Value::Number(n) => {
+                    put("overflow", Some(Value::from(OVERFLOW_SENTINEL)));
+                    put("negative", Some(Value::from(-1)));
+                    put("fraction", Some(serde_json::json!(1.5)));
+                    put("quoted", Some(Value::from(n.to_string())));
+                }
+                _ => {}
+            }
+            put("null", Some(Value::Null));
+            put("removed", None);
+        }
+        // The optional BOLT11 string of the real rail (SPEC 5.3), absent on
+        // the simulated rail, so no leaf above reaches it.
+        if mi == 2 {
+            let mut m = (*msg).clone();
+            if let Some(Value::Object(o)) = at(&mut m, &["invoice".to_string()]) {
+                o.insert("bolt11".into(), Value::from("lnbcrt15u1pexample"));
+                variants.push(("invoice.bolt11:added".to_string(), m));
+            }
+        }
+        for parent in &parents {
+            let mut m = (*msg).clone();
+            if let Some(Value::Object(o)) = at(&mut m, parent) {
+                o.insert("unknown_field".into(), Value::from(1));
+                let name = if parent.is_empty() { "(top)".to_string() } else { parent.join(".") };
+                variants.push((format!("{name}:unknown_field"), m));
+            }
+        }
+        for (label, m) in variants {
+            let text = |v: &Value| {
+                serde_json::to_string(v)
+                    .expect("json")
+                    .replace(&format!("\"{OVERFLOW_SENTINEL}\""), OVERFLOW_TEXT)
+            };
+            let mut texts = [text(&h.offer), text(&h.bundle), text(&h.binding)];
+            texts[mi] = text(&m);
+            let (mut buyer, _) = buyer();
+            let verdict = (|| {
+                let offer: Offer = match serde_json::from_str(&texts[0]) {
+                    Ok(o) => o,
+                    Err(_) => return serde_json::json!({ "stage": "offer", "code": "http_400" }),
+                };
+                if let Err(e) = buyer.accept_offer(&offer, NOW) {
+                    return serde_json::json!({ "stage": "offer", "code": e.code() });
+                }
+                let bundle: ProofBundle = match serde_json::from_str(&texts[1]) {
+                    Ok(b) => b,
+                    Err(_) => return serde_json::json!({ "stage": "bundle", "code": "http_400" }),
+                };
+                if let Err(e) = buyer.verify_bundle(&bundle) {
+                    return serde_json::json!({ "stage": "bundle", "code": e.code() });
+                }
+                let binding: InvoiceBinding = match serde_json::from_str(&texts[2]) {
+                    Ok(b) => b,
+                    Err(_) => return serde_json::json!({ "stage": "invoice", "code": "http_400" }),
+                };
+                match buyer.check_invoice(&binding, NOW) {
+                    Err(e) => serde_json::json!({ "stage": "invoice", "code": e.code() }),
+                    Ok(()) => serde_json::json!({ "stage": "accepted", "code": null }),
+                }
+            })();
+            let p = policy();
+            let head = serde_json::json!({
+                "set": "transport",
+                "changed": [label],
+                "request": h.request,
+                "now": NOW,
+                "buyer": {
+                    "max_price_msat": 2_000_000u64,
+                    "accepted_backend_id": "INSECURE-dev-transparent/0",
+                    "allow_insecure_dev_backend": p.allow_insecure_dev_backend,
+                    "htlc_secs": p.htlc_secs,
+                    "min_invoice_remaining_secs": p.min_invoice_remaining_secs,
+                    "max_deal_msat": p.max_deal_msat,
+                    "rail": p.rail,
+                    "payout_node": "alice-node",
+                },
+                "verdict": verdict,
+            });
+            // Splice the three messages in as text.
+            let head = serde_json::to_string(&head).expect("json");
+            out.push(format!(
+                "{},\"offer\":{},\"bundle\":{},\"binding\":{}}}",
+                &head[..head.len() - 1],
+                texts[0],
+                texts[1],
+                texts[2]
+            ));
+        }
+    }
+    out
 }

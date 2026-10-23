@@ -53,8 +53,11 @@ sub-codes and the check order of SPEC 2.1. `compare.py` compares codes
 verbatim; it has no alias table. A message that breaks 3.3 (uppercase hex,
 wrong length, out-of-range number, unknown or missing field) is, by SPEC 5.5,
 an HTTP `400` with no reason code that never reaches the protocol; this code
-reports it as `http_400`, which is deliberately not a protocol code. No corpus
-case has hit it.
+reports it as `http_400`, which is deliberately not a protocol code. The
+Rust side of the corpus records a message `serde` cannot parse the same way,
+stage by stage (offer, then bundle, then binding). That is a convention of
+the comparison: the HTTP client parses the bundle and the binding as one body
+and drops both if either fails (`pcp/src/node/http.rs`).
 
 ## Run
 
@@ -95,7 +98,43 @@ expiry_secs`, and with that:
 The boundary cases reach `offer_expired`, `price_too_high`,
 `deal_above_ceiling`, `insecure_backend_refused`,
 `own_mandate.{per_deal_max_exceeded,cap_exceeded}`, `invoice_expires_too_soon`
-and `htlc_lock_too_long` (32 codes in all). Still unexercised by either
+and `htlc_lock_too_long` (32 codes in all). At that time still unexercised by either
 corpus: `counterparty_mandate.{self_owned,wrong_role,expired,scope_mismatch,
 payout_node_mismatch,per_deal_max_exceeded}`, `own_mandate.{missing,expired}`,
 all of R0, and `http_400`.
+
+Fourth run (23 October 2026, design note 28, Fable review 29): a corpus in
+five sets, each counted on its own (`set` field, per-set lines in
+`compare.py`'s output):
+
+| set | cases | agree | ignored (`proof_invalid`) | divergences |
+|---|---|---|---|---|
+| `mutation` (unparseable mutations now kept as `http_400`) | 4,006 | 3,979 | 27 | 0 |
+| `mandate` | 11 | 11 | 0 | 0 |
+| `boundary` | 448 | 448 | 0 | 0 |
+| `request` (R0, agent start, own mandate at O2) | 25 | 25 | 0 | 0 |
+| `transport` (SPEC 3.3, one defect per leaf) | 206 | 206 | 0 | 0 |
+
+It found two SPEC gaps, both closed on the SPEC side with the reference's
+stricter reading kept: an enumerated string (`role`) outside its domain does
+not parse (3.3), and the binding's invoice may carry `bolt11` on the real
+rail (5.3). It also made the SPEC name the agent-start checks that come
+before R0 (2.1: version, signature, self-owned, `agent_key_mismatch`; an
+agent that fails them does not start and logs nothing), which a case with
+two faults at once (unregistered class and a broken signature) pins down.
+
+Red runs on copies of this directory, each against the same corpus:
+
+| change to this code | divergent cases |
+|---|---|
+| skip the scope check at R0 | request 2 |
+| `role` parsed as a free string | transport 1, mutation 19 |
+| uppercase hex accepted | transport 21, mutation 79 |
+| `compare.py` ignores `allow_unregistered_job_classes` | request 2 |
+| R0 before the agent-start checks | request 1 |
+| no `agent_key_mismatch` check | request 1 |
+
+Still not compared: `own_mandate.missing` (a Rust agent always holds a
+mandate), R0's `job_mismatch` (a Rust request takes `job_id` from its job
+class, so the corpus never carries a mismatched pair), V4, and anything after
+payment.

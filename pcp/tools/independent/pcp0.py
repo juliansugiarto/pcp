@@ -440,6 +440,12 @@ def _parse(obj: Any, schema: dict, where: str, optional=()) -> dict:
         v = obj[key]
         if kind == "str":
             out[key] = _str(v, w)
+        elif kind == "role":
+            # 3.3: an enumerated string outside its domain does not parse.
+            r = _str(v, w)
+            if r not in ("buyer", "seller"):
+                raise Malformed("%s: not buyer or seller" % w)
+            out[key] = r
         elif kind == "u64":
             out[key] = _u64(v, w)
         elif kind == "hash":
@@ -457,7 +463,8 @@ def _parse(obj: Any, schema: dict, where: str, optional=()) -> dict:
         elif kind == "statement":
             out[key] = _parse(v, STATEMENT_SCHEMA, w)
         elif kind == "invoice":
-            out[key] = _parse(v, INVOICE_SCHEMA, w)
+            # 5.3: `bolt11` on the real rail, absent on the simulated rail.
+            out[key] = _parse(v, INVOICE_SCHEMA, w, optional=("bolt11",))
         else:
             raise AssertionError(kind)
     return out
@@ -467,7 +474,7 @@ MANDATE_SCHEMA = {
     "version": "str",
     "principal_key": "hash",
     "agent_key": "hash",
-    "role": "str",
+    "role": "role",
     "scope": "hash_list",
     "cap_msat": "u64",
     "per_deal_max_msat": "u64",
@@ -533,6 +540,7 @@ INVOICE_SCHEMA = {
     "expiry_secs": "u64",
     "min_htlc_secs": "u64",
     "description_hash": "hash",
+    "bolt11": "str",
 }
 
 BINDING_SCHEMA = {
@@ -638,6 +646,7 @@ SUB_MISSING = "missing"  # present with its agent_sig
 SUB_VERSION = "version"  # version is PCP/0
 SUB_SIGNATURE_INVALID = "signature_invalid"  # principal_sig verifies
 SUB_SELF_OWNED = "self_owned"  # principal_key != agent_key
+SUB_AGENT_KEY_MISMATCH = "agent_key_mismatch"  # own mandate: agent_key is the agent's own key (start)
 SUB_WRONG_ROLE = "wrong_role"  # role
 SUB_EXPIRED = "expired"  # now < expires_at
 SUB_SCOPE_MISMATCH = "scope_mismatch"  # scope covers the spec_hash
@@ -710,6 +719,9 @@ class BuyerPolicy:
     rail: str
     payout_node: str
     allow_unregistered_job_classes: bool = False
+    # The buyer agent's own public key (2.1: an agent starts only with a
+    # mandate made for it).  None: not known to this check.
+    agent_key: Optional[bytes] = None
 
 
 def is_secure_backend(backend_id: str) -> bool:
@@ -734,6 +746,23 @@ class Buyer:
         self.own_mandate = self.req["mandate"]
         self.own_mandate_id = mandate_id_of(self.own_mandate) if self.own_mandate else None
         self.spent = self.req["mandate_spent_msat"]
+
+    # --- Agent start (2.1) ---------------------------------------------
+    def check_start(self) -> None:
+        """An agent starts only with a mandate made for it: version,
+        principal_sig, not self-owned, agent_key is its own key, in that
+        order.  Failing, it does not start (reported as stage ``request``)."""
+        m = self.own_mandate
+        if m is None:
+            raise Refusal("request", OWN + SUB_MISSING, "no own mandate")
+        if m["version"] != VERSION:
+            raise Refusal("request", OWN + SUB_VERSION, "mandate.version=%r" % m["version"])
+        if not ed25519_verify(m["principal_key"], m["principal_sig"], mandate_id_of(m)):
+            raise Refusal("request", OWN + SUB_SIGNATURE_INVALID, "principal_sig does not verify")
+        if m["principal_key"] == m["agent_key"]:
+            raise Refusal("request", OWN + SUB_SELF_OWNED, "principal_key = agent_key")
+        if self.policy.agent_key is not None and m["agent_key"] != self.policy.agent_key:
+            raise Refusal("request", OWN + SUB_AGENT_KEY_MISMATCH, "mandate is for another agent key")
 
     # --- R0 -------------------------------------------------------------
     def check_r0(self, now: int) -> None:
@@ -908,11 +937,13 @@ class Buyer:
         return {"binding": bd, "invoice": inv}
 
     # --- the whole offline path --------------------------------------------
-    def evaluate(self, offer_json, bundle_json, binding_json, now: int):
+    def evaluate(self, offer_json, bundle_json, binding_json, now: int, r0_now=None):
         """Run R0, O1, O2, V1-V3, (V4 skipped), V5-V8.  Returns
-        ``("accepted", None)`` or ``(stage, code)``."""
+        ``("accepted", None)`` or ``(stage, code)``.  R0 runs when the
+        request is made, at ``r0_now`` (default ``now``); the rest at ``now``."""
         try:
-            self.check_r0(now)
+            self.check_start()
+            self.check_r0(now if r0_now is None else r0_now)
             acc = self.check_offer(offer_json, now)
             ver = self.check_bundle(bundle_json, acc)
             self.check_binding(binding_json, acc, ver, now)
