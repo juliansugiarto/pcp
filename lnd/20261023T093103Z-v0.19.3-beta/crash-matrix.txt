@@ -1,0 +1,47 @@
+clean                  PASS  buyer exits [0] seller exits [0] 
+repeat-accept          PASS  buyer exits [0] seller exits [0] 
+tampered-accept        PASS  buyer exits [11] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  5991 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer-gone             PASS  buyer exits [134] seller exits [0] 
+unlisted-principal     PASS  buyer exits [11] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6102 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:offer:pre       PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6145 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:offer:post      PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6186 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:accept:pre      PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6227 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:accept:post     PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6268 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:k:pre           PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6310 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:k:post          PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6351 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:invoice:pre     PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6392 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:invoice:post    PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6433 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:settle:pre      PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6474 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:settle:post     PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  6516 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:request:post     PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6557 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:offer:pre        PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6599 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:accept:post      PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6640 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:invoice:pre      PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6681 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:paying:post      PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6722 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:pay:pre          PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6764 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:pay:post         PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6805 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:settle:pre       PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6846 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:settle:post      PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  6887 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer-node-down        PASS  buyer exits [134 0] seller exits [0] 
+rail=lnd wire=dir cases=25 failed=0
