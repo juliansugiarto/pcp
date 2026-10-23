@@ -1,0 +1,15 @@
+running 3 tests
+test seller_cannot_sell_a_failing_patch ... ok
+test public_patch_sale ... ok
+test public_sudoku_sale ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+   Doc-tests pcp
+
+running 2 tests
+test src/proof.rs - proof::InsecureDevTransparentBackend (line 358) - compile fail ... ok
+test src/proof.rs - proof::InsecureDevTransparentBackend (line 364) - compile fail ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
