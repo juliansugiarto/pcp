@@ -1,0 +1,40 @@
+#6163813	NEW    cov: 4214 ft: 9032 corp: 1346/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 7/3551 MS: 1 EraseBytes-
+#6164875	REDUCE cov: 4214 ft: 9032 corp: 1346/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 20/3551 MS: 2 EraseBytes-CopyPart-
+#6169161	REDUCE cov: 4214 ft: 9032 corp: 1346/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 25/3551 MS: 1 EraseBytes-
+#6173707	REDUCE cov: 4214 ft: 9032 corp: 1346/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 24/3551 MS: 1 EraseBytes-
+#6178354	REDUCE cov: 4214 ft: 9032 corp: 1346/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 102/3551 MS: 1 EraseBytes-
+#6178523	REDUCE cov: 4214 ft: 9033 corp: 1347/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 15/3551 MS: 4 ChangeASCIIInt-ChangeASCIIInt-ChangeBit-CopyPart-
+#6187069	REDUCE cov: 4214 ft: 9033 corp: 1347/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 44/3551 MS: 1 EraseBytes-
+#6188210	REDUCE cov: 4214 ft: 9033 corp: 1347/99Kb lim: 4096 exec/s: 1147 rss: 549Mb L: 2998/3551 MS: 1 EraseBytes-
+#6194290	DONE   cov: 4214 ft: 9033 corp: 1347/99Kb lim: 4096 exec/s: 1146 rss: 549Mb
+###### Recommended dictionary. ######
+"\0209\202\025\305,\224</6\013Cr\244\006r\014\215zZ\206\017\\m\235\341~\244e'\342@" # Uses: 30254
+"scope" # Uses: 40322
+"\376\377\377\377" # Uses: 32784
+"buyer_n" # Uses: 28806
+"\377\377\377/" # Uses: 26999
+"e " # Uses: 26296
+"\000\021\000\000" # Uses: 24926
+"amount_msat" # Uses: 20006
+"version" # Uses: 21270
+"\000\000\000\000\000\000\000\035" # Uses: 19794
+"nonce" # Uses: 21613
+"\000\000\021\000" # Uses: 21530
+"\001\000\000b" # Uses: 21239
+"\377\377\377\377\377\377\377\377" # Uses: 17842
+"\376\377\377\377\377\377\377\377" # Uses: 17554
+"\377\377\377\377\377\377\377\020" # Uses: 17183
+"input_comm" # Uses: 16028
+"\377\377\377\377\377\377\377\000" # Uses: 15737
+"\377\377\377b" # Uses: 14919
+"enc_scheme" # Uses: 12099
+"\002\000\000\000\000\000\000\000" # Uses: 10767
+"created_at" # Uses: 10057
+"\377\377\377\377" # Uses: 9962
+"\377\377\3776" # Uses: 9938
+"\000\000\000\000\000\000\000\000" # Uses: 8365
+"7\000\000\000" # Uses: 9042
+"\005\000\000\000\000\000\000\000" # Uses: 6891
+"\001\000\0003" # Uses: 5158
+###### End of recommended dictionary. ######
+Done 6194290 runs in 5401 second(s)
