@@ -1,0 +1,4 @@
+clean                  PASS  buyer exits [0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140: 13266 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:invoice:post    PASS  buyer exits [0] seller exits [134 0] 
+rail=lnd wire=dir cases=2 failed=0
