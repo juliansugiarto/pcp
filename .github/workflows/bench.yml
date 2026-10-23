@@ -11,6 +11,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "rust-toolchain.toml"
+      - ".github/toolchain-guard.sh"
       - "pcp/src/**"
       - "pcp/Cargo.*"
       - "pcp-risc0/**/*.rs"
@@ -29,10 +31,12 @@ concurrency:
 
 jobs:
   risc0:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Toolchain pin and runner image (design note 31)
+        run: bash .github/toolchain-guard.sh && bash .github/toolchain-guard.sh pcp-risc0
       - name: Machine
         run: |
           mkdir -p out
@@ -56,6 +60,8 @@ jobs:
           rzup show 2>&1 | tee out/rzup-show.txt
           grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.0\.6' || { echo "r0vm 3.0.6 not installed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
+          # Recorded, not yet pinned (note 31): the binaries rzup wrote.
+          { "$HOME/.risc0/bin/rzup" --version; sha256sum "$HOME"/.risc0/bin/*; } > out/rzup-binaries.txt 2>&1 || true
       - name: Build pcp-risc0
         run: |
           cd pcp-risc0
@@ -98,11 +104,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Toolchain pin and runner image (design note 31)
+        run: bash .github/toolchain-guard.sh
       - name: Build and fingerprint
         run: |
           mkdir -p out

@@ -49,13 +49,15 @@ concurrency:
 
 jobs:
   window:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
       LND_IMAGE: lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
       OUT: out
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Toolchain pin and runner image (design note 31)
+        run: bash .github/toolchain-guard.sh && bash .github/toolchain-guard.sh pcp-risc0
       - name: Window parameters
         id: p
         env:
@@ -103,6 +105,8 @@ jobs:
           done
           [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
+          # Recorded, not yet pinned (note 31): the binaries rzup wrote.
+          { "$HOME/.risc0/bin/rzup" --version; sha256sum "$HOME"/.risc0/bin/*; } > out/rzup-binaries.txt 2>&1 || true
       # The real-sale cache: the same build.
       - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:

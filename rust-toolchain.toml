@@ -1,0 +1,9 @@
+# Host toolchain for every crate in this repository that has no file of its
+# own (pcp, pcp/fuzz except `cargo +nightly fuzz`, pcp-zk). Pinned to the
+# version CI used on 22-23 October 2026 (design note 31). The RISC Zero guest
+# is built with `cargo +risc0` inside a digest-pinned Docker image and does
+# not use this file. CI checks the pin with .github/toolchain-guard.sh.
+[toolchain]
+channel = "1.99.0"
+components = ["clippy", "rustfmt"]
+profile = "minimal"

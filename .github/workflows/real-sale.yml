@@ -10,9 +10,16 @@ name: real-sale
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_image_id:
+        description: "Red run only: expect this image id instead of the pinned one (the run must fail)"
+        type: string
+        default: ""
   push:
     branches: [main]
     paths:
+      - "rust-toolchain.toml"
+      - ".github/toolchain-guard.sh"
       - "pcp/src/**"
       - "pcp-risc0/**/*.rs"
       - "pcp-risc0/**/Cargo.*"
@@ -29,7 +36,7 @@ concurrency:
 
 jobs:
   real-sale:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       LND_IMAGE: lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
@@ -38,6 +45,8 @@ jobs:
       CREDS: creds
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Toolchain pin and runner image (design note 31)
+        run: bash .github/toolchain-guard.sh && bash .github/toolchain-guard.sh pcp-risc0
       - name: Machine
         run: |
           mkdir -p out
@@ -70,6 +79,8 @@ jobs:
           done
           [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
+          # Recorded, not yet pinned (note 31): the binaries rzup wrote.
+          { "$HOME/.risc0/bin/rzup" --version; sha256sum "$HOME"/.risc0/bin/*; } > out/rzup-binaries.txt 2>&1 || true
       # Cache the cargo registry and pcp-risc0/target between iterations.
       # The image id is re-read and compared on every run, so a stale guest
       # would show up as a mismatch.
@@ -82,11 +93,15 @@ jobs:
           key: real-sale-${{ runner.os }}-${{ hashFiles('pcp-risc0/Cargo.lock', 'pcp-risc0/methods/guest/Cargo.lock') }}-${{ github.run_id }}
           restore-keys: real-sale-${{ runner.os }}-${{ hashFiles('pcp-risc0/Cargo.lock', 'pcp-risc0/methods/guest/Cargo.lock') }}-
       - name: Build pcp-risc0 --features lnd,http (guest in Docker)
+        env:
+          EXPECTED_OVERRIDE: ${{ inputs.expected_image_id }}
         run: |
           cd pcp-risc0
           # The pinned image id (IMAGE-ID.md): what the verify-only buyer
           # accepts and what risc0-image-id.yml reproduces.
           EXPECTED_IMAGE_ID=$(grep -A1 'pub const PINNED_IMAGE_ID' verify/src/lib.rs | grep -oE '[0-9a-f]{64}')
+          # A red run (workflow_dispatch input) expects another id; the gate must fail.
+          if [ -n "$EXPECTED_OVERRIDE" ]; then EXPECTED_IMAGE_ID="$EXPECTED_OVERRIDE"; echo "red run: expecting $EXPECTED_OVERRIDE" | tee ../out/red-run.txt; fi
           export RISC0_USE_DOCKER=1
           echo "RISC0_USE_DOCKER=$RISC0_USE_DOCKER" | tee ../out/build-mode.txt
           set -o pipefail

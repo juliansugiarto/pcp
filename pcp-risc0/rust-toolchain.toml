@@ -1,4 +1,6 @@
+# Pinned host toolchain (design note 31); the guest is built with `cargo +risc0`
+# in the digest-pinned builder image, not with this. CI: .github/toolchain-guard.sh.
 [toolchain]
-channel = "stable"
+channel = "1.99.0"
 components = ["rustfmt", "rust-src"]
 profile = "minimal"

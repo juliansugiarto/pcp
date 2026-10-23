@@ -10,6 +10,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "rust-toolchain.toml"
+      - ".github/toolchain-guard.sh"
       - "pcp/src/**"
       - "pcp/Cargo.*"
       - "pcp/tests/lnd_regtest.rs"
@@ -26,7 +28,7 @@ concurrency:
 
 jobs:
   lnd:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 75
     strategy:
       fail-fast: false
@@ -47,6 +49,8 @@ jobs:
       CREDS: creds
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Toolchain pin and runner image (design note 31)
+        run: bash .github/toolchain-guard.sh
       - name: Machine
         run: |
           mkdir -p out

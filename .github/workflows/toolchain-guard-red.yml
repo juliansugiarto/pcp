@@ -1,0 +1,31 @@
+# Red run for .github/toolchain-guard.sh (design note 31, Fable review 32):
+# job `control` runs the guard as every workflow does and must pass; job
+# `override` sets RUSTUP_TOOLCHAIN=1.98.0 for the whole job, the kind of
+# override the guard exists for, and its guard step must fail. Manual only.
+# A run of this workflow is therefore expected to end in failure, with
+# `control` green and only the guard step of `override` red (jobs API).
+name: toolchain-guard-red
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  control:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Toolchain pin and runner image (design note 31)
+        run: bash .github/toolchain-guard.sh && bash .github/toolchain-guard.sh pcp-risc0
+  override:
+    runs-on: ubuntu-24.04
+    env:
+      RUSTUP_TOOLCHAIN: 1.98.0
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Install the overriding toolchain (so the next step can only fail on the pin)
+        run: rustup toolchain install 1.98.0 --profile minimal && rustc -V
+      - name: Toolchain pin and runner image (design note 31)
+        run: bash .github/toolchain-guard.sh
