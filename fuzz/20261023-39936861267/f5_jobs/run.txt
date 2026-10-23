@@ -1,0 +1,40 @@
+#1219503	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 244 rss: 456Mb L: 91/2164 MS: 2 ChangeASCIIInt-EraseBytes-
+#1222019	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 244 rss: 456Mb L: 31/2164 MS: 1 EraseBytes-
+#1226565	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 243 rss: 456Mb L: 59/2164 MS: 1 EraseBytes-
+#1230107	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 243 rss: 456Mb L: 572/2164 MS: 2 ChangeBit-EraseBytes-
+#1231458	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 243 rss: 456Mb L: 67/2164 MS: 1 EraseBytes-
+#1234539	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 243 rss: 456Mb L: 128/2164 MS: 1 EraseBytes-
+#1239747	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 243 rss: 456Mb L: 403/2164 MS: 3 ShuffleBytes-ChangeBit-EraseBytes-
+#1239823	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 243 rss: 456Mb L: 69/2164 MS: 1 EraseBytes-
+#1241115	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 243 rss: 456Mb L: 57/2164 MS: 2 ChangeBinInt-EraseBytes-
+#1244366	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 242 rss: 456Mb L: 71/2164 MS: 1 EraseBytes-
+#1250452	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 242 rss: 456Mb L: 619/2164 MS: 1 EraseBytes-
+#1251119	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 242 rss: 456Mb L: 46/2164 MS: 2 InsertByte-EraseBytes-
+#1253190	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 242 rss: 456Mb L: 55/2164 MS: 1 EraseBytes-
+#1258796	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 29/2164 MS: 1 EraseBytes-
+#1263202	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 67/2164 MS: 1 EraseBytes-
+#1268978	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 242 rss: 456Mb L: 99/2164 MS: 1 EraseBytes-
+#1269649	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 242 rss: 456Mb L: 63/2164 MS: 1 EraseBytes-
+#1271730	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 118/2164 MS: 1 EraseBytes-
+#1273471	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 591/2164 MS: 1 EraseBytes-
+#1275119	REDUCE cov: 431 ft: 1372 corp: 354/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 252/2164 MS: 3 ChangeASCIIInt-ChangeBit-EraseBytes-
+#1283545	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 70/2164 MS: 1 InsertByte-
+#1285626	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 27/2164 MS: 1 EraseBytes-
+#1287773	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 248/2164 MS: 2 ChangeBit-EraseBytes-
+#1290339	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 244/2164 MS: 1 EraseBytes-
+#1290900	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 84/2164 MS: 1 EraseBytes-
+#1292331	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 242 rss: 456Mb L: 85/2164 MS: 1 EraseBytes-
+#1298282	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 211/2164 MS: 1 EraseBytes-
+#1302703	REDUCE cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb L: 54/2164 MS: 1 EraseBytes-
+#1304668	DONE   cov: 432 ft: 1373 corp: 355/27Kb lim: 4096 exec/s: 241 rss: 456Mb
+###### Recommended dictionary. ######
+"\001\000\000\000\000\000\000\000" # Uses: 26960
+"\026\000\000\000\000\000\000\000" # Uses: 17717
+"\000\000\000\000\000\000\000#" # Uses: 17035
+"C\000" # Uses: 16507
+"\001\000\000\000\000\000\000J" # Uses: 8456
+"\352\177u\367" # Uses: 7072
+"\014(" # Uses: 6384
+"\000\000\000\000\000\000\000\000" # Uses: 3283
+###### End of recommended dictionary. ######
+Done 1304668 runs in 5405 second(s)
