@@ -1,0 +1,40 @@
+   Compiling rand v0.8.8
+   Compiling base64 v0.22.1
+   Compiling arbitrary v1.5.0
+   Compiling hex v0.4.3
+   Compiling pcp v0.0.1 (/home/runner/work/pcp/pcp/pcp)
+   Compiling pcp-fuzz v0.0.0 (/home/runner/work/pcp/pcp/pcp/fuzz)
+    Finished `release` profile [optimized + debuginfo] target(s) in 1m 35s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.08s
+     Running `fuzz/target/x86_64-unknown-linux-gnu/release/f4_statement -artifact_prefix=/home/runner/work/pcp/pcp/pcp/fuzz/artifacts/f4_statement/ -max_total_time=3600 -timeout=20 -rss_limit_mb=2048 fuzz/corpus/f4_statement`
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1630645188
+INFO: Loaded 1 modules   (4645 inline 8-bit counters): 4645 [0x55936626cb10, 0x55936626dd35), 
+INFO: Loaded 1 PC tables (4645 PCs): 4645 [0x55936626dd38,0x55936627ff88), 
+INFO:       49 files found in fuzz/corpus/f4_statement
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 49 min: 1b max: 355b total: 5178b rss: 51Mb
+#50	INITED cov: 206 ft: 248 corp: 36/3529b exec/s: 0 rss: 51Mb
+#262144	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 2958 exec/s: 131072 rss: 179Mb
+#524288	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 4096 exec/s: 131072 rss: 308Mb
+#1048576	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 4096 exec/s: 131072 rss: 484Mb
+#2097152	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 4096 exec/s: 131072 rss: 486Mb
+#4194304	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 4096 exec/s: 135300 rss: 488Mb
+#8388608	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 4096 exec/s: 137518 rss: 488Mb
+#16777216	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 4096 exec/s: 135300 rss: 489Mb
+#33554432	pulse  cov: 206 ft: 248 corp: 36/3529b lim: 4096 exec/s: 134217 rss: 492Mb
+#41888072	REDUCE cov: 206 ft: 248 corp: 36/3528b lim: 4096 exec/s: 133827 rss: 494Mb L: 130/353 MS: 2 ChangeBit-EraseBytes-
+#67108864	pulse  cov: 206 ft: 248 corp: 36/3528b lim: 4096 exec/s: 132626 rss: 495Mb
+#70419505	REDUCE cov: 206 ft: 248 corp: 36/3513b lim: 4096 exec/s: 132616 rss: 496Mb L: 147/353 MS: 3 CrossOver-CrossOver-EraseBytes-
+#98225972	REDUCE cov: 206 ft: 248 corp: 36/3487b lim: 4096 exec/s: 131846 rss: 498Mb L: 327/327 MS: 2 EraseBytes-ChangeBinInt-
+#125178595	REDUCE cov: 206 ft: 248 corp: 36/3481b lim: 4096 exec/s: 131628 rss: 499Mb L: 321/321 MS: 3 EraseBytes-ChangeBit-ChangeBinInt-
+#134217728	pulse  cov: 206 ft: 248 corp: 36/3481b lim: 4096 exec/s: 131586 rss: 501Mb
+#201310108	REDUCE cov: 206 ft: 248 corp: 36/3480b lim: 4096 exec/s: 130805 rss: 504Mb L: 86/321 MS: 2 ChangeBit-EraseBytes-
+#268435456	pulse  cov: 206 ft: 248 corp: 36/3480b lim: 4096 exec/s: 130118 rss: 504Mb
+#372354791	REDUCE cov: 206 ft: 248 corp: 36/3479b lim: 4096 exec/s: 129110 rss: 505Mb L: 320/320 MS: 3 ChangeByte-CMP-EraseBytes- DE: "@\000\000\000\000\000\000\000"-
+#388399779	REDUCE cov: 206 ft: 248 corp: 36/3464b lim: 4096 exec/s: 129122 rss: 508Mb L: 179/320 MS: 3 InsertByte-InsertRepeatedBytes-EraseBytes-
+#464522684	DONE   cov: 206 ft: 248 corp: 36/3464b lim: 4096 exec/s: 128998 rss: 511Mb
+###### Recommended dictionary. ######
+"@\000\000\000\000\000\000\000" # Uses: 8100146
+###### End of recommended dictionary. ######
+Done 464522684 runs in 3601 second(s)
