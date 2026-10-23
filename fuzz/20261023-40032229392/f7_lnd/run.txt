@@ -1,0 +1,40 @@
+#7870384	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13453 rss: 618Mb L: 2745/4036 MS: 3 ChangeBinInt-ShuffleBytes-EraseBytes-
+#7878595	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13444 rss: 618Mb L: 27/4036 MS: 1 EraseBytes-
+#7878601	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13444 rss: 618Mb L: 921/4036 MS: 1 EraseBytes-
+#7897982	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13431 rss: 618Mb L: 220/4036 MS: 1 EraseBytes-
+#7899678	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13434 rss: 618Mb L: 2107/4036 MS: 1 EraseBytes-
+#7902714	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13439 rss: 618Mb L: 258/4036 MS: 1 EraseBytes-
+#7903465	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13441 rss: 618Mb L: 16/4036 MS: 1 EraseBytes-
+#7906027	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13422 rss: 618Mb L: 103/4036 MS: 2 InsertByte-EraseBytes-
+#7910208	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13429 rss: 618Mb L: 395/4036 MS: 1 EraseBytes-
+#7918199	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13420 rss: 618Mb L: 391/4036 MS: 1 EraseBytes-
+#7933731	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13424 rss: 618Mb L: 2537/4036 MS: 1 EraseBytes-
+#7941792	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13415 rss: 618Mb L: 976/4036 MS: 1 EraseBytes-
+#7944479	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13419 rss: 618Mb L: 1183/4036 MS: 2 ChangeASCIIInt-EraseBytes-
+#7945135	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13420 rss: 618Mb L: 3655/4036 MS: 1 EraseBytes-
+#7952997	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13411 rss: 618Mb L: 971/4036 MS: 2 ShuffleBytes-EraseBytes-
+#7956893	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13395 rss: 618Mb L: 54/4036 MS: 1 EraseBytes-
+#7973171	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13400 rss: 618Mb L: 57/4036 MS: 2 ChangeBit-EraseBytes-
+#7989917	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13383 rss: 618Mb L: 74/4036 MS: 1 EraseBytes-
+#7990468	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13384 rss: 618Mb L: 29/4036 MS: 1 EraseBytes-
+#8007659	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13368 rss: 618Mb L: 795/4036 MS: 1 EraseBytes-
+#8021680	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13369 rss: 618Mb L: 2258/4036 MS: 1 EraseBytes-
+#8022356	REDUCE cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13370 rss: 618Mb L: 15/4036 MS: 1 EraseBytes-
+#8026411	DONE   cov: 1612 ft: 7850 corp: 2249/233Kb lim: 4096 exec/s: 13355 rss: 618Mb
+###### Recommended dictionary. ######
+":\016\000\000\000\000\000\000" # Uses: 145452
+"\243\000\000\000\000\000\000\000" # Uses: 131800
+"\\r\\rrdr\357\277\275" # Uses: 88818
+"\001\000\000\000\000\000\000\001" # Uses: 58453
+"\377\377\377\021" # Uses: 61018
+"\001\000\000\000" # Uses: 36179
+"\011\000" # Uses: 32633
+"\000\000\000\000\000\000\000\000" # Uses: 27470
+"\377\377\377\377\377\377\377\032" # Uses: 19666
+"not initiated" # Uses: 16430
+"m\000\000\000\000\000\000\000" # Uses: 8903
+"-717777777777" # Uses: 4210
+"cr>$[33\357\277\2753" # Uses: 2088
+"8\000" # Uses: 1241
+###### End of recommended dictionary. ######
+Done 8026411 runs in 601 second(s)
