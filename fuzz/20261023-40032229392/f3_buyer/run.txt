@@ -1,0 +1,40 @@
+#1115454	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 17/3193 MS: 1 EraseBytes-
+#1116705	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 76/3193 MS: 1 EraseBytes-
+#1116801	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 167/3193 MS: 1 EraseBytes-
+#1122572	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 21/3193 MS: 1 EraseBytes-
+#1125908	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 51/3193 MS: 1 EraseBytes-
+#1127091	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 1310/3193 MS: 3 ChangeASCIIInt-ChangeBit-EraseBytes-
+#1131587	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 8/3193 MS: 1 EraseBytes-
+#1132634	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 171/3193 MS: 2 ShuffleBytes-EraseBytes-
+#1138455	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 23/3193 MS: 1 EraseBytes-
+#1138577	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 10/3193 MS: 2 CopyPart-EraseBytes-
+#1142374	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 25/3193 MS: 2 ChangeASCIIInt-EraseBytes-
+#1143045	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 21/3193 MS: 1 EraseBytes-
+#1145246	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 273/3193 MS: 1 EraseBytes-
+#1154721	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 2792/3193 MS: 5 EraseBytes-CMP-ShuffleBytes-InsertByte-CopyPart- DE: "\377\377\020\000"-
+#1155427	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 8/3193 MS: 1 EraseBytes-
+#1159049	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 21/3193 MS: 2 ChangeByte-EraseBytes-
+#1162280	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 36/3193 MS: 1 EraseBytes-
+#1163316	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 13/3193 MS: 1 EraseBytes-
+#1164642	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 26/3193 MS: 1 EraseBytes-
+#1167023	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1299 rss: 553Mb L: 69/3193 MS: 1 EraseBytes-
+#1168729	REDUCE cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1300 rss: 553Mb L: 292/3193 MS: 1 EraseBytes-
+#1170254	DONE   cov: 4229 ft: 9134 corp: 1400/98Kb lim: 4096 exec/s: 1298 rss: 553Mb
+###### Recommended dictionary. ######
+"f\000\000\000" # Uses: 21318
+"\010\377\377\377\377\377\377\377" # Uses: 12060
+"e " # Uses: 12615
+"\001\000\000b" # Uses: 10302
+"\000\000" # Uses: 8023
+"\001\021\000\000" # Uses: 7493
+"proof" # Uses: 7220
+"\000\000\000\000" # Uses: 6061
+"\001\000\000\000\000\000\000\031" # Uses: 5539
+"\377\020\000\000" # Uses: 4655
+"\0001" # Uses: 2969
+"statement" # Uses: 1980
+"`\000\000\000" # Uses: 1181
+"\377\377\3777" # Uses: 1098
+"\377\377\020\000" # Uses: 90
+###### End of recommended dictionary. ######
+Done 1170254 runs in 901 second(s)
