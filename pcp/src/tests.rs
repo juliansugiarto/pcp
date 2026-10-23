@@ -3516,6 +3516,22 @@ fn each_side_refuses_a_rail_other_than_the_offers() {
     let mut rail = FlakyRail::new(&mut w2.ledger);
     rail.rail_id = Some("other-rail/0");
     assert_eq!(w2.buyer.pay_via(&mut rail), Err(PcpError::RailNotSupported));
+    // Each of the two payment-time checks on its own (pay_via runs both, so
+    // one hides the other in the mutation table): P0 on another rail...
+    assert_eq!(
+        w2.buyer.check_payment_hash(&mut rail),
+        Err(PcpError::RailNotSupported)
+    );
+    // ...and P1 named with another rail after P0 passed on the right one.
+    let now = w2.ledger.now();
+    let mut right = FlakyRail::new(&mut w2.ledger);
+    w2.buyer.check_payment_hash(&mut right).unwrap();
+    assert_eq!(
+        w2.buyer.begin_pay("other-rail/0", now),
+        Err(PcpError::RailNotSupported)
+    );
+    assert_eq!(w2.buyer.spent_msat(), 0, "nothing reserved");
+    assert!(matches!(w2.buyer.state(), BuyerState::InvoiceAccepted { .. }));
     // Seller, one-call path: fulfil on another rail.
     let mut rail = FlakyRail::new(&mut w.ledger);
     rail.rail_id = Some("other-rail/0");
