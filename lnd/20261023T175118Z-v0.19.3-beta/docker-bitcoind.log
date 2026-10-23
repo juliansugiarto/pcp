@@ -1,0 +1,400 @@
+2026-10-23T17:43:21Z [miner] AddToWallet 0253370269a5318cf6fa633e99e06945b0bb60cc4766319a0b56832fd8019592  new Confirmed (block=4578cf0d1743f6b1e33458ae1255dc32f5f202b1ef2c135b0259dc4f43a73e78, height=20, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet ea959edb5a9dd63b19b1568808b62b5aa58230a0257e1e6e53b0af0d1ce3dab6  new Confirmed (block=0b14084988a5c071a9b879b16630e4764eb3bfffd4eb615494f4e3c601462add, height=21, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 02850b34d076babea3fe5f63f70c1de70c290af3b41cccbd79ab30a94888545d  new Confirmed (block=74c0a08165f311ad62310469d2dca2e9e185453f7d0e6cf02901f53e3d9dc01f, height=22, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet e6e0b3ce5e87a890b825290587c8440cce4da52c276059fd26f6a2bf98278bea  new Confirmed (block=750de6635e21ce83c2cec56c1fc104751af12904bf92a03c74e2bc3e67418669, height=23, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 1a0528f4349f0e0d69f9206cd73ba38993b9190f39f1c821b454234c06499862  new Confirmed (block=6265a447abeb688568a6757572243374b5683cd532cc148e33bf1e1313b2d392, height=24, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=0a14705a04a78263e265833470d873dd85545cb6e3d7febc2b9fb85361766d6b height=25 version=0x20000000 log2_work=5.700440 tx=26 date='2026-10-23T17:43:26Z' progress=1.000000 cache=0.3MiB(25txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=5d3a75593fec973b2cb8bbf96547df355deb50f791db9d687186bf1f9ce4afee height=26
+2026-10-23T17:43:21Z UpdateTip: new best=5d3a75593fec973b2cb8bbf96547df355deb50f791db9d687186bf1f9ce4afee height=26 version=0x20000000 log2_work=5.754888 tx=27 date='2026-10-23T17:43:27Z' progress=1.000000 cache=0.3MiB(26txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=72ef2dc2367313b569d29e4de99a38303f19b3d40bcc07246c991b53d7008dc9 height=27
+2026-10-23T17:43:21Z UpdateTip: new best=72ef2dc2367313b569d29e4de99a38303f19b3d40bcc07246c991b53d7008dc9 height=27 version=0x20000000 log2_work=5.807355 tx=28 date='2026-10-23T17:43:27Z' progress=1.000000 cache=0.3MiB(27txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=71223dd8bbc77480bcb4120cbfc160471f6fd70ba3abd98eda5706a64a1b7230 height=28
+2026-10-23T17:43:21Z UpdateTip: new best=71223dd8bbc77480bcb4120cbfc160471f6fd70ba3abd98eda5706a64a1b7230 height=28 version=0x20000000 log2_work=5.857981 tx=29 date='2026-10-23T17:43:27Z' progress=1.000000 cache=0.3MiB(28txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=48db51e84d3f62012b0492cd4b0624323fa80252ee02f35bf2be93af9594600e height=29
+2026-10-23T17:43:21Z [miner] AddToWallet 53b008cb7cbf33bb07f8edd685a9b42a060493ca82acc801a8b19316adb9277e  new Confirmed (block=0a14705a04a78263e265833470d873dd85545cb6e3d7febc2b9fb85361766d6b, height=25, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 47ac248d7a8e91b45c18f18804cd8fe0c0149a970f778a8fa52f08bad27de002  new Confirmed (block=5d3a75593fec973b2cb8bbf96547df355deb50f791db9d687186bf1f9ce4afee, height=26, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 273a65e78b09f52577c199ae3cecb13d63ace29fcc93f228cdbdbcc169ceab1e  new Confirmed (block=72ef2dc2367313b569d29e4de99a38303f19b3d40bcc07246c991b53d7008dc9, height=27, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet bdd19f10dcbf8bcb1d748017b3a04697909f972ed02e53cda63a401b91bde2bb  new Confirmed (block=71223dd8bbc77480bcb4120cbfc160471f6fd70ba3abd98eda5706a64a1b7230, height=28, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=48db51e84d3f62012b0492cd4b0624323fa80252ee02f35bf2be93af9594600e height=29 version=0x20000000 log2_work=5.906891 tx=30 date='2026-10-23T17:43:27Z' progress=1.000000 cache=0.3MiB(29txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=1d9dc97587f920d7f4071d71c35db41c9bc7d2d771ee782be3b5dc1c42e5ae63 height=30
+2026-10-23T17:43:21Z UpdateTip: new best=1d9dc97587f920d7f4071d71c35db41c9bc7d2d771ee782be3b5dc1c42e5ae63 height=30 version=0x20000000 log2_work=5.954196 tx=31 date='2026-10-23T17:43:27Z' progress=1.000000 cache=0.3MiB(30txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=66b20a26ef3ea6f79071cc8d905a5191ca47160688f354d8f8fccdef67d7afec height=31
+2026-10-23T17:43:21Z UpdateTip: new best=66b20a26ef3ea6f79071cc8d905a5191ca47160688f354d8f8fccdef67d7afec height=31 version=0x20000000 log2_work=6.000000 tx=32 date='2026-10-23T17:43:27Z' progress=1.000000 cache=0.3MiB(31txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=306b9a2b1cbf8ed519efb27defdd0fc1c0073b2855a2d9d7673984fafd7d9522 height=32
+2026-10-23T17:43:21Z UpdateTip: new best=306b9a2b1cbf8ed519efb27defdd0fc1c0073b2855a2d9d7673984fafd7d9522 height=32 version=0x20000000 log2_work=6.044394 tx=33 date='2026-10-23T17:43:28Z' progress=1.000000 cache=0.3MiB(32txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=694bebed187a37f88713ad2e35636b89a2974cfd706f53572c725c1fded25556 height=33
+2026-10-23T17:43:21Z UpdateTip: new best=694bebed187a37f88713ad2e35636b89a2974cfd706f53572c725c1fded25556 height=33 version=0x20000000 log2_work=6.087463 tx=34 date='2026-10-23T17:43:28Z' progress=1.000000 cache=0.3MiB(33txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=105083e2549e664774afaf42d048a661de0775d8fa51542fe32eafec6e424e56 height=34
+2026-10-23T17:43:21Z [miner] AddToWallet 77da2ce58c7db97896cb97e6e26f7e67628d7a343c954808f2ec2825b731a388  new Confirmed (block=48db51e84d3f62012b0492cd4b0624323fa80252ee02f35bf2be93af9594600e, height=29, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 43e391416c23103fc1d5a65398d42b1719ebefdb960739d4cf94dd5ef5b0d614  new Confirmed (block=1d9dc97587f920d7f4071d71c35db41c9bc7d2d771ee782be3b5dc1c42e5ae63, height=30, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet fbc9f5a61a8e8e4c8f3f9f401a6e345c3a1625537b972efa1a046fa860379c41  new Confirmed (block=66b20a26ef3ea6f79071cc8d905a5191ca47160688f354d8f8fccdef67d7afec, height=31, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 0b27642e3dc3e864630b214f9c9f233973c2bd4a207045d1a255e9930d2604e9  new Confirmed (block=306b9a2b1cbf8ed519efb27defdd0fc1c0073b2855a2d9d7673984fafd7d9522, height=32, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 72908527f72238870e451418a8b3b23f90ef306f82829b85142303b9ca59dbd5  new Confirmed (block=694bebed187a37f88713ad2e35636b89a2974cfd706f53572c725c1fded25556, height=33, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=105083e2549e664774afaf42d048a661de0775d8fa51542fe32eafec6e424e56 height=34 version=0x20000000 log2_work=6.129283 tx=35 date='2026-10-23T17:43:28Z' progress=1.000000 cache=0.3MiB(34txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0d478f5794893c5f283c09a9e95627c8e4a401b2df490daf3b0e0a40add6091a height=35
+2026-10-23T17:43:21Z UpdateTip: new best=0d478f5794893c5f283c09a9e95627c8e4a401b2df490daf3b0e0a40add6091a height=35 version=0x20000000 log2_work=6.169925 tx=36 date='2026-10-23T17:43:28Z' progress=1.000000 cache=0.3MiB(35txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=31e3a9db602c244c619f373ef816ffba1f8ba1ecfe29c707340f87c1e3962666 height=36
+2026-10-23T17:43:21Z UpdateTip: new best=31e3a9db602c244c619f373ef816ffba1f8ba1ecfe29c707340f87c1e3962666 height=36 version=0x20000000 log2_work=6.209453 tx=37 date='2026-10-23T17:43:28Z' progress=1.000000 cache=0.3MiB(36txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=390b26b73d934074b5b3c970c095605c2cd3a3281322f1a3418dec0d3cd500e7 height=37
+2026-10-23T17:43:21Z [miner] AddToWallet 38af584ef6cc627efebe53b8de8e1ae3fe3804e8d4ee6b27c3acdeedcf4c4e60  new Confirmed (block=105083e2549e664774afaf42d048a661de0775d8fa51542fe32eafec6e424e56, height=34, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=390b26b73d934074b5b3c970c095605c2cd3a3281322f1a3418dec0d3cd500e7 height=37 version=0x20000000 log2_work=6.247928 tx=38 date='2026-10-23T17:43:28Z' progress=1.000000 cache=0.3MiB(37txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=513343d94695755d4dd3dde358fc4e1dda450108127091bd77a1ffb9c8ed6983 height=38
+2026-10-23T17:43:21Z UpdateTip: new best=513343d94695755d4dd3dde358fc4e1dda450108127091bd77a1ffb9c8ed6983 height=38 version=0x20000000 log2_work=6.285402 tx=39 date='2026-10-23T17:43:29Z' progress=1.000000 cache=0.3MiB(38txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=7c8e871b78da0cc7a3aca061e6059bda156f9f66b8cef915636b2828bae8c279 height=39
+2026-10-23T17:43:21Z UpdateTip: new best=7c8e871b78da0cc7a3aca061e6059bda156f9f66b8cef915636b2828bae8c279 height=39 version=0x20000000 log2_work=6.321928 tx=40 date='2026-10-23T17:43:29Z' progress=1.000000 cache=0.3MiB(39txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=55d938ac539e10738bc6ee53d054655f721726f6bce39ae6ac07cdf331e45159 height=40
+2026-10-23T17:43:21Z [miner] AddToWallet 804c56813068c928b39f52acfe7a4e12ce950247d625b45fd7ee19ff37c37399  new Confirmed (block=0d478f5794893c5f283c09a9e95627c8e4a401b2df490daf3b0e0a40add6091a, height=35, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 7252b6e4b234e3fa5115fdd1462c4bbb967553d0530e3bed0d643cb8dabc34c2  new Confirmed (block=31e3a9db602c244c619f373ef816ffba1f8ba1ecfe29c707340f87c1e3962666, height=36, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 3c78b12d83ae67c6f6281f4acec9ca5e40a2be4aef47cad2b3bab9cd8bcc7d8a  new Confirmed (block=390b26b73d934074b5b3c970c095605c2cd3a3281322f1a3418dec0d3cd500e7, height=37, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 4edad2967e6338ebd1e2888eeca56203c92a8fd651706ff937bdcd1cedd3071d  new Confirmed (block=513343d94695755d4dd3dde358fc4e1dda450108127091bd77a1ffb9c8ed6983, height=38, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet cfa846735d6b1c1939b40c7c9327ca89684a943ae88940dd802fe9e7c14c0115  new Confirmed (block=7c8e871b78da0cc7a3aca061e6059bda156f9f66b8cef915636b2828bae8c279, height=39, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=55d938ac539e10738bc6ee53d054655f721726f6bce39ae6ac07cdf331e45159 height=40 version=0x20000000 log2_work=6.357552 tx=41 date='2026-10-23T17:43:29Z' progress=1.000000 cache=0.3MiB(40txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=3df146d37dab4cb9ad1a885776e8065c8d887d299d0783725800af4bd715916d height=41
+2026-10-23T17:43:21Z UpdateTip: new best=3df146d37dab4cb9ad1a885776e8065c8d887d299d0783725800af4bd715916d height=41 version=0x20000000 log2_work=6.392317 tx=42 date='2026-10-23T17:43:29Z' progress=1.000000 cache=0.3MiB(41txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=3f4a44610889b30e7db138509fe3f6bb2e34262adcfe5af3fbcf4810bcace2a2 height=42
+2026-10-23T17:43:21Z UpdateTip: new best=3f4a44610889b30e7db138509fe3f6bb2e34262adcfe5af3fbcf4810bcace2a2 height=42 version=0x20000000 log2_work=6.426265 tx=43 date='2026-10-23T17:43:29Z' progress=1.000000 cache=0.3MiB(42txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=5c1b38175616899d767fe9357b1edc98031446abb72f2a708bda41792a6858aa height=43
+2026-10-23T17:43:21Z UpdateTip: new best=5c1b38175616899d767fe9357b1edc98031446abb72f2a708bda41792a6858aa height=43 version=0x20000000 log2_work=6.459432 tx=44 date='2026-10-23T17:43:29Z' progress=1.000000 cache=0.3MiB(43txo)
+2026-10-23T17:43:21Z [miner] AddToWallet 44491fea2589e0e6f52b3204eff3c4225bc98f5e83aa9afb423a961a3a1b9929  new Confirmed (block=55d938ac539e10738bc6ee53d054655f721726f6bce39ae6ac07cdf331e45159, height=40, index=0)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=3519f22a895d3ac881f909ee6220531e827254a5d1d229f7aeb0a251198390dc height=44
+2026-10-23T17:43:21Z UpdateTip: new best=3519f22a895d3ac881f909ee6220531e827254a5d1d229f7aeb0a251198390dc height=44 version=0x20000000 log2_work=6.491853 tx=45 date='2026-10-23T17:43:30Z' progress=1.000000 cache=0.3MiB(44txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=76ad25ac8e96f3548a92545d07fcee5801fde20db46d79808fe2964b09d5460b height=45
+2026-10-23T17:43:21Z UpdateTip: new best=76ad25ac8e96f3548a92545d07fcee5801fde20db46d79808fe2964b09d5460b height=45 version=0x20000000 log2_work=6.523562 tx=46 date='2026-10-23T17:43:30Z' progress=1.000000 cache=0.3MiB(45txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=789661e8bc8e7afad6dce747d3d37a84784b0e838ed9349aebcf499e47d51478 height=46
+2026-10-23T17:43:21Z [miner] AddToWallet 4b02ea70b0a3510c904671173da096468011aa426e25a5c8c3f27ff0d72ac6c2  new Confirmed (block=3df146d37dab4cb9ad1a885776e8065c8d887d299d0783725800af4bd715916d, height=41, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 262d5ca059007f9da4ff885363b13be0488b651a9a804622bd1b9f9be3b519e7  new Confirmed (block=3f4a44610889b30e7db138509fe3f6bb2e34262adcfe5af3fbcf4810bcace2a2, height=42, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet fd52db19c94d5f81187da58cde1658849a3f7b800ca151230b6b5486d015e05f  new Confirmed (block=5c1b38175616899d767fe9357b1edc98031446abb72f2a708bda41792a6858aa, height=43, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet c7944c8bf593a9cd37040492117f1a238c5b377c0de73a6963e3895bddc475f9  new Confirmed (block=3519f22a895d3ac881f909ee6220531e827254a5d1d229f7aeb0a251198390dc, height=44, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet f9580e861e22486729f5e66461bbc871cac8fa7782e132c8d487b9f1db1092d2  new Confirmed (block=76ad25ac8e96f3548a92545d07fcee5801fde20db46d79808fe2964b09d5460b, height=45, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=789661e8bc8e7afad6dce747d3d37a84784b0e838ed9349aebcf499e47d51478 height=46 version=0x20000000 log2_work=6.554589 tx=47 date='2026-10-23T17:43:30Z' progress=1.000000 cache=0.3MiB(46txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=1223b431af68751e6c079ef12a5ca724d717f0b423894d8127bd0deee9a02dde height=47
+2026-10-23T17:43:21Z UpdateTip: new best=1223b431af68751e6c079ef12a5ca724d717f0b423894d8127bd0deee9a02dde height=47 version=0x20000000 log2_work=6.584963 tx=48 date='2026-10-23T17:43:30Z' progress=1.000000 cache=0.3MiB(47txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=403e3a39b2695db504d396a5c8bbbb856b9aff2f34d65dea32559e1d56c49bf3 height=48
+2026-10-23T17:43:21Z UpdateTip: new best=403e3a39b2695db504d396a5c8bbbb856b9aff2f34d65dea32559e1d56c49bf3 height=48 version=0x20000000 log2_work=6.614710 tx=49 date='2026-10-23T17:43:30Z' progress=1.000000 cache=0.3MiB(48txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=6369e3d3c7e00bda83d57bd583ffc6d6ac92bbec2039da44868fb25aecdd0029 height=49
+2026-10-23T17:43:21Z UpdateTip: new best=6369e3d3c7e00bda83d57bd583ffc6d6ac92bbec2039da44868fb25aecdd0029 height=49 version=0x20000000 log2_work=6.643856 tx=50 date='2026-10-23T17:43:30Z' progress=1.000000 cache=0.3MiB(49txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=2261dd4b1331ccaf76244a21accd07701dc28f662fedb0233f089fb97e8f8821 height=50
+2026-10-23T17:43:21Z [miner] AddToWallet 0cc6a1b82d7ec7fc2a1ba988e1ef99cf33cff01959a26758c3df1c88fae28b81  new Confirmed (block=789661e8bc8e7afad6dce747d3d37a84784b0e838ed9349aebcf499e47d51478, height=46, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet b5e9f4af1401c983ca53f520739ca1739f71cc71d9795b9dd73245ef5b7ff972  new Confirmed (block=1223b431af68751e6c079ef12a5ca724d717f0b423894d8127bd0deee9a02dde, height=47, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet e2ebef5bbe573132d0e86d47bde7baa4584fe65da05a1fc37b48ea76651d8539  new Confirmed (block=403e3a39b2695db504d396a5c8bbbb856b9aff2f34d65dea32559e1d56c49bf3, height=48, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 07f2cc89621b984b8b8ca3fabd98756cc877dd75ef40ca4fc56f0742505be93d  new Confirmed (block=6369e3d3c7e00bda83d57bd583ffc6d6ac92bbec2039da44868fb25aecdd0029, height=49, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=2261dd4b1331ccaf76244a21accd07701dc28f662fedb0233f089fb97e8f8821 height=50 version=0x20000000 log2_work=6.672425 tx=51 date='2026-10-23T17:43:31Z' progress=1.000000 cache=0.3MiB(50txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=437ca46f8023fe905f8df5230d10bbe33d1536b9c88260f37ba2ea6178300c61 height=51
+2026-10-23T17:43:21Z UpdateTip: new best=437ca46f8023fe905f8df5230d10bbe33d1536b9c88260f37ba2ea6178300c61 height=51 version=0x20000000 log2_work=6.700440 tx=52 date='2026-10-23T17:43:31Z' progress=1.000000 cache=0.3MiB(51txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=799762b7c58dee4cdc200b38a233c880817f7d0dc724bab1585e6757b5f5131d height=52
+2026-10-23T17:43:21Z UpdateTip: new best=799762b7c58dee4cdc200b38a233c880817f7d0dc724bab1585e6757b5f5131d height=52 version=0x20000000 log2_work=6.727920 tx=53 date='2026-10-23T17:43:31Z' progress=1.000000 cache=0.3MiB(52txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0e15418bdd8f688f4f3371d58ffb8a19bf8d21016562509cb44e3587a3bd5784 height=53
+2026-10-23T17:43:21Z UpdateTip: new best=0e15418bdd8f688f4f3371d58ffb8a19bf8d21016562509cb44e3587a3bd5784 height=53 version=0x20000000 log2_work=6.754888 tx=54 date='2026-10-23T17:43:31Z' progress=1.000000 cache=0.3MiB(53txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=63d86f58dbc5f52088c41d2c3ddbba9fd0d0b00cbafaa5e2adf06c05f5d48497 height=54
+2026-10-23T17:43:21Z UpdateTip: new best=63d86f58dbc5f52088c41d2c3ddbba9fd0d0b00cbafaa5e2adf06c05f5d48497 height=54 version=0x20000000 log2_work=6.781360 tx=55 date='2026-10-23T17:43:31Z' progress=1.000000 cache=0.3MiB(54txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0d83aed4c4c961fb2e61118e76b46b397b721eeef05bfc77ec88c4a13e1a8d3e height=55
+2026-10-23T17:43:21Z [miner] AddToWallet 45a55c709e4aa266f4c8ac91dd6ba703912c1358f3feee647b32d4616f65edbc  new Confirmed (block=2261dd4b1331ccaf76244a21accd07701dc28f662fedb0233f089fb97e8f8821, height=50, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 14faff3a0da052130d4cd4e26c7d6af0ded7866b0671f758af80a54056d3b5fb  new Confirmed (block=437ca46f8023fe905f8df5230d10bbe33d1536b9c88260f37ba2ea6178300c61, height=51, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 6197b45bb31b2b1ef24dc931dc93ea0b3e454561b134b3ea0f21cbbd79677342  new Confirmed (block=799762b7c58dee4cdc200b38a233c880817f7d0dc724bab1585e6757b5f5131d, height=52, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet db78228dacd7c06c0d2b35126c959609f172c087c0d37d3d16781c09c05fbcec  new Confirmed (block=0e15418bdd8f688f4f3371d58ffb8a19bf8d21016562509cb44e3587a3bd5784, height=53, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet dc6f02e9f495ef9fa76f0647a46f76fadcb46119fa9b85727119774044a9ca7f  new Confirmed (block=63d86f58dbc5f52088c41d2c3ddbba9fd0d0b00cbafaa5e2adf06c05f5d48497, height=54, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=0d83aed4c4c961fb2e61118e76b46b397b721eeef05bfc77ec88c4a13e1a8d3e height=55 version=0x20000000 log2_work=6.807355 tx=56 date='2026-10-23T17:43:31Z' progress=1.000000 cache=0.3MiB(55txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=22f0c024f2b301f7ef400ef6c7f6f2dfed48cc2e0070c544a741f1352ee3300e height=56
+2026-10-23T17:43:21Z UpdateTip: new best=22f0c024f2b301f7ef400ef6c7f6f2dfed48cc2e0070c544a741f1352ee3300e height=56 version=0x20000000 log2_work=6.832890 tx=57 date='2026-10-23T17:43:32Z' progress=1.000000 cache=0.3MiB(56txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=7a16d87e88590064a4de7078ba10301e191a9a7577a3e631ca9899bbf286b28f height=57
+2026-10-23T17:43:21Z UpdateTip: new best=7a16d87e88590064a4de7078ba10301e191a9a7577a3e631ca9899bbf286b28f height=57 version=0x20000000 log2_work=6.857981 tx=58 date='2026-10-23T17:43:32Z' progress=1.000000 cache=0.3MiB(57txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=054a4ba9e78500df1f3883521a2da8353ffc584f0626ca650211e2df34255872 height=58
+2026-10-23T17:43:21Z UpdateTip: new best=054a4ba9e78500df1f3883521a2da8353ffc584f0626ca650211e2df34255872 height=58 version=0x20000000 log2_work=6.882643 tx=59 date='2026-10-23T17:43:32Z' progress=1.000000 cache=0.3MiB(58txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=26ac69a9e327a255de07cd8e4eed24bb5b31c3838bf81ff30aee7ffcb268c803 height=59
+2026-10-23T17:43:21Z UpdateTip: new best=26ac69a9e327a255de07cd8e4eed24bb5b31c3838bf81ff30aee7ffcb268c803 height=59 version=0x20000000 log2_work=6.906891 tx=60 date='2026-10-23T17:43:32Z' progress=1.000000 cache=0.3MiB(59txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=413c892f69d3f7ec7e70d5774e712474c34a5e5bfb5892e0d9dfed81abf4f03d height=60
+2026-10-23T17:43:21Z [miner] AddToWallet 84ef3103d43db2d3dd7cf9332e639633f1e37f05e01e1c68c8e7b559bce61283  new Confirmed (block=0d83aed4c4c961fb2e61118e76b46b397b721eeef05bfc77ec88c4a13e1a8d3e, height=55, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 3bae4176c1271002e06e72dcff3f92c11254059fdfc598566b872c27d8a58911  new Confirmed (block=22f0c024f2b301f7ef400ef6c7f6f2dfed48cc2e0070c544a741f1352ee3300e, height=56, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet c23505ca4109810e20d1ad0d5bc74de2550c4b9dcc3209a28775a7758f62e592  new Confirmed (block=7a16d87e88590064a4de7078ba10301e191a9a7577a3e631ca9899bbf286b28f, height=57, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet c1f8b1ce8ddc9841de87a9d20d2c0d3bbeb8c2bd082e406e9c6f94abc08f6064  new Confirmed (block=054a4ba9e78500df1f3883521a2da8353ffc584f0626ca650211e2df34255872, height=58, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet e875cd60ce874795ba1147262ff417ba9a16d2273b683c9bdd97ede81dccc69b  new Confirmed (block=26ac69a9e327a255de07cd8e4eed24bb5b31c3838bf81ff30aee7ffcb268c803, height=59, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=413c892f69d3f7ec7e70d5774e712474c34a5e5bfb5892e0d9dfed81abf4f03d height=60 version=0x20000000 log2_work=6.930737 tx=61 date='2026-10-23T17:43:32Z' progress=1.000000 cache=0.3MiB(60txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=6b49a758c2cb14cc724bc8beb20d97281ae53a0516813d40fcbf7eb1c206a00a height=61
+2026-10-23T17:43:21Z UpdateTip: new best=6b49a758c2cb14cc724bc8beb20d97281ae53a0516813d40fcbf7eb1c206a00a height=61 version=0x20000000 log2_work=6.954196 tx=62 date='2026-10-23T17:43:32Z' progress=1.000000 cache=0.3MiB(61txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=1305d261da9ec2b676c14a7e3d4ee0f81dc8e87548e4fe817194256ded7efe42 height=62
+2026-10-23T17:43:21Z UpdateTip: new best=1305d261da9ec2b676c14a7e3d4ee0f81dc8e87548e4fe817194256ded7efe42 height=62 version=0x20000000 log2_work=6.977280 tx=63 date='2026-10-23T17:43:33Z' progress=1.000000 cache=0.3MiB(62txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=6624fbe210a03d687cb7019124c300406a7dff2d1c54414d121b49188b8c4152 height=63
+2026-10-23T17:43:21Z UpdateTip: new best=6624fbe210a03d687cb7019124c300406a7dff2d1c54414d121b49188b8c4152 height=63 version=0x20000000 log2_work=7.000000 tx=64 date='2026-10-23T17:43:33Z' progress=1.000000 cache=0.3MiB(63txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=2f67f727b4ed858de569b07cf18e7c409649e2758430ae86df37ad0021c5b43d height=64
+2026-10-23T17:43:21Z UpdateTip: new best=2f67f727b4ed858de569b07cf18e7c409649e2758430ae86df37ad0021c5b43d height=64 version=0x20000000 log2_work=7.022368 tx=65 date='2026-10-23T17:43:33Z' progress=1.000000 cache=0.3MiB(64txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=33364166bce8e70ecdbb8a27bc1d707631c7cd03f43372cc232752bd0cac5e8b height=65
+2026-10-23T17:43:21Z [miner] AddToWallet 72ce97307b61bfe24230078c10621d2448d7a541241830a78183f29a675921e0  new Confirmed (block=413c892f69d3f7ec7e70d5774e712474c34a5e5bfb5892e0d9dfed81abf4f03d, height=60, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet a294996722b6bb640ec886488d23d0b0e68e48058f68dec894ee07c989d4299e  new Confirmed (block=6b49a758c2cb14cc724bc8beb20d97281ae53a0516813d40fcbf7eb1c206a00a, height=61, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 5e72f977461e0a9f0cac91caddbb9df18d99be751c9d6e526c42d690680ca6fc  new Confirmed (block=1305d261da9ec2b676c14a7e3d4ee0f81dc8e87548e4fe817194256ded7efe42, height=62, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet e3f8a2c52012c1a034d261c34ec2b434002e88529c02f7fdb1bc5b74225c65a8  new Confirmed (block=6624fbe210a03d687cb7019124c300406a7dff2d1c54414d121b49188b8c4152, height=63, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet abea5c93309188bc09c45793e1dd764a11c943abe794ddb79b62ef2a834b6fbe  new Confirmed (block=2f67f727b4ed858de569b07cf18e7c409649e2758430ae86df37ad0021c5b43d, height=64, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=33364166bce8e70ecdbb8a27bc1d707631c7cd03f43372cc232752bd0cac5e8b height=65 version=0x20000000 log2_work=7.044394 tx=66 date='2026-10-23T17:43:33Z' progress=1.000000 cache=0.3MiB(65txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=33883e9fd61c62abdbab1372ea6737a508834d53a034a078d03af9ff3f6e2df2 height=66
+2026-10-23T17:43:21Z UpdateTip: new best=33883e9fd61c62abdbab1372ea6737a508834d53a034a078d03af9ff3f6e2df2 height=66 version=0x20000000 log2_work=7.066089 tx=67 date='2026-10-23T17:43:33Z' progress=1.000000 cache=0.3MiB(66txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=2e1e6617724e1099b96a6d3d3bfc49360972d0c2b5dc3bcac40aacccd795ef58 height=67
+2026-10-23T17:43:21Z UpdateTip: new best=2e1e6617724e1099b96a6d3d3bfc49360972d0c2b5dc3bcac40aacccd795ef58 height=67 version=0x20000000 log2_work=7.087463 tx=68 date='2026-10-23T17:43:33Z' progress=1.000000 cache=0.3MiB(67txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0dc18d6432ef20ef35d0f901de24802733a96611f95e625367d06204ef6b144d height=68
+2026-10-23T17:43:21Z UpdateTip: new best=0dc18d6432ef20ef35d0f901de24802733a96611f95e625367d06204ef6b144d height=68 version=0x20000000 log2_work=7.108524 tx=69 date='2026-10-23T17:43:34Z' progress=1.000000 cache=0.3MiB(68txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=1fbd45efa7c7d76a50030e42f93ba827ff58602dc55c4981be5ae5260d48249c height=69
+2026-10-23T17:43:21Z UpdateTip: new best=1fbd45efa7c7d76a50030e42f93ba827ff58602dc55c4981be5ae5260d48249c height=69 version=0x20000000 log2_work=7.129283 tx=70 date='2026-10-23T17:43:34Z' progress=1.000000 cache=0.3MiB(69txo)
+2026-10-23T17:43:21Z [miner] AddToWallet 338eafa9674cc40b27553479c9b0c521f0fe5fd8eca4d8f4c3c7e3d613600a1d  new Confirmed (block=33364166bce8e70ecdbb8a27bc1d707631c7cd03f43372cc232752bd0cac5e8b, height=65, index=0)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=3f9b49407d2773d029564ef0af7514fee7f46458cc479d4af0717731a9eb4b86 height=70
+2026-10-23T17:43:21Z [miner] AddToWallet 40c8fa19ddfb7dcb19b4064620d192ac37275979f2ca8b4e876f522bad6e5d10  new Confirmed (block=33883e9fd61c62abdbab1372ea6737a508834d53a034a078d03af9ff3f6e2df2, height=66, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 0203c8da533779967084b63ed479c622e7238373b7e3ecdbafdb4eb398b7f057  new Confirmed (block=2e1e6617724e1099b96a6d3d3bfc49360972d0c2b5dc3bcac40aacccd795ef58, height=67, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 8a18294340797241157b145bc2f1d12fb3e7b75cf76713cc55d3d23cee96e1cc  new Confirmed (block=0dc18d6432ef20ef35d0f901de24802733a96611f95e625367d06204ef6b144d, height=68, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 5ae39868f8304cb83a5f8b2664b061979d0f1c13082c9366e67fcf8fa253eb0f  new Confirmed (block=1fbd45efa7c7d76a50030e42f93ba827ff58602dc55c4981be5ae5260d48249c, height=69, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=3f9b49407d2773d029564ef0af7514fee7f46458cc479d4af0717731a9eb4b86 height=70 version=0x20000000 log2_work=7.149747 tx=71 date='2026-10-23T17:43:34Z' progress=1.000000 cache=0.3MiB(70txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=29519fe7b5e870c1828b7ef3a666628e4a76a5a81f17d3ee936a74cfc92d5a23 height=71
+2026-10-23T17:43:21Z UpdateTip: new best=29519fe7b5e870c1828b7ef3a666628e4a76a5a81f17d3ee936a74cfc92d5a23 height=71 version=0x20000000 log2_work=7.169925 tx=72 date='2026-10-23T17:43:34Z' progress=1.000000 cache=0.3MiB(71txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=1aad8514644c4d4f6039e23f9e44ae9849ddca695deaebeccafaca1ea8b0c36d height=72
+2026-10-23T17:43:21Z UpdateTip: new best=1aad8514644c4d4f6039e23f9e44ae9849ddca695deaebeccafaca1ea8b0c36d height=72 version=0x20000000 log2_work=7.189825 tx=73 date='2026-10-23T17:43:34Z' progress=1.000000 cache=0.3MiB(72txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0d831174e551ea017814de8c838d469e5930ce776a278d2831f605d248441872 height=73
+2026-10-23T17:43:21Z UpdateTip: new best=0d831174e551ea017814de8c838d469e5930ce776a278d2831f605d248441872 height=73 version=0x20000000 log2_work=7.209453 tx=74 date='2026-10-23T17:43:34Z' progress=1.000000 cache=0.3MiB(73txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0919f8d70b2737e5b87156a972aad3ef8368f13f43f1685fc8c1199973024248 height=74
+2026-10-23T17:43:21Z UpdateTip: new best=0919f8d70b2737e5b87156a972aad3ef8368f13f43f1685fc8c1199973024248 height=74 version=0x20000000 log2_work=7.228819 tx=75 date='2026-10-23T17:43:35Z' progress=1.000000 cache=0.3MiB(74txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=7e78bad520777ae0012f8ef4a8219f0b8764aa0aaa269487219d1758f7ed4931 height=75
+2026-10-23T17:43:21Z [miner] AddToWallet 46e11bab28d824271d0bb5707e7fea7fba3a0b0526179c44e029e10ca3e6cdbb  new Confirmed (block=3f9b49407d2773d029564ef0af7514fee7f46458cc479d4af0717731a9eb4b86, height=70, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 8a2704c3df34fd7247a739361a42ffdb472a472e94b8319d593c2c3b1b3e8db0  new Confirmed (block=29519fe7b5e870c1828b7ef3a666628e4a76a5a81f17d3ee936a74cfc92d5a23, height=71, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 3b8af413572e6a6abada2162f42e509940b3d1e6698b79d281220dd874d2f228  new Confirmed (block=1aad8514644c4d4f6039e23f9e44ae9849ddca695deaebeccafaca1ea8b0c36d, height=72, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 30007c147946a464efef63a6a974e4c24de284deab8aeac60affaac12f944b00  new Confirmed (block=0d831174e551ea017814de8c838d469e5930ce776a278d2831f605d248441872, height=73, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 3630af61b0b1fa635fbf2517cd6b30c67e25949cdee35160144c2a29199a034b  new Confirmed (block=0919f8d70b2737e5b87156a972aad3ef8368f13f43f1685fc8c1199973024248, height=74, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=7e78bad520777ae0012f8ef4a8219f0b8764aa0aaa269487219d1758f7ed4931 height=75 version=0x20000000 log2_work=7.247928 tx=76 date='2026-10-23T17:43:35Z' progress=1.000000 cache=0.3MiB(75txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=2911ce478eb01a10c794f924d787db59647aa0670c90d4debeff9a45617c8b40 height=76
+2026-10-23T17:43:21Z UpdateTip: new best=2911ce478eb01a10c794f924d787db59647aa0670c90d4debeff9a45617c8b40 height=76 version=0x20000000 log2_work=7.266787 tx=77 date='2026-10-23T17:43:35Z' progress=1.000000 cache=0.3MiB(76txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=5f268e8c2cf540129445450e9cae3fe1bfdaf909552363ec048d9466c20770cd height=77
+2026-10-23T17:43:21Z UpdateTip: new best=5f268e8c2cf540129445450e9cae3fe1bfdaf909552363ec048d9466c20770cd height=77 version=0x20000000 log2_work=7.285402 tx=78 date='2026-10-23T17:43:35Z' progress=1.000000 cache=0.3MiB(77txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=1f4f874259041738d54ef8ec7c9344e08a41c57e4bedb3537a30cb12ba842e75 height=78
+2026-10-23T17:43:21Z UpdateTip: new best=1f4f874259041738d54ef8ec7c9344e08a41c57e4bedb3537a30cb12ba842e75 height=78 version=0x20000000 log2_work=7.303781 tx=79 date='2026-10-23T17:43:35Z' progress=1.000000 cache=0.3MiB(78txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=67dea9068d9f8b19b716d68eccd3431dc934c307e5780864f6be5ae0907bbe13 height=79
+2026-10-23T17:43:21Z UpdateTip: new best=67dea9068d9f8b19b716d68eccd3431dc934c307e5780864f6be5ae0907bbe13 height=79 version=0x20000000 log2_work=7.321928 tx=80 date='2026-10-23T17:43:35Z' progress=1.000000 cache=0.3MiB(79txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z [miner] AddToWallet 7dc5c393677be3db9a0441646b9e932b9e3b5968fee9ef32e904fa9c1a2129ff  new Confirmed (block=7e78bad520777ae0012f8ef4a8219f0b8764aa0aaa269487219d1758f7ed4931, height=75, index=0)
+2026-10-23T17:43:21Z Saw new header hash=5faef285cb96b2a0557f491d1af5f1a6a14ab75a42dac684cd6f38602ad8d65d height=80
+2026-10-23T17:43:21Z [miner] AddToWallet 8dea55984bf541446d7c423c65158e1ec32fe62a5765395fcd3920b70b1d6cd2  new Confirmed (block=2911ce478eb01a10c794f924d787db59647aa0670c90d4debeff9a45617c8b40, height=76, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 49767a6b22ded1a74a87409b0ea5a2ffbe3d6c4b6acf806a99e2f316ca22a850  new Confirmed (block=5f268e8c2cf540129445450e9cae3fe1bfdaf909552363ec048d9466c20770cd, height=77, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 7b38532b7539bbd10ad0b83d4391be4809327daa9638f3ca2b5d008bb4884727  new Confirmed (block=1f4f874259041738d54ef8ec7c9344e08a41c57e4bedb3537a30cb12ba842e75, height=78, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet db7dc82023c3c4149da223f65a9608aaa5e5b4f999514723e7a2fccd84f96e5a  new Confirmed (block=67dea9068d9f8b19b716d68eccd3431dc934c307e5780864f6be5ae0907bbe13, height=79, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=5faef285cb96b2a0557f491d1af5f1a6a14ab75a42dac684cd6f38602ad8d65d height=80 version=0x20000000 log2_work=7.339850 tx=81 date='2026-10-23T17:43:36Z' progress=1.000000 cache=0.3MiB(80txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=518d35542e22d578f76493c5f658918675690a4aeae4e3640cbac792264dfb6a height=81
+2026-10-23T17:43:21Z UpdateTip: new best=518d35542e22d578f76493c5f658918675690a4aeae4e3640cbac792264dfb6a height=81 version=0x20000000 log2_work=7.357552 tx=82 date='2026-10-23T17:43:36Z' progress=1.000000 cache=0.3MiB(81txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0927e067575be8b1d2b44dcd87e1c04120784e866ca2b29049d8e4f28a888ff7 height=82
+2026-10-23T17:43:21Z UpdateTip: new best=0927e067575be8b1d2b44dcd87e1c04120784e866ca2b29049d8e4f28a888ff7 height=82 version=0x20000000 log2_work=7.375039 tx=83 date='2026-10-23T17:43:36Z' progress=1.000000 cache=0.3MiB(82txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=43708f7776e301530b5db12f5b6cc99799958702d958911176cadbeb1998e257 height=83
+2026-10-23T17:43:21Z UpdateTip: new best=43708f7776e301530b5db12f5b6cc99799958702d958911176cadbeb1998e257 height=83 version=0x20000000 log2_work=7.392317 tx=84 date='2026-10-23T17:43:36Z' progress=1.000000 cache=0.3MiB(83txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=26842b05cfee0294c184abb91f735ea8cc59716c0220f85ea6f5b3e5feb12fa9 height=84
+2026-10-23T17:43:21Z UpdateTip: new best=26842b05cfee0294c184abb91f735ea8cc59716c0220f85ea6f5b3e5feb12fa9 height=84 version=0x20000000 log2_work=7.409391 tx=85 date='2026-10-23T17:43:36Z' progress=1.000000 cache=0.3MiB(84txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=0e7d5b5376adddf926d22719f8710343444d504d521fd18f01873cace952f951 height=85
+2026-10-23T17:43:21Z [miner] AddToWallet 8f11ff80ea9449f6d0ff2b36bdc336e51629c16704c3fa47c702a449b9eaf124  new Confirmed (block=5faef285cb96b2a0557f491d1af5f1a6a14ab75a42dac684cd6f38602ad8d65d, height=80, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 454fc1e92a41ac8ddd04ff4a2e749d31a5c8fc9c0085527cffb9d74cac1fd5a9  new Confirmed (block=518d35542e22d578f76493c5f658918675690a4aeae4e3640cbac792264dfb6a, height=81, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet a1b25e48ae459be86bec7ea8739526a13cb223c61a4a28a11d1486cfd53ebd4b  new Confirmed (block=0927e067575be8b1d2b44dcd87e1c04120784e866ca2b29049d8e4f28a888ff7, height=82, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet e0222bc208e7330ea1af6b4bc91a867afd305f631977b70a7f225c93be101ae8  new Confirmed (block=43708f7776e301530b5db12f5b6cc99799958702d958911176cadbeb1998e257, height=83, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet a74170cd96437363275f2389bb1d3e284a194fdc2d906870e6c73bc908caa5d7  new Confirmed (block=26842b05cfee0294c184abb91f735ea8cc59716c0220f85ea6f5b3e5feb12fa9, height=84, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=0e7d5b5376adddf926d22719f8710343444d504d521fd18f01873cace952f951 height=85 version=0x20000000 log2_work=7.426265 tx=86 date='2026-10-23T17:43:36Z' progress=1.000000 cache=0.3MiB(85txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=6c9d1d1e91681a0e423c135e6b9d0ec9af5429b3b2a73dfe68f883209764d1d5 height=86
+2026-10-23T17:43:21Z UpdateTip: new best=6c9d1d1e91681a0e423c135e6b9d0ec9af5429b3b2a73dfe68f883209764d1d5 height=86 version=0x20000000 log2_work=7.442943 tx=87 date='2026-10-23T17:43:37Z' progress=1.000000 cache=0.3MiB(86txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=666614dcabe44b45afce53106ca754340d33adedc6b75176e2038480938f9d55 height=87
+2026-10-23T17:43:21Z UpdateTip: new best=666614dcabe44b45afce53106ca754340d33adedc6b75176e2038480938f9d55 height=87 version=0x20000000 log2_work=7.459432 tx=88 date='2026-10-23T17:43:37Z' progress=1.000000 cache=0.3MiB(87txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=45d7c5b3f2d5b53e0998d7ee59f45e679ebaab0ef2bd0381549dac7733b2cef8 height=88
+2026-10-23T17:43:21Z UpdateTip: new best=45d7c5b3f2d5b53e0998d7ee59f45e679ebaab0ef2bd0381549dac7733b2cef8 height=88 version=0x20000000 log2_work=7.475733 tx=89 date='2026-10-23T17:43:37Z' progress=1.000000 cache=0.3MiB(88txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=303b8c4aa33dd0c5378f93fb302fc2bf0741f00ead4956a79c8fcdf714042f59 height=89
+2026-10-23T17:43:21Z UpdateTip: new best=303b8c4aa33dd0c5378f93fb302fc2bf0741f00ead4956a79c8fcdf714042f59 height=89 version=0x20000000 log2_work=7.491853 tx=90 date='2026-10-23T17:43:37Z' progress=1.000000 cache=0.3MiB(89txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=09e15c62dc0a8006f17456bb6506f4965b4c273f71865b80d13bebd39771f21e height=90
+2026-10-23T17:43:21Z [miner] AddToWallet 4bc08e36c3a3705a652c92148144c269bec6e6156c99d6678978a98e25eb1d13  new Confirmed (block=0e7d5b5376adddf926d22719f8710343444d504d521fd18f01873cace952f951, height=85, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet f65488a657f23a611ef39474a5371fc10d38a555a8c46f4a11f175f5f916ae15  new Confirmed (block=6c9d1d1e91681a0e423c135e6b9d0ec9af5429b3b2a73dfe68f883209764d1d5, height=86, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet f202a9232aef7316a7fcc7e8b11a89a7e5dafeefbf2ea69ffa8366d71d5a0a08  new Confirmed (block=666614dcabe44b45afce53106ca754340d33adedc6b75176e2038480938f9d55, height=87, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet b08395107097019e08bac99645ebcea1a0c4bc26005d20927612ef626a6e2c27  new Confirmed (block=45d7c5b3f2d5b53e0998d7ee59f45e679ebaab0ef2bd0381549dac7733b2cef8, height=88, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 4c34ac055815ddb0dba4a036ec586d3ddc2d5af0755b009981e8183c844bcdbc  new Confirmed (block=303b8c4aa33dd0c5378f93fb302fc2bf0741f00ead4956a79c8fcdf714042f59, height=89, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=09e15c62dc0a8006f17456bb6506f4965b4c273f71865b80d13bebd39771f21e height=90 version=0x20000000 log2_work=7.507795 tx=91 date='2026-10-23T17:43:37Z' progress=1.000000 cache=0.3MiB(90txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=762d7e1ba3e985ddf1d2efd8dce2e9b60951a79baa6c18f952388285792434a1 height=91
+2026-10-23T17:43:21Z UpdateTip: new best=762d7e1ba3e985ddf1d2efd8dce2e9b60951a79baa6c18f952388285792434a1 height=91 version=0x20000000 log2_work=7.523562 tx=92 date='2026-10-23T17:43:37Z' progress=1.000000 cache=0.3MiB(91txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=5d54fe2815ec0e5cddc3b22c0e327e51f60707daaaf68c1d06f9c813f465ae7d height=92
+2026-10-23T17:43:21Z UpdateTip: new best=5d54fe2815ec0e5cddc3b22c0e327e51f60707daaaf68c1d06f9c813f465ae7d height=92 version=0x20000000 log2_work=7.539159 tx=93 date='2026-10-23T17:43:38Z' progress=1.000000 cache=0.3MiB(92txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=304726f2e7fb116f50007eff2d24459530f07895d7cf793c5e57516b7fa50042 height=93
+2026-10-23T17:43:21Z UpdateTip: new best=304726f2e7fb116f50007eff2d24459530f07895d7cf793c5e57516b7fa50042 height=93 version=0x20000000 log2_work=7.554589 tx=94 date='2026-10-23T17:43:38Z' progress=1.000000 cache=0.3MiB(93txo)
+2026-10-23T17:43:21Z [miner] AddToWallet 3237ddd0aff8e50a74e2ece8ca65d75bb109e307ec94c1451009a8918ffd6c2a  new Confirmed (block=09e15c62dc0a8006f17456bb6506f4965b4c273f71865b80d13bebd39771f21e, height=90, index=0)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=702c81724bb7ba8e3b52b489c8fc31d2c48a20b64fd9269a9fd346eeb173a84b height=94
+2026-10-23T17:43:21Z UpdateTip: new best=702c81724bb7ba8e3b52b489c8fc31d2c48a20b64fd9269a9fd346eeb173a84b height=94 version=0x20000000 log2_work=7.569856 tx=95 date='2026-10-23T17:43:38Z' progress=1.000000 cache=0.3MiB(94txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=162f7089f952d9e9049d1cbec49d2661d6d518a20258b256dfd95831d2e24e72 height=95
+2026-10-23T17:43:21Z [miner] AddToWallet 7fa022362dbb4ac57227f77d263e8e36efead6fb2c0b41254e69e03c551ee43c  new Confirmed (block=762d7e1ba3e985ddf1d2efd8dce2e9b60951a79baa6c18f952388285792434a1, height=91, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 94b86bdf48d881696ed56807cb79cdd0fbfe1edaf310a0503b7e17cb95b82ca0  new Confirmed (block=5d54fe2815ec0e5cddc3b22c0e327e51f60707daaaf68c1d06f9c813f465ae7d, height=92, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 52f96c5abf3143fecf422d4dc1af07916dd9e3e9212ceefe98b9c6fa8061807a  new Confirmed (block=304726f2e7fb116f50007eff2d24459530f07895d7cf793c5e57516b7fa50042, height=93, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 516804862480262379e7aa41f2dbb2a85192b0b4eb9ceea4cb2e0e49d7636375  new Confirmed (block=702c81724bb7ba8e3b52b489c8fc31d2c48a20b64fd9269a9fd346eeb173a84b, height=94, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=162f7089f952d9e9049d1cbec49d2661d6d518a20258b256dfd95831d2e24e72 height=95 version=0x20000000 log2_work=7.584963 tx=96 date='2026-10-23T17:43:38Z' progress=1.000000 cache=0.3MiB(95txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=3c403e48e182cb5fbeffa1a0a6378235373ea46e67fac79b6f85eec8216a84e9 height=96
+2026-10-23T17:43:21Z UpdateTip: new best=3c403e48e182cb5fbeffa1a0a6378235373ea46e67fac79b6f85eec8216a84e9 height=96 version=0x20000000 log2_work=7.599913 tx=97 date='2026-10-23T17:43:38Z' progress=1.000000 cache=0.3MiB(96txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=194edf620c0ea935c88ce9aeb3d24de308b0287b73bfe6b0660fa1b699f98dd5 height=97
+2026-10-23T17:43:21Z UpdateTip: new best=194edf620c0ea935c88ce9aeb3d24de308b0287b73bfe6b0660fa1b699f98dd5 height=97 version=0x20000000 log2_work=7.614710 tx=98 date='2026-10-23T17:43:38Z' progress=1.000000 cache=0.3MiB(97txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=7b31e9c9ff049779f3b38220d4d3adf914ccfa2adb485afd32e80931d9f68a24 height=98
+2026-10-23T17:43:21Z UpdateTip: new best=7b31e9c9ff049779f3b38220d4d3adf914ccfa2adb485afd32e80931d9f68a24 height=98 version=0x20000000 log2_work=7.629357 tx=99 date='2026-10-23T17:43:39Z' progress=1.000000 cache=0.3MiB(98txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=517372e61b87c7e2a5e8597c13b34e8717228092d877c13beef5ce5fafbe604e height=99
+2026-10-23T17:43:21Z UpdateTip: new best=517372e61b87c7e2a5e8597c13b34e8717228092d877c13beef5ce5fafbe604e height=99 version=0x20000000 log2_work=7.643856 tx=100 date='2026-10-23T17:43:39Z' progress=1.000000 cache=0.3MiB(99txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=51a8a88fd0ea776f70ddd19b7a47341b8c8f0b2eee841c6f143beadcddaef8ab height=100
+2026-10-23T17:43:21Z [miner] AddToWallet c8be3fc9dd307cbbe0208e29ba62060b4448aeee766cd4cc9eedcfcda08a382c  new Confirmed (block=162f7089f952d9e9049d1cbec49d2661d6d518a20258b256dfd95831d2e24e72, height=95, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 9a910db638f65c37243ed14d1e46bab429ce7a3559e4a7d83a732dac04da7336  new Confirmed (block=3c403e48e182cb5fbeffa1a0a6378235373ea46e67fac79b6f85eec8216a84e9, height=96, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 41b5bc7394033d8dc4769b4dfbee87777bf050b7b75bfa39cedf97fe8341641e  new Confirmed (block=194edf620c0ea935c88ce9aeb3d24de308b0287b73bfe6b0660fa1b699f98dd5, height=97, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet ec167d787d81fd747c8909c5c40eacffedae26e2ce8861b17a1477a89fa2f594  new Confirmed (block=7b31e9c9ff049779f3b38220d4d3adf914ccfa2adb485afd32e80931d9f68a24, height=98, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 0536790e9ac2cf9efc74bf990589c28490a6918cfb65ab59a3930d6acef707cd  new Confirmed (block=517372e61b87c7e2a5e8597c13b34e8717228092d877c13beef5ce5fafbe604e, height=99, index=0)
+2026-10-23T17:43:21Z UpdateTip: new best=51a8a88fd0ea776f70ddd19b7a47341b8c8f0b2eee841c6f143beadcddaef8ab height=100 version=0x20000000 log2_work=7.658211 tx=101 date='2026-10-23T17:43:39Z' progress=1.000000 cache=0.3MiB(100txo)
+2026-10-23T17:43:21Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:21Z Saw new header hash=32988ba3f7c34c0da6636bac7a3e99125cc9aa3b62a7807b77c3674bb0df3b77 height=101
+2026-10-23T17:43:21Z UpdateTip: new best=32988ba3f7c34c0da6636bac7a3e99125cc9aa3b62a7807b77c3674bb0df3b77 height=101 version=0x20000000 log2_work=7.672425 tx=102 date='2026-10-23T17:43:39Z' progress=1.000000 cache=0.3MiB(101txo)
+2026-10-23T17:43:21Z [miner] AddToWallet 048bc1d99b1fbe78b43456e646351a501d78c9fcf763eb4e8b80e28d8e8cded0  new Confirmed (block=51a8a88fd0ea776f70ddd19b7a47341b8c8f0b2eee841c6f143beadcddaef8ab, height=100, index=0)
+2026-10-23T17:43:21Z [miner] AddToWallet 5da954d6ce6740fbaa4cecfb3048298a6702c79aa2355809893a4431062ac6fa  new Confirmed (block=32988ba3f7c34c0da6636bac7a3e99125cc9aa3b62a7807b77c3674bb0df3b77, height=101, index=0)
+2026-10-23T17:43:24Z [miner] Coin Selection: Algorithm:knapsack, Waste Metric Score:1980
+2026-10-23T17:43:24Z [miner] Fee Calculation: Fee:2820 Bytes:141 Tgt:0 (requested 6) Reason:"Fallback fee" Decay 0.00000: Estimation: (-1 - -1) 0.00% 0.0/(0.0 0 mem 0.0 out) Fail: (-1 - -1) 0.00% 0.0/(0.0 0 mem 0.0 out)
+2026-10-23T17:43:24Z [miner] Coin Selection: Algorithm:knapsack, Waste Metric Score:1980
+2026-10-23T17:43:24Z [miner] Fee Calculation: Fee:2820 Bytes:141 Tgt:0 (requested 6) Reason:"Fallback fee" Decay 0.00000: Estimation: (-1 - -1) 0.00% 0.0/(0.0 0 mem 0.0 out) Fail: (-1 - -1) 0.00% 0.0/(0.0 0 mem 0.0 out)
+2026-10-23T17:43:24Z [miner] Fee non-grouped = 2820, grouped = 2820, using grouped
+2026-10-23T17:43:24Z [miner] CommitTransaction:
+CTransaction(hash=ee1f56b745, ver=2, vin.size=1, vout.size=2, nLockTime=4)
+    CTxIn(COutPoint(8288d5a26f, 0), scriptSig=, nSequence=4294967293)
+    CScriptWitness(304402201e82768785c36d2af305dc8c90256eceadf56e9fc2ed4c29662750e3aba2561002207262b0d747f5444427049c529ef45d33e18de88f320842dbe58dda87abd5f15401, 024ed49a9cb9c557b8330a401e58e017d8f1c7cab1648261372aca64fa1aac7dad)
+    CTxOut(nValue=1.00000000, scriptPubKey=0014602a68c9f9f1bb9c85ca1a4be5)
+    CTxOut(nValue=48.99997180, scriptPubKey=0014b4aae6c78b4b5485c9ccc85be2)
+2026-10-23T17:43:24Z [miner] AddToWallet ee1f56b745bc131376cff70466c28b7f86a1b5a22c09955b1f16102276a87f80  newupdate Inactive (abandoned=0)
+2026-10-23T17:43:24Z [miner] Submitting wtx ee1f56b745bc131376cff70466c28b7f86a1b5a22c09955b1f16102276a87f80 to mempool for relay
+2026-10-23T17:43:24Z [miner] AddToWallet ee1f56b745bc131376cff70466c28b7f86a1b5a22c09955b1f16102276a87f80   InMempool
+2026-10-23T17:43:24Z CreateNewBlock(): block weight: 1449 txs: 1 fees: 2820 sigops 401
+2026-10-23T17:43:24Z Saw new header hash=1e5d85f2694a29754011fe2f26a0f3ac53e5a4da4aa729f535068830c897a2dd height=102
+2026-10-23T17:43:24Z UpdateTip: new best=1e5d85f2694a29754011fe2f26a0f3ac53e5a4da4aa729f535068830c897a2dd height=102 version=0x20000000 log2_work=7.686501 tx=104 date='2026-10-23T17:43:39Z' progress=1.000000 cache=0.3MiB(104txo)
+2026-10-23T17:43:24Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:24Z Saw new header hash=34009c44d5b005d389c026859302fc1ccf3ec154491026cad9212913ed71bb6d height=103
+2026-10-23T17:43:24Z UpdateTip: new best=34009c44d5b005d389c026859302fc1ccf3ec154491026cad9212913ed71bb6d height=103 version=0x20000000 log2_work=7.700440 tx=105 date='2026-10-23T17:43:39Z' progress=1.000000 cache=0.3MiB(105txo)
+2026-10-23T17:43:24Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:24Z Saw new header hash=5e6006cf13d833efce786990c661354acc169b86e9ed454b896f1a6aa5ecff84 height=104
+2026-10-23T17:43:24Z UpdateTip: new best=5e6006cf13d833efce786990c661354acc169b86e9ed454b896f1a6aa5ecff84 height=104 version=0x20000000 log2_work=7.714246 tx=106 date='2026-10-23T17:43:40Z' progress=1.000000 cache=0.3MiB(106txo)
+2026-10-23T17:43:24Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:24Z Saw new header hash=7c38abb3081776b46a3de3190bda688549638a5b49a6c87913316cb592ddeb84 height=105
+2026-10-23T17:43:24Z UpdateTip: new best=7c38abb3081776b46a3de3190bda688549638a5b49a6c87913316cb592ddeb84 height=105 version=0x20000000 log2_work=7.727920 tx=107 date='2026-10-23T17:43:40Z' progress=1.000000 cache=0.3MiB(107txo)
+2026-10-23T17:43:24Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:24Z Saw new header hash=5465806b318d5b9ec6b567949b47a8e8c328e32c44b68d5138e70426352912f8 height=106
+2026-10-23T17:43:24Z UpdateTip: new best=5465806b318d5b9ec6b567949b47a8e8c328e32c44b68d5138e70426352912f8 height=106 version=0x20000000 log2_work=7.741467 tx=108 date='2026-10-23T17:43:40Z' progress=1.000000 cache=0.3MiB(108txo)
+2026-10-23T17:43:24Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:24Z Saw new header hash=468ba1e1c300b9e9b27f97d50d56736e6fd746701ecaa4de04c1fa268e80749b height=107
+2026-10-23T17:43:24Z [miner] AddToWallet 791a3ffcef0f3e3670b638ef0218435629137bd56c71ef921641dd2216dc908b  new Confirmed (block=1e5d85f2694a29754011fe2f26a0f3ac53e5a4da4aa729f535068830c897a2dd, height=102, index=0)
+2026-10-23T17:43:24Z [miner] AddToWallet ee1f56b745bc131376cff70466c28b7f86a1b5a22c09955b1f16102276a87f80  update Confirmed (block=1e5d85f2694a29754011fe2f26a0f3ac53e5a4da4aa729f535068830c897a2dd, height=102, index=1)
+2026-10-23T17:43:24Z [miner] AddToWallet baaaadc80b3bbf3b228a9e3c6984d1c1aeaa50c8061b67748ffea82485d42b6b  new Confirmed (block=34009c44d5b005d389c026859302fc1ccf3ec154491026cad9212913ed71bb6d, height=103, index=0)
+2026-10-23T17:43:24Z [miner] AddToWallet 06badc2de5b65fc1cec91206db87a7f10a644eecbb2ceac84339c60631e95a76  new Confirmed (block=5e6006cf13d833efce786990c661354acc169b86e9ed454b896f1a6aa5ecff84, height=104, index=0)
+2026-10-23T17:43:24Z [miner] AddToWallet 3c96af8a4653da183f5a2d888fe4c858ce7de0abd26ceffc2d70bcc11081fe31  new Confirmed (block=7c38abb3081776b46a3de3190bda688549638a5b49a6c87913316cb592ddeb84, height=105, index=0)
+2026-10-23T17:43:24Z [miner] AddToWallet 7ff3674d3f828b7491a7aae7d06f61658579736a70370a35e126b2b1820744a1  new Confirmed (block=5465806b318d5b9ec6b567949b47a8e8c328e32c44b68d5138e70426352912f8, height=106, index=0)
+2026-10-23T17:43:24Z UpdateTip: new best=468ba1e1c300b9e9b27f97d50d56736e6fd746701ecaa4de04c1fa268e80749b height=107 version=0x20000000 log2_work=7.754888 tx=109 date='2026-10-23T17:43:40Z' progress=1.000000 cache=0.3MiB(109txo)
+2026-10-23T17:43:24Z [miner] AddToWallet d9724c02acd728a1a89018975b55178b3ff8339e88a0baed71769af6ec7744f9  new Confirmed (block=468ba1e1c300b9e9b27f97d50d56736e6fd746701ecaa4de04c1fa268e80749b, height=107, index=0)
+2026-10-23T17:43:25Z CreateNewBlock(): block weight: 1546 txs: 1 fees: 4118 sigops 401
+2026-10-23T17:43:25Z Saw new header hash=41e59be9d59fd98ae9d9632d55eccd4342af2482afded7621db7a9e46fe66b36 height=108
+2026-10-23T17:43:25Z UpdateTip: new best=41e59be9d59fd98ae9d9632d55eccd4342af2482afded7621db7a9e46fe66b36 height=108 version=0x20000000 log2_work=7.768184 tx=111 date='2026-10-23T17:43:40Z' progress=1.000000 cache=0.3MiB(111txo)
+2026-10-23T17:43:25Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:25Z Saw new header hash=6515dbe1ebace5ce4f79c4883cb6f791cb243cfaecdbe8485473efb22915a434 height=109
+2026-10-23T17:43:25Z UpdateTip: new best=6515dbe1ebace5ce4f79c4883cb6f791cb243cfaecdbe8485473efb22915a434 height=109 version=0x20000000 log2_work=7.781360 tx=112 date='2026-10-23T17:43:40Z' progress=1.000000 cache=0.3MiB(112txo)
+2026-10-23T17:43:25Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:25Z Saw new header hash=5c6ed6f55a02b0a6418f3b206675bd002adcab3e0219b26b9f9428033d347462 height=110
+2026-10-23T17:43:25Z UpdateTip: new best=5c6ed6f55a02b0a6418f3b206675bd002adcab3e0219b26b9f9428033d347462 height=110 version=0x20000000 log2_work=7.794416 tx=113 date='2026-10-23T17:43:41Z' progress=1.000000 cache=0.3MiB(113txo)
+2026-10-23T17:43:25Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:25Z Saw new header hash=26f153dd1f5edd018b0f764d58e33c45da2df4941f9b250efe1df27f464b06fb height=111
+2026-10-23T17:43:25Z UpdateTip: new best=26f153dd1f5edd018b0f764d58e33c45da2df4941f9b250efe1df27f464b06fb height=111 version=0x20000000 log2_work=7.807355 tx=114 date='2026-10-23T17:43:41Z' progress=1.000000 cache=0.3MiB(114txo)
+2026-10-23T17:43:25Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:25Z Saw new header hash=10b399a126fcff054c14f070d9f820a0ab7ef05e6f73c235dc846ca344942bcf height=112
+2026-10-23T17:43:25Z UpdateTip: new best=10b399a126fcff054c14f070d9f820a0ab7ef05e6f73c235dc846ca344942bcf height=112 version=0x20000000 log2_work=7.820179 tx=115 date='2026-10-23T17:43:41Z' progress=1.000000 cache=0.3MiB(115txo)
+2026-10-23T17:43:25Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:43:25Z Saw new header hash=0b75dd0beb407ac2bc77edca368a8a24d5722d676860c8f077e1c702f5deb87e height=113
+2026-10-23T17:43:25Z [miner] AddToWallet 1163efb2d3193993910ee0abc52e88e87d9c4556dad047d1b312fd4090e66e64  new Confirmed (block=41e59be9d59fd98ae9d9632d55eccd4342af2482afded7621db7a9e46fe66b36, height=108, index=0)
+2026-10-23T17:43:25Z [miner] AddToWallet 7d3cd6696d9b2111aff56eef7f3596c968454a45a935698b015bbeb189c72c94  new Confirmed (block=6515dbe1ebace5ce4f79c4883cb6f791cb243cfaecdbe8485473efb22915a434, height=109, index=0)
+2026-10-23T17:43:25Z [miner] AddToWallet c8a9f0ca743df98bacf8383fbe52f1fbcb1ba0ca7346559400bc13034bc5bb69  new Confirmed (block=5c6ed6f55a02b0a6418f3b206675bd002adcab3e0219b26b9f9428033d347462, height=110, index=0)
+2026-10-23T17:43:25Z [miner] AddToWallet 92d6f94c712fc3e86234a3abe151070ce94a8fbe806965c509eccb662834f5b2  new Confirmed (block=26f153dd1f5edd018b0f764d58e33c45da2df4941f9b250efe1df27f464b06fb, height=111, index=0)
+2026-10-23T17:43:25Z [miner] AddToWallet 5627203f8dcfc7f5c71541f6ccc741c1828e11286dc343a6fc7e18e1bd40cd1e  new Confirmed (block=10b399a126fcff054c14f070d9f820a0ab7ef05e6f73c235dc846ca344942bcf, height=112, index=0)
+2026-10-23T17:43:25Z UpdateTip: new best=0b75dd0beb407ac2bc77edca368a8a24d5722d676860c8f077e1c702f5deb87e height=113 version=0x20000000 log2_work=7.832890 tx=116 date='2026-10-23T17:43:41Z' progress=1.000000 cache=0.3MiB(116txo)
+2026-10-23T17:43:25Z [miner] AddToWallet 26c8765be1f74543201c469eb83e2f63a2b410b0523b0e37e1ee6dbc59e5438d  new Confirmed (block=0b75dd0beb407ac2bc77edca368a8a24d5722d676860c8f077e1c702f5deb87e, height=113, index=0)
+2026-10-23T17:44:20Z Adding fixed seeds as 60 seconds have passed and addrman is empty for at least one reachable network
+2026-10-23T17:44:20Z Added 0 fixed seeds from reachable networks.
+2026-10-23T17:51:04Z CreateNewBlock(): block weight: 1504 txs: 1 fees: 3850 sigops 400
+2026-10-23T17:51:04Z Saw new header hash=5ffbbdb696b76b0c2592b7b70c880dfeb918e2af91dc18d967cf336e35dc9f76 height=114
+2026-10-23T17:51:04Z UpdateTip: new best=5ffbbdb696b76b0c2592b7b70c880dfeb918e2af91dc18d967cf336e35dc9f76 height=114 version=0x20000000 log2_work=7.845490 tx=118 date='2026-10-23T17:51:04Z' progress=1.000000 cache=0.3MiB(118txo)
+2026-10-23T17:51:04Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:51:04Z Saw new header hash=37223e4cbb41eaafaf4d598ce77f29779a984cf455ab13131171c1bb06772f33 height=115
+2026-10-23T17:51:04Z UpdateTip: new best=37223e4cbb41eaafaf4d598ce77f29779a984cf455ab13131171c1bb06772f33 height=115 version=0x20000000 log2_work=7.857981 tx=119 date='2026-10-23T17:51:04Z' progress=1.000000 cache=0.3MiB(119txo)
+2026-10-23T17:51:04Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:51:04Z Saw new header hash=33aea4cee6fa7f32e9379f8cfa4c0620c6772628dfb9f146463a8a0ca274fdba height=116
+2026-10-23T17:51:04Z UpdateTip: new best=33aea4cee6fa7f32e9379f8cfa4c0620c6772628dfb9f146463a8a0ca274fdba height=116 version=0x20000000 log2_work=7.870365 tx=120 date='2026-10-23T17:51:04Z' progress=1.000000 cache=0.3MiB(120txo)
+2026-10-23T17:51:04Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:51:04Z Saw new header hash=6d122006a23fc9bea85a6d0c2ccf11843eab16769daba8b52b0e416794fd46c0 height=117
+2026-10-23T17:51:04Z UpdateTip: new best=6d122006a23fc9bea85a6d0c2ccf11843eab16769daba8b52b0e416794fd46c0 height=117 version=0x20000000 log2_work=7.882643 tx=121 date='2026-10-23T17:51:04Z' progress=1.000000 cache=0.3MiB(121txo)
+2026-10-23T17:51:04Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:51:04Z Saw new header hash=721b0661266cd93c0c9da2ae8940f4854f5c9a890f0888c0aa3ecac94ff9951c height=118
+2026-10-23T17:51:04Z UpdateTip: new best=721b0661266cd93c0c9da2ae8940f4854f5c9a890f0888c0aa3ecac94ff9951c height=118 version=0x20000000 log2_work=7.894818 tx=122 date='2026-10-23T17:51:04Z' progress=1.000000 cache=0.3MiB(122txo)
+2026-10-23T17:51:04Z CreateNewBlock(): block weight: 888 txs: 0 fees: 0 sigops 400
+2026-10-23T17:51:04Z Saw new header hash=15d0cf4dd1e878ffcf0dda62da07639b27eb9e5e039ac25a5d72e692006696d4 height=119
+2026-10-23T17:51:04Z [miner] AddToWallet 67710d524c6621f0975d8bbdae7f6146a380c8653e925ff054336a3e719b7602  new Confirmed (block=5ffbbdb696b76b0c2592b7b70c880dfeb918e2af91dc18d967cf336e35dc9f76, height=114, index=0)
+2026-10-23T17:51:04Z [miner] AddToWallet 2759ac472c47a306f591fe22126da1f5edae853251a42bf90a6572236d089048  new Confirmed (block=37223e4cbb41eaafaf4d598ce77f29779a984cf455ab13131171c1bb06772f33, height=115, index=0)
+2026-10-23T17:51:04Z [miner] AddToWallet 771e7d1956444b60fc3702787ccbda2a11bf411f9cf98ae469cbb58f7435f18e  new Confirmed (block=33aea4cee6fa7f32e9379f8cfa4c0620c6772628dfb9f146463a8a0ca274fdba, height=116, index=0)
+2026-10-23T17:51:04Z [miner] AddToWallet ea81f4ca746e13d1a317cda4317fdd6e8e1792a9f33d3470bdc7c9043b15048a  new Confirmed (block=6d122006a23fc9bea85a6d0c2ccf11843eab16769daba8b52b0e416794fd46c0, height=117, index=0)
+2026-10-23T17:51:04Z [miner] AddToWallet ab407487b63d3fa229849c1ee0c8eb486d98a2d7d4c76810b5becbffc359c27e  new Confirmed (block=721b0661266cd93c0c9da2ae8940f4854f5c9a890f0888c0aa3ecac94ff9951c, height=118, index=0)
+2026-10-23T17:51:04Z UpdateTip: new best=15d0cf4dd1e878ffcf0dda62da07639b27eb9e5e039ac25a5d72e692006696d4 height=119 version=0x20000000 log2_work=7.906891 tx=123 date='2026-10-23T17:51:04Z' progress=1.000000 cache=0.3MiB(123txo)
+2026-10-23T17:51:04Z [miner] AddToWallet 4c79cf755363c4f27ca45160b6c36e6d8e52c62d7618fa6ab9d39746e90bf76f  new Confirmed (block=15d0cf4dd1e878ffcf0dda62da07639b27eb9e5e039ac25a5d72e692006696d4, height=119, index=0)

@@ -1,0 +1,18 @@
+{
+  "role": "buyer",
+  "ok": true,
+  "problems": [],
+  "log_deals": 0,
+  "log_refusals": 1,
+  "refusal_reasons": {
+    "refused_by_counterparty.offer_not_issued": 1
+  },
+  "committed_msat": 0,
+  "state": "Aborted",
+  "reason": "refused_by_counterparty.offer_not_issued",
+  "settled": 0,
+  "closed": 0,
+  "open": 0,
+  "proofs": 0,
+  "offers": 0
+}
