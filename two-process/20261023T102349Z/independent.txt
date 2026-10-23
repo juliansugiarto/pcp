@@ -1,0 +1,71 @@
+cases: 4696
+
+category                  count
+agree                      4668
+rust_refuses_we_accept        0
+we_refuse_rust_accepts        0
+same_stage_diff_code          0
+diff_stage                    0
+ignored_proof_invalid        28
+
+set boundary   cases   448  agree   448  ignored   0  divergent 0
+set mandate    cases    11  agree    11  ignored   0  divergent 0
+set mutation   cases  4006  agree  3978  ignored  28  divergent 0
+set request    cases    25  agree    25  ignored   0  divergent 0
+set transport  cases   206  agree   206  ignored   0  divergent 0
+
+Agreed refusal codes (count per code, as named by the SPEC):
+    31  bundle/backend_not_accepted
+    23  bundle/ciphertext_hash_mismatch
+   291  bundle/http_400
+    11  bundle/input_commitment_mismatch
+    55  bundle/job_mismatch
+     8  bundle/offer_mismatch
+    11  bundle/replayed_or_misdirected
+    60  bundle/version
+     4  invoice/htlc_lock_too_long
+   352  invoice/http_400
+    13  invoice/invoice_amount_mismatch
+    33  invoice/invoice_binding_mismatch
+    15  invoice/invoice_description_mismatch
+    12  invoice/invoice_expires_too_soon
+    15  invoice/invoice_hash_mismatch
+    48  invoice/invoice_payee_mismatch
+    37  invoice/version
+    22  offer/backend_not_accepted
+    42  offer/counterparty_mandate.agent_signature_invalid
+     1  offer/counterparty_mandate.expired
+     7  offer/counterparty_mandate.missing
+     1  offer/counterparty_mandate.payout_node_mismatch
+     1  offer/counterparty_mandate.per_deal_max_exceeded
+     2  offer/counterparty_mandate.scope_mismatch
+     1  offer/counterparty_mandate.self_owned
+    65  offer/counterparty_mandate.signature_invalid
+    22  offer/counterparty_mandate.version
+     1  offer/counterparty_mandate.wrong_role
+   112  offer/deal_above_ceiling
+    14  offer/enc_scheme_not_supported
+   383  offer/http_400
+     3  offer/input_commitment_mismatch
+    40  offer/insecure_backend_refused
+    22  offer/job_mismatch
+    32  offer/offer_expired
+    12  offer/own_mandate.cap_exceeded
+     2  offer/own_mandate.expired
+    10  offer/own_mandate.per_deal_max_exceeded
+   224  offer/price_too_high
+    15  offer/rail_not_supported
+     6  offer/replayed_or_misdirected
+    16  offer/version
+     2  request/job_class_not_registered
+     1  request/own_mandate.agent_key_mismatch
+     2  request/own_mandate.cap_exceeded
+     2  request/own_mandate.expired
+     2  request/own_mandate.scope_mismatch
+     1  request/own_mandate.self_owned
+     2  request/own_mandate.signature_invalid
+     1  request/own_mandate.version
+     1  request/own_mandate.wrong_role
+
+Divergences (one line per class; line numbers are 1-based in the corpus):
+  none
