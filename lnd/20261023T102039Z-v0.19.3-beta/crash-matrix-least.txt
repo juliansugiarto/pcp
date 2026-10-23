@@ -1,0 +1,8 @@
+clean                  PASS  buyer exits [0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  8911 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+seller:invoice:post    PASS  buyer exits [0] seller exits [134 0] 
+pcp/tools/crash-matrix.sh: line 140:  8961 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer:pay:pre          PASS  buyer exits [134 0] seller exits [0] 
+pcp/tools/crash-matrix.sh: line 140:  9007 Aborted                 PCP_CRASH_AT=$point timeout "$TIMEOUT" "$@" >> "$log" 2>&1
+buyer-gone             PASS  buyer exits [134] seller exits [0] 
+rail=lnd wire=http cases=4 failed=0
