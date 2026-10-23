@@ -27,7 +27,8 @@ concurrency:
 jobs:
   fuzz:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # 120: a manual run of 3600 s per target (90 min for f3, f5, f6) fits.
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
