@@ -1,0 +1,15 @@
+== sudoku4
+SETTLED. Result R:
+cost-row,job=sudoku4,backend=risc0-zkvm-3-succinct/d110a02f50aa15fb91d9ff6671e4182ccccdb834e347ce2c82aa883157e3b621,segments=1,user_cycles=64890,total_cycles=131072,prove_s=78.887,verify_s=0.015,receipt_bytes=223748,settle_s=0.000,peak_rss_mib=1416
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:18.90
+	Maximum resident set size (kbytes): 1450048
+== sudoku9
+SETTLED. Result R:
+cost-row,job=sudoku9,backend=risc0-zkvm-3-succinct/d110a02f50aa15fb91d9ff6671e4182ccccdb834e347ce2c82aa883157e3b621,segments=1,user_cycles=88606,total_cycles=131072,prove_s=77.699,verify_s=0.015,receipt_bytes=223748,settle_s=0.000,peak_rss_mib=1417
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:17.71
+	Maximum resident set size (kbytes): 1450592
+== testsuite
+SETTLED. Result R:
+cost-row,job=testsuite,backend=risc0-zkvm-3-succinct/d110a02f50aa15fb91d9ff6671e4182ccccdb834e347ce2c82aa883157e3b621,segments=1,user_cycles=106862,total_cycles=262144,prove_s=122.765,verify_s=0.015,receipt_bytes=223770,settle_s=0.000,peak_rss_mib=2350
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:02.78
+	Maximum resident set size (kbytes): 2406844
