@@ -1,0 +1,40 @@
+#7539069	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12887 rss: 664Mb L: 46/2955 MS: 1 EraseBytes-
+#7541230	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12890 rss: 664Mb L: 23/2955 MS: 1 EraseBytes-
+#7561067	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12880 rss: 664Mb L: 24/2955 MS: 2 ChangeASCIIInt-EraseBytes-
+#7573298	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12879 rss: 664Mb L: 55/2955 MS: 1 EraseBytes-
+#7575654	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12883 rss: 664Mb L: 41/2955 MS: 1 EraseBytes-
+#7575935	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12884 rss: 664Mb L: 37/2955 MS: 1 EraseBytes-
+#7575971	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12884 rss: 664Mb L: 116/2955 MS: 1 EraseBytes-
+#7579017	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12889 rss: 664Mb L: 31/2955 MS: 1 EraseBytes-
+#7609788	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12876 rss: 664Mb L: 11/2955 MS: 1 EraseBytes-
+#7612344	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12880 rss: 664Mb L: 10/2955 MS: 1 EraseBytes-
+#7616235	REDUCE cov: 4720 ft: 16962 corp: 6304/233Kb lim: 4096 exec/s: 12887 rss: 664Mb L: 60/2955 MS: 1 EraseBytes-
+#7622742	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12876 rss: 664Mb L: 979/2955 MS: 2 ChangeASCIIInt-EraseBytes-
+#7628498	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12885 rss: 664Mb L: 19/2955 MS: 1 EraseBytes-
+#7641429	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12886 rss: 664Mb L: 30/2955 MS: 1 EraseBytes-
+#7643591	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12889 rss: 664Mb L: 70/2955 MS: 2 ShuffleBytes-EraseBytes-
+#7650242	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12879 rss: 664Mb L: 139/2955 MS: 1 EraseBytes-
+#7661048	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12875 rss: 664Mb L: 22/2955 MS: 1 EraseBytes-
+#7668509	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12888 rss: 664Mb L: 170/2955 MS: 1 EraseBytes-
+#7678435	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12883 rss: 664Mb L: 22/2955 MS: 1 EraseBytes-
+#7699167	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12874 rss: 664Mb L: 101/2955 MS: 2 CopyPart-EraseBytes-
+#7719198	REDUCE cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12865 rss: 664Mb L: 29/2955 MS: 1 EraseBytes-
+#7730028	DONE   cov: 4720 ft: 16962 corp: 6304/232Kb lim: 4096 exec/s: 12861 rss: 664Mb
+###### Recommended dictionary. ######
+"aborted" # Uses: 152125
+"delivered" # Uses: 90357
+"state" # Uses: 78995
+"agent_sig" # Uses: 50414
+"created_at" # Uses: 48253
+"\000\000\000\003" # Uses: 38788
+"\260\001\000\000\000\000\000\000" # Uses: 35950
+"\001\000\000\000\000\000\000\002" # Uses: 22609
+"statement_hash" # Uses: 19619
+"spec_hashA" # Uses: 20813
+"\000\000" # Uses: 17728
+"\001\000\000\000\000\000\000\000" # Uses: 16498
+"\267\377\377\377" # Uses: 11704
+"\377\377\377\377" # Uses: 5612
+"\001\000\001|" # Uses: 2027
+###### End of recommended dictionary. ######
+Done 7730028 runs in 601 second(s)
