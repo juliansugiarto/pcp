@@ -1,0 +1,40 @@
+#7414097	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12916 rss: 608Mb L: 840/3950 MS: 1 EraseBytes-
+#7417308	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12922 rss: 608Mb L: 105/3950 MS: 1 EraseBytes-
+#7427345	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12894 rss: 608Mb L: 2733/3950 MS: 2 ChangeBinInt-EraseBytes-
+#7427806	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12895 rss: 608Mb L: 599/3950 MS: 1 EraseBytes-
+#7443037	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12877 rss: 608Mb L: 429/3950 MS: 1 EraseBytes-
+#7448922	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12865 rss: 608Mb L: 65/3950 MS: 5 ChangeASCIIInt-ChangeASCIIInt-EraseBytes-ChangeASCIIInt-ChangeByte-
+#7454454	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12852 rss: 609Mb L: 3755/3950 MS: 2 ChangeByte-EraseBytes-
+#7471676	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12837 rss: 609Mb L: 756/3950 MS: 2 ShuffleBytes-EraseBytes-
+#7474667	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12821 rss: 609Mb L: 1286/3950 MS: 1 EraseBytes-
+#7480575	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12809 rss: 609Mb L: 1932/3950 MS: 3 ChangeBit-ChangeBinInt-EraseBytes-
+#7492051	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12806 rss: 609Mb L: 3263/3950 MS: 1 EraseBytes-
+#7493318	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12809 rss: 609Mb L: 808/3950 MS: 2 InsertRepeatedBytes-EraseBytes-
+#7496725	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12793 rss: 610Mb L: 1839/3950 MS: 2 PersAutoDict-EraseBytes- DE: "\377\377\377\377\377\377\377\276"-
+#7498436	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12795 rss: 610Mb L: 104/3950 MS: 1 EraseBytes-
+#7501122	REDUCE cov: 1629 ft: 7995 corp: 2288/256Kb lim: 4096 exec/s: 12778 rss: 610Mb L: 27/3950 MS: 1 EraseBytes-
+#7506918	REDUCE cov: 1629 ft: 7997 corp: 2289/259Kb lim: 4096 exec/s: 12766 rss: 611Mb L: 2396/3950 MS: 1 EraseBytes-
+#7507544	REDUCE cov: 1629 ft: 7997 corp: 2289/259Kb lim: 4096 exec/s: 12767 rss: 611Mb L: 867/3950 MS: 1 EraseBytes-
+#7507760	REDUCE cov: 1629 ft: 7997 corp: 2289/259Kb lim: 4096 exec/s: 12768 rss: 611Mb L: 2298/3950 MS: 1 EraseBytes-
+#7524536	REDUCE cov: 1629 ft: 7997 corp: 2289/259Kb lim: 4096 exec/s: 12753 rss: 611Mb L: 2886/3950 MS: 1 EraseBytes-
+#7525577	REDUCE cov: 1629 ft: 7997 corp: 2289/259Kb lim: 4096 exec/s: 12755 rss: 611Mb L: 749/3950 MS: 1 EraseBytes-
+#7543863	REDUCE cov: 1629 ft: 7997 corp: 2289/259Kb lim: 4096 exec/s: 12721 rss: 611Mb L: 1685/3950 MS: 1 EraseBytes-
+#7550315	REDUCE cov: 1629 ft: 7997 corp: 2289/259Kb lim: 4096 exec/s: 12710 rss: 611Mb L: 970/3950 MS: 2 ShuffleBytes-EraseBytes-
+#7561192	REDUCE cov: 1629 ft: 7997 corp: 2289/258Kb lim: 4096 exec/s: 12686 rss: 611Mb L: 1842/3950 MS: 2 ChangeASCIIInt-EraseBytes-
+#7569918	REDUCE cov: 1629 ft: 7997 corp: 2289/258Kb lim: 4096 exec/s: 12679 rss: 611Mb L: 1217/3950 MS: 1 EraseBytes-
+#7575764	REDUCE cov: 1629 ft: 7998 corp: 2290/261Kb lim: 4096 exec/s: 12668 rss: 611Mb L: 2902/3950 MS: 1 InsertByte-
+#7582825	REDUCE cov: 1629 ft: 7998 corp: 2290/261Kb lim: 4096 exec/s: 12659 rss: 611Mb L: 1368/3950 MS: 1 EraseBytes-
+#7583542	REDUCE cov: 1629 ft: 7998 corp: 2290/261Kb lim: 4096 exec/s: 12660 rss: 611Mb L: 77/3950 MS: 2 CopyPart-EraseBytes-
+#7593037	DONE   cov: 1629 ft: 7998 corp: 2290/261Kb lim: 4096 exec/s: 12634 rss: 611Mb
+###### Recommended dictionary. ######
+"\377\377\377\377\377\377\377[" # Uses: 98002
+"\377\377\377\377\377\377\377\276" # Uses: 72681
+"\222\000\000\000\000\000\000\000" # Uses: 72251
+"c22>3$\310\255\357\277\275\357\277\275\357\277\275" # Uses: 65657
+"cr>$[3333232\015>" # Uses: 30498
+"\002\000\000\000" # Uses: 32177
+"cr>$[,\01523\015>$[,\01533323$[23\015/$[333" # Uses: 19630
+"c223r>$[333[23\015/,\015\357\277\275a\357\277\275\357\277\275" # Uses: 17320
+"\377\377" # Uses: 9519
+###### End of recommended dictionary. ######
+Done 7593037 runs in 601 second(s)
