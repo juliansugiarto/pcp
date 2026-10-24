@@ -1,0 +1,40 @@
+#1172106	REDUCE cov: 4238 ft: 9239 corp: 1443/123Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 338/3762 MS: 1 EraseBytes-
+#1174789	NEW    cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 127/3762 MS: 3 InsertRepeatedBytes-CrossOver-CopyPart-
+#1176375	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 175/3762 MS: 1 EraseBytes-
+#1179471	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 97/3762 MS: 1 EraseBytes-
+#1182949	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 82/3762 MS: 3 InsertByte-ChangeBit-EraseBytes-
+#1190410	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 600/3762 MS: 1 EraseBytes-
+#1195651	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 156/3762 MS: 1 EraseBytes-
+#1198182	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 23/3762 MS: 1 EraseBytes-
+#1200503	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 33/3762 MS: 1 EraseBytes-
+#1201045	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 51/3762 MS: 2 InsertByte-EraseBytes-
+#1201443	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 155/3762 MS: 3 CopyPart-ShuffleBytes-EraseBytes-
+#1201622	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 104/3762 MS: 4 PersAutoDict-PersAutoDict-ShuffleBytes-EraseBytes- DE: "\001\000\021\000"-"enc_scheme"-
+#1206290	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 255/3762 MS: 3 CopyPart-CrossOver-EraseBytes-
+#1207941	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 30/3762 MS: 1 EraseBytes-
+#1210102	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 20/3762 MS: 1 EraseBytes-
+#1215077	REDUCE cov: 4238 ft: 9253 corp: 1444/124Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 769/3762 MS: 5 CrossOver-CrossOver-CMP-EraseBytes-CopyPart- DE: "spec_hash"-
+#1215608	REDUCE cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 1532/3762 MS: 1 EraseBytes-
+#1221029	REDUCE cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 23/3762 MS: 1 EraseBytes-
+#1223710	REDUCE cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 43/3762 MS: 1 EraseBytes-
+#1224251	REDUCE cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 30/3762 MS: 1 EraseBytes-
+#1233417	REDUCE cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 208/3762 MS: 1 EraseBytes-
+#1239574	REDUCE cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1377 rss: 545Mb L: 275/3762 MS: 2 CopyPart-EraseBytes-
+#1240351	REDUCE cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1378 rss: 545Mb L: 10/3762 MS: 2 EraseBytes-CopyPart-
+#1240381	DONE   cov: 4238 ft: 9253 corp: 1444/123Kb lim: 4096 exec/s: 1376 rss: 545Mb
+###### Recommended dictionary. ######
+"9236bc1720d08f73cc57d76fd253a4afc6502545798b9568b673d0f820752e5e" # Uses: 16337
+"75e77x886bf406b51fb4ffc1d8e9359aa56de94687510b1060f20a6c48db37bf" # Uses: 10310
+"\000\000\000\000\000\000\000\020" # Uses: 13840
+"spec_ha" # Uses: 11696
+"mandate" # Uses: 9966
+"version" # Uses: 5310
+"\001\000\021\000" # Uses: 4688
+"\376\377\377\377\377\377\377\377" # Uses: 4512
+"nonce" # Uses: 3669
+" a" # Uses: 3618
+"enc_scheme" # Uses: 2923
+"\377\377\3771" # Uses: 2319
+"spec_hash" # Uses: 132
+###### End of recommended dictionary. ######
+Done 1240381 runs in 901 second(s)
