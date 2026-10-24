@@ -1,0 +1,40 @@
+#131072	pulse  cov: 433 ft: 1385 corp: 352/25Kb lim: 3223 exec/s: 277 rss: 331Mb
+#131392	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3223 exec/s: 278 rss: 331Mb L: 24/2134 MS: 2 ShuffleBytes-EraseBytes-
+#131841	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3223 exec/s: 277 rss: 333Mb L: 102/2134 MS: 4 ChangeBit-InsertByte-CopyPart-EraseBytes-
+#140244	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3300 exec/s: 276 rss: 344Mb L: 38/2134 MS: 3 CMP-CopyPart-EraseBytes- DE: "\006\365"-
+#140610	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3300 exec/s: 276 rss: 345Mb L: 45/2134 MS: 1 EraseBytes-
+#142511	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3311 exec/s: 276 rss: 349Mb L: 107/2134 MS: 1 EraseBytes-
+#144777	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3333 exec/s: 275 rss: 353Mb L: 339/2134 MS: 1 EraseBytes-
+#150198	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3377 exec/s: 273 rss: 363Mb L: 319/2134 MS: 1 EraseBytes-
+#150976	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3377 exec/s: 273 rss: 365Mb L: 43/2134 MS: 2 ShuffleBytes-EraseBytes-
+#156152	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3421 exec/s: 274 rss: 373Mb L: 66/2134 MS: 1 EraseBytes-
+#156748	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3421 exec/s: 274 rss: 374Mb L: 223/2134 MS: 1 EraseBytes-
+#158230	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3432 exec/s: 275 rss: 377Mb L: 33/2134 MS: 2 ShuffleBytes-EraseBytes-
+#162726	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3476 exec/s: 280 rss: 384Mb L: 198/2134 MS: 1 EraseBytes-
+#166907	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3509 exec/s: 277 rss: 390Mb L: 101/2134 MS: 1 EraseBytes-
+#177193	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3608 exec/s: 283 rss: 406Mb L: 222/2134 MS: 1 EraseBytes-
+#178279	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3608 exec/s: 283 rss: 408Mb L: 52/2134 MS: 1 EraseBytes-
+#178325	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3608 exec/s: 283 rss: 408Mb L: 1303/2134 MS: 1 EraseBytes-
+#179401	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3608 exec/s: 284 rss: 410Mb L: 102/2134 MS: 1 EraseBytes-
+#186809	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3674 exec/s: 281 rss: 421Mb L: 288/2134 MS: 3 ChangeBinInt-EraseBytes-CopyPart-
+#191331	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3718 exec/s: 284 rss: 421Mb L: 87/2134 MS: 2 CopyPart-EraseBytes-
+#193458	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3729 exec/s: 282 rss: 422Mb L: 86/2134 MS: 2 CopyPart-EraseBytes-
+#195811	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3751 exec/s: 282 rss: 423Mb L: 270/2134 MS: 2 ChangeByte-EraseBytes-
+#196107	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3751 exec/s: 279 rss: 423Mb L: 27/2134 MS: 1 EraseBytes-
+#197233	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3762 exec/s: 278 rss: 424Mb L: 247/2134 MS: 1 EraseBytes-
+#204199	REDUCE cov: 433 ft: 1385 corp: 352/25Kb lim: 3828 exec/s: 277 rss: 433Mb L: 66/2134 MS: 1 EraseBytes-
+#204783	NEW    cov: 433 ft: 1386 corp: 353/25Kb lim: 3828 exec/s: 277 rss: 435Mb L: 74/2134 MS: 4 CopyPart-CrossOver-ChangeBinInt-InsertByte-
+#208061	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 3850 exec/s: 275 rss: 437Mb L: 53/2134 MS: 3 EraseBytes-InsertByte-InsertByte-
+#211162	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 3872 exec/s: 275 rss: 440Mb L: 217/2134 MS: 1 EraseBytes-
+#211214	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 3872 exec/s: 275 rss: 440Mb L: 1250/2134 MS: 2 EraseBytes-CopyPart-
+#214405	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 3894 exec/s: 277 rss: 442Mb L: 24/2134 MS: 1 EraseBytes-
+#216457	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 3905 exec/s: 278 rss: 443Mb L: 246/2134 MS: 2 CopyPart-EraseBytes-
+#220493	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 3938 exec/s: 281 rss: 443Mb L: 96/2134 MS: 1 EraseBytes-
+#227504	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 4004 exec/s: 281 rss: 446Mb L: 30/2134 MS: 1 EraseBytes-
+#235080	REDUCE cov: 433 ft: 1386 corp: 353/25Kb lim: 4070 exec/s: 277 rss: 446Mb L: 118/2134 MS: 1 EraseBytes-
+#243435	DONE   cov: 433 ft: 1386 corp: 353/25Kb lim: 4096 exec/s: 268 rss: 446Mb
+###### Recommended dictionary. ######
+"\005\365\177\353" # Uses: 6026
+"\006\365" # Uses: 4645
+###### End of recommended dictionary. ######
+Done 243435 runs in 907 second(s)
