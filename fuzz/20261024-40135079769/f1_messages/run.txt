@@ -1,0 +1,40 @@
+#9918286	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16954 rss: 624Mb L: 36/2955 MS: 1 EraseBytes-
+#9929803	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16945 rss: 624Mb L: 27/2955 MS: 2 CrossOver-EraseBytes-
+#9935854	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16955 rss: 624Mb L: 210/2955 MS: 1 EraseBytes-
+#9970115	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16955 rss: 624Mb L: 35/2955 MS: 1 EraseBytes-
+#10001476	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16951 rss: 624Mb L: 36/2955 MS: 1 EraseBytes-
+#10011862	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16969 rss: 624Mb L: 21/2955 MS: 1 EraseBytes-
+#10012678	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16970 rss: 624Mb L: 28/2955 MS: 1 EraseBytes-
+#10019196	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16952 rss: 624Mb L: 46/2955 MS: 3 CopyPart-EraseBytes-CopyPart-
+#10045337	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16968 rss: 624Mb L: 37/2955 MS: 1 EraseBytes-
+#10058933	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16962 rss: 624Mb L: 62/2955 MS: 1 EraseBytes-
+#10060079	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16964 rss: 624Mb L: 71/2955 MS: 1 EraseBytes-
+#10069795	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16952 rss: 624Mb L: 17/2955 MS: 1 EraseBytes-
+#10079926	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16969 rss: 624Mb L: 29/2955 MS: 1 EraseBytes-
+#10087217	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16953 rss: 624Mb L: 16/2955 MS: 1 EraseBytes-
+#10091303	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16960 rss: 624Mb L: 32/2955 MS: 1 EraseBytes-
+#10092515	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16962 rss: 624Mb L: 75/2955 MS: 2 InsertByte-EraseBytes-
+#10092907	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16962 rss: 624Mb L: 66/2955 MS: 2 InsertByte-EraseBytes-
+#10111648	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16965 rss: 624Mb L: 25/2955 MS: 1 EraseBytes-
+#10118199	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16948 rss: 624Mb L: 30/2955 MS: 1 EraseBytes-
+#10121505	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16953 rss: 624Mb L: 21/2955 MS: 1 EraseBytes-
+#10137461	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16952 rss: 624Mb L: 35/2955 MS: 1 EraseBytes-
+#10139477	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16955 rss: 624Mb L: 52/2955 MS: 1 EraseBytes-
+#10153898	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16951 rss: 624Mb L: 75/2955 MS: 1 EraseBytes-
+#10174344	REDUCE cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16957 rss: 624Mb L: 24/2955 MS: 1 EraseBytes-
+#10183359	DONE   cov: 4739 ft: 17032 corp: 6379/233Kb lim: 4096 exec/s: 16944 rss: 624Mb
+###### Recommended dictionary. ######
+"state" # Uses: 185756
+"invoiced" # Uses: 153263
+"fnput" # Uses: 150235
+"\020\000\000\000\000\000\000\000" # Uses: 109476
+"enc_scheme" # Uses: 64218
+"\377\011" # Uses: 46103
+"\377\377\377\377" # Uses: 44848
+"\377\012" # Uses: 29844
+"c\000\000\000\000\000\000\000" # Uses: 28220
+"\331\000\000\000\000\000\000\000" # Uses: 27945
+"\001\000\000\000" # Uses: 23769
+"\377\377\377\314" # Uses: 20500
+###### End of recommended dictionary. ######
+Done 10183359 runs in 601 second(s)
