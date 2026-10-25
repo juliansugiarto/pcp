@@ -1,0 +1,40 @@
+#1609703	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1854 rss: 557Mb L: 517/4073 MS: 2 ShuffleBytes-EraseBytes-
+#1614559	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 3189/4073 MS: 1 EraseBytes-
+#1617495	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1854 rss: 557Mb L: 63/4073 MS: 1 EraseBytes-
+#1623536	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 22/4073 MS: 1 EraseBytes-
+#1625302	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 15/4073 MS: 1 EraseBytes-
+#1626644	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1854 rss: 557Mb L: 124/4073 MS: 2 ShuffleBytes-EraseBytes-
+#1627283	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 215/4073 MS: 4 EraseBytes-InsertByte-InsertByte-EraseBytes-
+#1628294	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1854 rss: 557Mb L: 10/4073 MS: 1 EraseBytes-
+#1631472	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 1526/4073 MS: 3 ChangeASCIIInt-ChangeASCIIInt-EraseBytes-
+#1633664	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1854 rss: 557Mb L: 820/4073 MS: 2 PersAutoDict-EraseBytes- DE: "enc_scheme"-
+#1638511	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 8/4073 MS: 2 ChangeBit-EraseBytes-
+#1645143	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1854 rss: 557Mb L: 848/4073 MS: 2 ChangeByte-EraseBytes-
+#1650279	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1854 rss: 557Mb L: 22/4073 MS: 1 EraseBytes-
+#1650805	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1852 rss: 557Mb L: 148/4073 MS: 1 EraseBytes-
+#1655452	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 56/4073 MS: 2 PersAutoDict-EraseBytes- DE: "\000\000"-
+#1659488	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1852 rss: 557Mb L: 284/4073 MS: 1 EraseBytes-
+#1660959	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1853 rss: 557Mb L: 42/4073 MS: 1 EraseBytes-
+#1663690	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1852 rss: 557Mb L: 239/4073 MS: 1 EraseBytes-
+#1664851	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1851 rss: 557Mb L: 13/4073 MS: 1 EraseBytes-
+#1665200	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1852 rss: 557Mb L: 522/4073 MS: 4 ChangeASCIIInt-ChangeASCIIInt-ChangeByte-EraseBytes-
+#1665776	REDUCE cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1852 rss: 557Mb L: 283/4073 MS: 1 EraseBytes-
+#1668376	DONE   cov: 4255 ft: 9435 corp: 1490/153Kb lim: 4096 exec/s: 1851 rss: 557Mb
+###### Recommended dictionary. ######
+"\377\377\377\377\377\377\377\377" # Uses: 26157
+"version" # Uses: 15922
+"\377\377\377\377" # Uses: 14842
+"\000\000\000\000\000\000\000\000" # Uses: 12638
+"agent_sig" # Uses: 12444
+"\376\377\377\377" # Uses: 12750
+"\377\377\377\377\377\377\377\001" # Uses: 10216
+"\004\000\000\000\000\000\000\000" # Uses: 6725
+"\001\002" # Uses: 4840
+"scope" # Uses: 4462
+"\000\000" # Uses: 4329
+"enc_scheme" # Uses: 3571
+"backend_id" # Uses: 1784
+"\021\000\000\000\000\000\000\000" # Uses: 1126
+"~\377\377\377\377\377\377\377" # Uses: 829
+###### End of recommended dictionary. ######
+Done 1668376 runs in 901 second(s)
