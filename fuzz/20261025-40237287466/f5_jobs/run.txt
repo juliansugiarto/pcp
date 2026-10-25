@@ -1,0 +1,40 @@
+#649376	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 847 rss: 441Mb L: 171/2129 MS: 1 EraseBytes-
+#656722	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 850 rss: 441Mb L: 83/2129 MS: 1 EraseBytes-
+#660299	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 854 rss: 441Mb L: 63/2129 MS: 2 ShuffleBytes-EraseBytes-
+#660335	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 854 rss: 441Mb L: 26/2129 MS: 1 EraseBytes-
+#668661	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 848 rss: 441Mb L: 46/2129 MS: 1 EraseBytes-
+#670052	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 850 rss: 441Mb L: 142/2129 MS: 1 EraseBytes-
+#676591	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 856 rss: 441Mb L: 170/2129 MS: 4 CopyPart-CopyPart-CopyPart-EraseBytes-
+#677567	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 854 rss: 441Mb L: 123/2129 MS: 1 EraseBytes-
+#681673	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 857 rss: 441Mb L: 41/2129 MS: 1 EraseBytes-
+#682591	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 855 rss: 441Mb L: 205/2129 MS: 3 ChangeByte-InsertRepeatedBytes-EraseBytes-
+#685990	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 851 rss: 441Mb L: 161/2129 MS: 4 EraseBytes-ShuffleBytes-ShuffleBytes-CopyPart-
+#690486	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 852 rss: 441Mb L: 49/2129 MS: 1 EraseBytes-
+#698687	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 857 rss: 441Mb L: 63/2129 MS: 1 EraseBytes-
+#700689	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 859 rss: 441Mb L: 55/2129 MS: 2 ChangeASCIIInt-EraseBytes-
+#703620	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 853 rss: 441Mb L: 150/2129 MS: 1 EraseBytes-
+#708578	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 856 rss: 441Mb L: 162/2129 MS: 3 ShuffleBytes-ChangeASCIIInt-EraseBytes-
+#719765	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 856 rss: 441Mb L: 35/2129 MS: 2 CopyPart-EraseBytes-
+#720941	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 856 rss: 441Mb L: 39/2129 MS: 1 EraseBytes-
+#721757	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 856 rss: 441Mb L: 363/2129 MS: 1 EraseBytes-
+#728530	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 852 rss: 441Mb L: 29/2129 MS: 3 ChangeASCIIInt-ChangeBinInt-EraseBytes-
+#729856	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 851 rss: 441Mb L: 161/2129 MS: 1 EraseBytes-
+#737767	REDUCE cov: 433 ft: 1389 corp: 360/24Kb lim: 4096 exec/s: 850 rss: 441Mb L: 28/2129 MS: 1 EraseBytes-
+#743013	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 853 rss: 441Mb L: 51/2129 MS: 1 CopyPart-
+#744694	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 854 rss: 441Mb L: 199/2129 MS: 1 EraseBytes-
+#745435	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 854 rss: 441Mb L: 42/2129 MS: 1 EraseBytes-
+#747461	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 857 rss: 441Mb L: 54/2129 MS: 1 EraseBytes-
+#760953	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 869 rss: 441Mb L: 141/2129 MS: 2 ShuffleBytes-EraseBytes-
+#767489	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 871 rss: 441Mb L: 24/2129 MS: 1 EraseBytes-
+#770740	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 873 rss: 441Mb L: 191/2129 MS: 1 EraseBytes-
+#773641	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 875 rss: 441Mb L: 80/2129 MS: 1 EraseBytes-
+#782012	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 875 rss: 441Mb L: 28/2129 MS: 1 EraseBytes-
+#782103	REDUCE cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 875 rss: 441Mb L: 235/2129 MS: 1 EraseBytes-
+#787618	DONE   cov: 433 ft: 1390 corp: 361/24Kb lim: 4096 exec/s: 874 rss: 441Mb
+###### Recommended dictionary. ######
+"\377\017\000\000" # Uses: 32486
+"\000\000\000\000\000\000\000\011" # Uses: 16498
+"\000]" # Uses: 14752
+"\001\000\000\000" # Uses: 3650
+###### End of recommended dictionary. ######
+Done 787618 runs in 901 second(s)
