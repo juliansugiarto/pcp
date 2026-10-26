@@ -1,0 +1,40 @@
+#7680469	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13219 rss: 671Mb L: 74/2903 MS: 1 EraseBytes-
+#7685002	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13204 rss: 671Mb L: 83/2903 MS: 3 ShuffleBytes-ShuffleBytes-EraseBytes-
+#7686085	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13206 rss: 671Mb L: 146/2903 MS: 3 CopyPart-CopyPart-EraseBytes-
+#7687001	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13207 rss: 671Mb L: 68/2903 MS: 1 EraseBytes-
+#7709662	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13201 rss: 671Mb L: 68/2903 MS: 1 EraseBytes-
+#7732719	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13218 rss: 671Mb L: 23/2903 MS: 2 InsertByte-EraseBytes-
+#7733806	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13220 rss: 671Mb L: 11/2903 MS: 2 ChangeByte-EraseBytes-
+#7758492	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13217 rss: 671Mb L: 26/2903 MS: 1 EraseBytes-
+#7761843	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13222 rss: 671Mb L: 22/2903 MS: 1 EraseBytes-
+#7773109	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13219 rss: 671Mb L: 30/2903 MS: 1 EraseBytes-
+#7773625	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13220 rss: 671Mb L: 32/2903 MS: 1 EraseBytes-
+#7781936	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13212 rss: 671Mb L: 61/2903 MS: 1 EraseBytes-
+#7809717	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13214 rss: 671Mb L: 12/2903 MS: 1 EraseBytes-
+#7810214	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13215 rss: 671Mb L: 50/2903 MS: 2 ChangeBit-EraseBytes-
+#7810563	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13215 rss: 671Mb L: 93/2903 MS: 4 InsertRepeatedBytes-ChangeBit-ChangeBit-EraseBytes-
+#7823949	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13216 rss: 671Mb L: 108/2903 MS: 1 EraseBytes-
+#7835700	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13213 rss: 671Mb L: 165/2903 MS: 1 EraseBytes-
+#7852751	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13220 rss: 671Mb L: 32/2903 MS: 1 EraseBytes-
+#7865242	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13218 rss: 671Mb L: 28/2903 MS: 1 EraseBytes-
+#7870388	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13205 rss: 671Mb L: 48/2903 MS: 1 EraseBytes-
+#7882594	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13203 rss: 671Mb L: 36/2903 MS: 1 EraseBytes-
+#7907535	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13223 rss: 671Mb L: 17/2903 MS: 1 EraseBytes-
+#7908786	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13203 rss: 671Mb L: 62/2903 MS: 1 EraseBytes-
+#7924484	REDUCE cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13207 rss: 671Mb L: 505/2903 MS: 3 ChangeBit-InsertByte-EraseBytes-
+#7934134	DONE   cov: 4761 ft: 17177 corp: 6496/234Kb lim: 4096 exec/s: 13201 rss: 671Mb
+###### Recommended dictionary. ######
+"\021\000\000\000\000\000\000\000" # Uses: 90748
+"\000\000\000\000\000\000\000\005" # Uses: 86727
+"\366\377\377\377" # Uses: 67420
+"seller_noda" # Uses: 59325
+"stage" # Uses: 61352
+"\365\377\377\377" # Uses: 50060
+"price_msat" # Uses: 31215
+"\377\377\377\377\377\377\377+" # Uses: 20434
+"version" # Uses: 19909
+"\377\377\377\276\377\366]\031" # Uses: 18992
+"issued" # Uses: 11924
+"\006\000" # Uses: 4740
+###### End of recommended dictionary. ######
+Done 7934134 runs in 601 second(s)
