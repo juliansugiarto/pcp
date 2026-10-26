@@ -1,0 +1,40 @@
+#887595	REDUCE cov: 5007 ft: 11548 corp: 1719/244Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 214/3945 MS: 2 ChangeBit-EraseBytes-
+#888089	REDUCE cov: 5007 ft: 11548 corp: 1719/244Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 3387/3945 MS: 4 PersAutoDict-EraseBytes-ChangeByte-InsertRepeatedBytes- DE: "\377\377\3772"-
+#888097	NEW    cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 1539/3945 MS: 3 ShuffleBytes-CopyPart-CopyPart-
+#888998	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 15/3945 MS: 1 EraseBytes-
+#890629	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 553/3945 MS: 1 EraseBytes-
+#892851	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 20/3945 MS: 2 ChangeBinInt-EraseBytes-
+#893881	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 77/3945 MS: 5 PersAutoDict-CopyPart-ChangeASCIIInt-CopyPart-EraseBytes- DE: "offer_expi"-
+#894622	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 58/3945 MS: 1 EraseBytes-
+#895798	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 1481/3945 MS: 1 EraseBytes-
+#900245	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 100/3945 MS: 2 InsertByte-EraseBytes-
+#903106	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 12/3945 MS: 1 EraseBytes-
+#903967	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 15/3945 MS: 1 EraseBytes-
+#905758	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1063 rss: 610Mb L: 70/3945 MS: 1 EraseBytes-
+#907104	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 190/3945 MS: 1 EraseBytes-
+#913246	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1063 rss: 610Mb L: 141/3945 MS: 2 InsertByte-EraseBytes-
+#921998	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 140/3945 MS: 2 ShuffleBytes-EraseBytes-
+#924536	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 178/3945 MS: 3 ShuffleBytes-PersAutoDict-EraseBytes- DE: "\377\377\3774"-
+#927717	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 193/3945 MS: 1 EraseBytes-
+#930103	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 70/3945 MS: 1 EraseBytes-
+#935151	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 536/3945 MS: 3 CrossOver-EraseBytes-CopyPart-
+#935857	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 258/3945 MS: 1 EraseBytes-
+#937314	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 25/3945 MS: 2 ShuffleBytes-EraseBytes-
+#941476	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 67/3945 MS: 2 CMP-EraseBytes- DE: "cipher"-
+#941997	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 610Mb L: 11/3945 MS: 1 EraseBytes-
+#944158	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 617Mb L: 179/3945 MS: 1 EraseBytes-
+#945710	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 618Mb L: 22/3945 MS: 2 ChangeASCIIInt-EraseBytes-
+#949755	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 618Mb L: 149/3945 MS: 5 CopyPart-InsertByte-ShuffleBytes-EraseBytes-CopyPart-
+#955051	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1062 rss: 618Mb L: 1454/3945 MS: 1 EraseBytes-
+#955647	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1063 rss: 618Mb L: 27/3945 MS: 1 EraseBytes-
+#955673	REDUCE cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1063 rss: 618Mb L: 11/3945 MS: 1 EraseBytes-
+#956813	DONE   cov: 5007 ft: 11552 corp: 1720/245Kb lim: 4096 exec/s: 1061 rss: 618Mb
+###### Recommended dictionary. ######
+"state" # Uses: 40125
+"\377\377\3774" # Uses: 17690
+"\001\000\0005" # Uses: 8819
+"offer_expi" # Uses: 2110
+"\377\377\3772" # Uses: 2368
+"cipher" # Uses: 213
+###### End of recommended dictionary. ######
+Done 956813 runs in 901 second(s)
