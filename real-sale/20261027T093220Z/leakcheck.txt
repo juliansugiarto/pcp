@@ -1,0 +1,16 @@
+twoproc-http/clean/buyer/state.json: receipt 223748 bytes, R 81 bytes: no k, enc_key or R in the receipt
+twoproc-http/seller_invoice_post/buyer/state.json: receipt 223748 bytes, R 81 bytes: no k, enc_key or R in the receipt
+twoproc-verify/clean/buyer/state.json: receipt 223748 bytes, R 81 bytes: no k, enc_key or R in the receipt
+twoproc-verify/wrong-backend/buyer/state.json: not delivered, skipped
+twoproc/clean/buyer/state.json: receipt 223748 bytes, R 81 bytes: no k, enc_key or R in the receipt
+twoproc/seller_invoice_post/buyer/state.json: receipt 223748 bytes, R 81 bytes: no k, enc_key or R in the receipt
+twoproc-http/clean/buyer/state.json vs twoproc-http/seller_invoice_post/buyer/state.json: 1.4% of bytes equal
+twoproc-http/clean/buyer/state.json vs twoproc-verify/clean/buyer/state.json: 1.5% of bytes equal
+twoproc-http/clean/buyer/state.json vs twoproc/clean/buyer/state.json: 1.5% of bytes equal
+twoproc-http/clean/buyer/state.json vs twoproc/seller_invoice_post/buyer/state.json: 1.5% of bytes equal
+twoproc-http/seller_invoice_post/buyer/state.json vs twoproc-verify/clean/buyer/state.json: 1.5% of bytes equal
+twoproc-http/seller_invoice_post/buyer/state.json vs twoproc/clean/buyer/state.json: 1.5% of bytes equal
+twoproc-http/seller_invoice_post/buyer/state.json vs twoproc/seller_invoice_post/buyer/state.json: 1.5% of bytes equal
+twoproc-verify/clean/buyer/state.json vs twoproc/clean/buyer/state.json: 1.5% of bytes equal
+twoproc-verify/clean/buyer/state.json vs twoproc/seller_invoice_post/buyer/state.json: 1.5% of bytes equal
+twoproc/clean/buyer/state.json vs twoproc/seller_invoice_post/buyer/state.json: 1.5% of bytes equal
