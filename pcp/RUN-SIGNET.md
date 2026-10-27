@@ -6,7 +6,7 @@ A short test of this software. Signet coins have no value. Not audited. One sell
 
 **What others see.** The window's HTTPS endpoint is a Cloudflare quick tunnel: Cloudflare terminates TLS and sees your request, the offer and the encrypted result, never the key. The Lightning port goes through bore, a plain TCP relay; Lightning's own transport is encrypted and authenticated, so bore sees only ciphertext. The node is fresh for every window and closes its channels at the end.
 
-Plan on about an hour: most of it is building, syncing and three channel confirmations (signet blocks come about every 10 minutes).
+Plan on about an hour: most of it is building, syncing and one channel confirmation (signet blocks come about every 10 minutes). In the operator's rehearsal on 27 October 2026 the channel was active one block after it was opened, and the purchase took 102 s.
 
 ## 1. Is a window open?
 
@@ -39,14 +39,14 @@ docker exec buyer-lnd lncli --network=signet getinfo | grep synced_to_chain   # 
 docker exec buyer-lnd lncli --network=signet newaddress p2wkh
 ```
 
-Neutrino synced signet in 172 s on a CI runner. Send the address some signet coins from a signet faucet (search "signet faucet"; most ask you to solve a captcha). 70,000 sat is enough: 50,000 for the channel, the on-chain fee, and the 10,000 sat LND keeps in reserve for anchor channels.
+Neutrino synced signet in 172 s on a CI runner. An invited buyer gets the signet coins from the window's operator: send the operator this address. Otherwise use a signet faucet (they give at most 10,000 sat per request). 40,000 sat is enough: 25,000 for the channel, the on-chain fee, and the 10,000 sat LND keeps in reserve for anchor channels.
 
 ## 4. A channel to the window's node
 
 ```bash
 docker exec buyer-lnd lncli --network=signet connect <pubkey>@bore.pub:<port>
-docker exec buyer-lnd lncli --network=signet openchannel --node_key <pubkey> --local_amt 50000
-docker exec buyer-lnd lncli --network=signet listchannels | grep '"active"'   # after 3 blocks: true
+docker exec buyer-lnd lncli --network=signet openchannel --node_key <pubkey> --local_amt 25000 --sat_per_vbyte 2
+docker exec buyer-lnd lncli --network=signet listchannels | grep '"active"'   # after 1 block: true
 ```
 
 The channel must be direct: the window's node has no other channels, so your channel is the only way to reach it.

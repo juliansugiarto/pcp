@@ -9,6 +9,15 @@ name: rehearsal-wallet
 
 on:
   workflow_dispatch:
+    inputs:
+      send_to:
+        description: "Optional: a signet address (tb1...) of an invited buyer, to send them coins for a window. tb1 is shared with testnet: the guest's wallet must be on signet. Send before opening the window (a send queues behind a live window)."
+        type: string
+        default: ""
+      send_sat:
+        description: "Sat to send (1,000 to 60,000; 40,000 covers one window purchase)"
+        type: number
+        default: 40000
 
 permissions:
   contents: write
@@ -34,6 +43,25 @@ jobs:
           bash .github/rehearsal/buyer-wallet.sh
           docker exec buyer lncli --network=signet listchannels | jq -c '[.channels[] | {remote_pubkey: .remote_pubkey[0:16], capacity, local_balance, active}]' > out/buyer-channels.json || true
           docker exec buyer lncli --network=signet pendingchannels | jq -c '{pending_open: (.pending_open_channels | length), waiting_close: (.waiting_close_channels | length), pending_force: (.pending_force_closing_channels | length)}' > out/buyer-pending.json || true
+      - name: Send coins to an invited buyer
+        if: inputs.send_to != ''
+        env:
+          TO: ${{ inputs.send_to }}
+          AMT: ${{ inputs.send_sat }}
+        run: |
+          # Signet bech32 or bech32m only; a typo must not reach sendcoins.
+          [[ $TO =~ ^tb1[02-9ac-hj-np-z]{8,87}$ ]] || { echo "not a signet address: refused"; exit 1; }
+          [ "$AMT" -ge 1000 ] && [ "$AMT" -le 60000 ] || { echo "send_sat must be 1,000 to 60,000"; exit 1; }
+          ln() { docker exec buyer lncli --network=signet "$@"; }
+          # Keep what a rehearsal needs (its gate is 40,000 sat; note 38).
+          bal=$(ln walletbalance | jq -r .confirmed_balance)
+          [ $((bal - AMT - 500)) -ge 40000 ] || { echo "sending $AMT would leave $((bal - AMT - 500)) sat, below the 40,000 a rehearsal needs: refused (fund the wallet first)"; exit 1; }
+          ln sendcoins --addr "$TO" --amt "$AMT" --sat_per_vbyte 2 | tee out/sent.json
+          txid=$(jq -r .txid out/sent.json)
+          [ ${#txid} = 64 ] || { echo "no txid"; exit 1; }
+          { echo "sent_sat: $AMT"; echo "to: $TO"; echo "txid: $txid"; } | tee out/sent.txt
+          sleep 5
+          ln walletbalance | jq -c '{confirmed_balance, unconfirmed_balance}' | tee out/balance-after-send.json
       - name: Secret gate (before anything leaves the runner)
         id: gate
         if: always()

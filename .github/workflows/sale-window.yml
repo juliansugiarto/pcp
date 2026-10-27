@@ -287,7 +287,7 @@ jobs:
             echo "A short test of this software on signet. Signet coins have no value."
             echo "Invited principals only (${{ steps.p.outputs.invited }}); other requests are refused before any work."
             echo
-            echo "Open a direct channel of at least 20,000 sat to the node, then follow pcp/RUN-SIGNET.md."
+            echo "Open a direct channel of 25,000 sat to the node (LND's minimum is 20,000), then follow pcp/RUN-SIGNET.md."
             echo "Cloudflare terminates TLS and sees the request, the offer and the encrypted result, never the key."
           } > out/WINDOW.md
           cat out/WINDOW.md
