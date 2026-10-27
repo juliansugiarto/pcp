@@ -1,0 +1,40 @@
+#18824973	REDUCE cov: 1644 ft: 8098 corp: 2318/252Kb lim: 4096 exec/s: 32456 rss: 662Mb L: 38/4058 MS: 1 EraseBytes-
+#18832376	REDUCE cov: 1644 ft: 8098 corp: 2318/252Kb lim: 4096 exec/s: 32469 rss: 662Mb L: 187/4058 MS: 3 ShuffleBytes-ChangeBit-EraseBytes-
+#18877612	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32435 rss: 662Mb L: 2167/4058 MS: 1 EraseBytes-
+#18888388	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32454 rss: 662Mb L: 1229/4058 MS: 1 EraseBytes-
+#18907520	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32431 rss: 662Mb L: 353/4058 MS: 2 CopyPart-EraseBytes-
+#18909371	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32434 rss: 662Mb L: 37/4058 MS: 1 EraseBytes-
+#18932602	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32474 rss: 662Mb L: 172/4058 MS: 1 EraseBytes-
+#18940859	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32488 rss: 662Mb L: 729/4058 MS: 2 InsertByte-EraseBytes-
+#18977640	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32440 rss: 662Mb L: 294/4058 MS: 1 EraseBytes-
+#19003256	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32484 rss: 662Mb L: 3409/4058 MS: 1 EraseBytes-
+#19044952	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32499 rss: 662Mb L: 2624/4058 MS: 1 CrossOver-
+#19056743	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32464 rss: 662Mb L: 106/4058 MS: 1 EraseBytes-
+#19124489	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32469 rss: 662Mb L: 1484/4058 MS: 1 EraseBytes-
+#19190240	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32470 rss: 662Mb L: 1614/4058 MS: 1 EraseBytes-
+#19244766	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32453 rss: 662Mb L: 408/4058 MS: 1 EraseBytes-
+#19247087	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32457 rss: 662Mb L: 131/4058 MS: 1 EraseBytes-
+#19263238	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32484 rss: 662Mb L: 170/4058 MS: 1 EraseBytes-
+#19274545	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32503 rss: 662Mb L: 304/4058 MS: 2 CrossOver-EraseBytes-
+#19278579	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32455 rss: 662Mb L: 3592/4058 MS: 4 ShuffleBytes-ChangeBit-ChangeBinInt-EraseBytes-
+#19291275	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32476 rss: 662Mb L: 158/4058 MS: 1 EraseBytes-
+#19292061	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32478 rss: 662Mb L: 46/4058 MS: 1 EraseBytes-
+#19295208	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32483 rss: 662Mb L: 1790/4058 MS: 2 ChangeBit-EraseBytes-
+#19406334	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32452 rss: 662Mb L: 80/4058 MS: 1 EraseBytes-
+#19482675	REDUCE cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32471 rss: 662Mb L: 12/4058 MS: 1 EraseBytes-
+#19508520	DONE   cov: 1644 ft: 8098 corp: 2318/251Kb lim: 4096 exec/s: 32460 rss: 662Mb
+###### Recommended dictionary. ######
+"W\000\000\000\000\000\000\000" # Uses: 332677
+"\377\377\377\377" # Uses: 355863
+"\377\377\377\377\377\377\377\377" # Uses: 194528
+"ce" # Uses: 159941
+"\3774" # Uses: 138990
+"\000\000\000\000\000\000\000\000" # Uses: 104419
+"\377\377\377\037" # Uses: 94466
+"cr>$3" # Uses: 46154
+"\036\000\000\000\000\000\000\000" # Uses: 37659
+"\316\377\377\377" # Uses: 40065
+"\377\377\377\377\377\377\377~" # Uses: 35669
+"\377\377" # Uses: 19361
+###### End of recommended dictionary. ######
+Done 19508520 runs in 601 second(s)
