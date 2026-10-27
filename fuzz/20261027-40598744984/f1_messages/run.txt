@@ -1,0 +1,40 @@
+#10231759	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17490 rss: 624Mb L: 23/2876 MS: 1 EraseBytes-
+#10326506	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17502 rss: 624Mb L: 43/2876 MS: 2 PersAutoDict-EraseBytes- DE: "scope"-
+#10329332	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17507 rss: 624Mb L: 41/2876 MS: 1 EraseBytes-
+#10351893	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17486 rss: 624Mb L: 209/2876 MS: 1 EraseBytes-
+#10353909	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17489 rss: 624Mb L: 30/2876 MS: 1 EraseBytes-
+#10354800	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17491 rss: 624Mb L: 57/2876 MS: 1 EraseBytes-
+#10380091	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17504 rss: 624Mb L: 176/2876 MS: 1 EraseBytes-
+#10381742	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17507 rss: 624Mb L: 22/2876 MS: 1 EraseBytes-
+#10388808	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17489 rss: 624Mb L: 49/2876 MS: 1 EraseBytes-
+#10395405	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17500 rss: 624Mb L: 21/2876 MS: 2 ShuffleBytes-EraseBytes-
+#10398892	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17506 rss: 624Mb L: 69/2876 MS: 2 ShuffleBytes-EraseBytes-
+#10407603	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17491 rss: 624Mb L: 24/2876 MS: 1 EraseBytes-
+#10408625	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17493 rss: 624Mb L: 42/2876 MS: 2 InsertByte-EraseBytes-
+#10413871	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17502 rss: 624Mb L: 38/2876 MS: 1 EraseBytes-
+#10424807	REDUCE cov: 4779 ft: 17262 corp: 6562/235Kb lim: 4096 exec/s: 17491 rss: 624Mb L: 142/2876 MS: 1 EraseBytes-
+#10432794	REDUCE cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17504 rss: 624Mb L: 189/2876 MS: 2 CopyPart-InsertRepeatedBytes-
+#10440260	REDUCE cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17487 rss: 624Mb L: 64/2876 MS: 1 EraseBytes-
+#10449126	REDUCE cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17502 rss: 624Mb L: 21/2876 MS: 1 EraseBytes-
+#10456942	REDUCE cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17486 rss: 624Mb L: 46/2876 MS: 1 EraseBytes-
+#10478633	REDUCE cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17493 rss: 624Mb L: 25/2876 MS: 1 EraseBytes-
+#10494679	REDUCE cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17491 rss: 624Mb L: 27/2876 MS: 1 EraseBytes-
+#10502230	REDUCE cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17503 rss: 624Mb L: 18/2876 MS: 1 EraseBytes-
+#10503300	DONE   cov: 4779 ft: 17263 corp: 6563/235Kb lim: 4096 exec/s: 17476 rss: 624Mb
+###### Recommended dictionary. ######
+"scope" # Uses: 233626
+"expiry_secs" # Uses: 156949
+"\010\000" # Uses: 158411
+"\377\377\377\377\377\377\377\330" # Uses: 70346
+"  ock" # Uses: 63620
+"\244\000\000\000\000\000\000\000" # Uses: 55508
+"\377\377\377\377\377\377\377\326" # Uses: 54647
+"bundle_verified" # Uses: 37514
+"\011\000\000\000" # Uses: 30237
+"landate" # Uses: 21082
+"type" # Uses: 18307
+"\001\000\001-" # Uses: 17435
+"backend^id" # Uses: 12484
+"?\000\000\000\000\000\000\000" # Uses: 5177
+###### End of recommended dictionary. ######
+Done 10503300 runs in 601 second(s)
