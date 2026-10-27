@@ -1,0 +1,40 @@
+   Compiling hyper-tls v0.6.0
+   Compiling chacha20 v0.9.1
+   Compiling sha2 v0.10.9
+   Compiling serde_path_to_error v0.1.20
+   Compiling rustls-pki-types v1.15.1
+   Compiling libfuzzer-sys v0.4.13
+   Compiling aead v0.5.2
+   Compiling matchit v0.8.4
+   Compiling axum v0.8.9
+   Compiling chacha20poly1305 v0.10.1
+   Compiling reqwest v0.13.5
+   Compiling ed25519-dalek v2.2.0
+   Compiling rand v0.8.8
+   Compiling hex v0.4.3
+   Compiling arbitrary v1.5.0
+   Compiling base64 v0.22.1
+   Compiling pcp v0.0.1 (/home/runner/work/pcp/pcp/pcp)
+   Compiling pcp-fuzz v0.0.0 (/home/runner/work/pcp/pcp/pcp/fuzz)
+    Finished `release` profile [optimized + debuginfo] target(s) in 1m 37s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.08s
+     Running `fuzz/target/x86_64-unknown-linux-gnu/release/f4_statement -artifact_prefix=/home/runner/work/pcp/pcp/pcp/fuzz/artifacts/f4_statement/ -max_total_time=600 -timeout=20 -rss_limit_mb=2048 fuzz/corpus/f4_statement`
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1939445429
+INFO: Loaded 1 modules   (4645 inline 8-bit counters): 4645 [0x55fd12be7b50, 0x55fd12be8d75), 
+INFO: Loaded 1 PC tables (4645 PCs): 4645 [0x55fd12be8d78,0x55fd12bfafc8), 
+INFO:       59 files found in fuzz/corpus/f4_statement
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 59 min: 1b max: 355b total: 7016b rss: 51Mb
+#60	INITED cov: 206 ft: 248 corp: 38/3516b exec/s: 0 rss: 51Mb
+#262144	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 2924 exec/s: 131072 rss: 177Mb
+#524288	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 131072 rss: 302Mb
+#1048576	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 131072 rss: 488Mb
+#2097152	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 139810 rss: 490Mb
+#4194304	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 135300 rss: 491Mb
+#8388608	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 137518 rss: 492Mb
+#16777216	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 135300 rss: 493Mb
+#33554432	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 132104 rss: 497Mb
+#67108864	pulse  cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 130816 rss: 498Mb
+#78158535	DONE   cov: 206 ft: 248 corp: 38/3516b lim: 4096 exec/s: 130047 rss: 498Mb
+Done 78158535 runs in 601 second(s)
