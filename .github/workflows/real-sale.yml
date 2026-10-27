@@ -61,8 +61,11 @@ jobs:
           # (risc0-zkvm 3.0.6), instead of "latest".
           curl -sSfL https://risczero.com/install -o rzup-install.sh
           sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
-          # The installer every recorded run fetched (22 October); a changed one fails here.
-          echo "5699878af779351ec0f931fa84c3d5e35263279f66bd915af225f530a77341bf  rzup-install.sh" | sha256sum -c -
+          # Upstream rzup/install at risc0/risc0 164c64bb3 (26 October 2026, #3819,
+          # installer 1.1.0, download host artifacts.risczero.net); it replaced
+          # 26f7ef09f (installer 1.0.0, 5699878a...), which runs up to 26 October
+          # fetched. A changed one fails here (note 36).
+          echo "e0a0c1ab3a86ce33efc566a0c9a24ac5eba688769d124d3a510337853b051a3c  rzup-install.sh" | sha256sum -c -
           bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
           # rzup install has failed silently before (risc0-image-id run
