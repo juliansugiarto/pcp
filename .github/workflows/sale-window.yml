@@ -165,12 +165,22 @@ jobs:
             --listen=0.0.0.0:9735 --restlisten=0.0.0.0:8080 --rpclisten=127.0.0.1:10009 \
             --tlsextradomain=localhost >/dev/null
           s=$(date +%s)
-          for i in $(seq 120); do
-            [ "$(docker exec window lncli --network=signet getinfo 2>/dev/null | jq -r .synced_to_chain)" = true ] && break
-            sleep 5
-          done
+          synced() { [ "$(docker exec window lncli --network=signet getinfo 2>/dev/null | jq -r .synced_to_chain)" = true ]; }
+          for i in $(seq 60); do synced && break; sleep 5; done
+          # Neutrino sometimes finds no signet peer at first (27 October: block
+          # height 0 after 10 minutes). Keep the log, restart once, wait again.
+          if ! synced; then
+            echo "not synced after 5 minutes: restarting LND once" | tee -a out/timeline.txt
+            docker logs window 2>&1 | tail -n 200 > out/lnd-log-before-restart.txt
+            docker restart window >/dev/null
+            for i in $(seq 120); do synced && break; sleep 5; done
+          fi
           docker exec window lncli --network=signet getinfo | jq '{identity_pubkey, block_height, synced_to_chain, version}' | tee out/lnd-getinfo.json
-          [ "$(jq -r .synced_to_chain out/lnd-getinfo.json)" = true ] || { echo "LND did not sync"; exit 1; }
+          if [ "$(jq -r .synced_to_chain out/lnd-getinfo.json)" != true ]; then
+            docker logs window 2>&1 | tail -n 200 > out/lnd-log.txt
+            grep -iE "peer|dns|seed|connect|neutrino" out/lnd-log.txt | tail -n 20
+            echo "LND did not sync"; exit 1
+          fi
           echo "sync_secs: $(( $(date +%s) - s ))" | tee -a out/timeline.txt
           # Least privilege: the seller reads its node id, makes, settles and
           # cancels its own invoices, and decodes them (offchain:read; it

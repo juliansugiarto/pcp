@@ -46,7 +46,10 @@ for i in $(seq 240); do
   [ "$synced" = true ] && [ "$recovered" = true ] && break
   sleep 5
 done
-[ "$synced" = true ] && [ "$recovered" = true ] || { echo "buyer LND: synced=$synced recovered=$recovered after 20 minutes"; exit 1; }
+if [ "$synced" != true ] || [ "$recovered" != true ]; then
+  docker logs buyer 2>&1 | tail -n 200 > "$OUT/buyer-lnd-log.txt"
+  echo "buyer LND: synced=$synced recovered=$recovered after 20 minutes"; exit 1
+fi
 ln bakemacaroon --save_to /root/buyer.macaroon info:read offchain:read offchain:write >/dev/null
 docker cp buyer:/root/buyer.macaroon creds-buyer/buyer.macaroon
 info=$(ln getinfo); bal=$(ln walletbalance); addr=$(ln newaddress p2wkh | jq -r .address)
