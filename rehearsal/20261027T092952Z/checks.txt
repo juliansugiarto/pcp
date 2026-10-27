@@ -1,0 +1,6 @@
+buyer-exit                   FAIL ()
+receipts                     FAIL (seller [] buyer [])
+cooperative-close            FAIL (no close)
+sats-returned                FAIL (balances or funding fee missing)
+public-path                  FAIL (seller not a peer of the buyer)
+nothing-announced            PASS
