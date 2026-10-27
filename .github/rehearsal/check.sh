@@ -28,8 +28,8 @@ ct=$(jq -r '.close_type // empty' "$o/close.json" 2>/dev/null)
 [ "$ct" = COOPERATIVE_CLOSE ] && say cooperative-close PASS || say cooperative-close "FAIL (${ct:-no close})"
 # 4. The sats came back: loss = before - after = price + the funding fee
 #    (recorded exactly from listchaintxns) + the cooperative close fee the
-#    funder pays (about 9,700 sat at 50 sat/vB, static on neutrino); 15,000
-#    covers the close and rounding.
+#    funder pays (about 9,700 sat at 50 sat/vB, static on neutrino, whatever
+#    the channel size); 15,000 covers the close and rounding.
 before=$(cat "$o/balance-before.txt" 2>/dev/null); after=$(cat "$o/balance-after.txt" 2>/dev/null)
 price=$(cat "$o/price.txt" 2>/dev/null); fee_open=$(cat "$o/open-fee.txt" 2>/dev/null)
 if [[ "$before" =~ ^[0-9]+$ && "$after" =~ ^[0-9]+$ && "$price" =~ ^[0-9]+$ && "$fee_open" =~ ^[0-9]+$ ]]; then

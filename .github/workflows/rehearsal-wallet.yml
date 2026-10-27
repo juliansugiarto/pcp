@@ -2,7 +2,8 @@
 # the Actions secret REHEARSAL_BUYER_XPRV, wait for sync and recovery, and
 # publish its balance and a receiving address (both public by nature) to
 # ci-results-lnd, rehearsal/<UTC ts>-wallet/. The owner funds that address
-# once from a signet faucet (about 120,000 sat); the rehearsal itself is
+# from a signet faucet (40,000 sat for one rehearsal, 60,000 for two;
+# faucets give at most 10,000 per request); the rehearsal itself is
 # sale-window.yml with mode `rehearsal`. Manual only.
 name: rehearsal-wallet
 

@@ -68,6 +68,8 @@ jobs:
     env:
       LND_IMAGE: lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
       OUT: out
+      # Rehearsal channel size (note 34).
+      CHANNEL_SAT: "25000"
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Toolchain pin and runner image (design note 31)
@@ -183,8 +185,10 @@ jobs:
           bash .github/rehearsal/buyer-wallet.sh
           bal=$(grep '^confirmed_sat:' out/buyer-wallet.txt | awk '{print $2}')
           echo "$bal" > out/balance-before.txt
-          # 50,000 for the channel, about 7,500 funding fee, 10,000 anchor reserve.
-          [ "${bal:-0}" -ge 80000 ] || { echo "the buyer wallet holds ${bal:-0} sat; fund the address above (rehearsal-wallet.yml) with about 120,000 signet sat"; exit 1; }
+          # 25,000 for the channel, a few hundred sat funding fee at 2 sat/vB,
+          # 10,000 anchor reserve; the funding tx spends three or more faucet-sized
+          # inputs (about 600 sat) (notes 34, 35).
+          [ "${bal:-0}" -ge 40000 ] || { echo "the buyer wallet holds ${bal:-0} sat; it needs 40,000 (fund the address from rehearsal-wallet.yml)"; exit 1; }
           echo "buyer_ready: $(date -u +%T)" >> out/timeline.txt
       - name: "Rehearsal: the buyer agent, invited"
         if: steps.p.outputs.mode == 'rehearsal'
@@ -323,7 +327,9 @@ jobs:
           seller="${{ steps.open.outputs.pubkey }}"
           # The public path only: bore.pub, as a stranger would connect.
           for i in 1 2 3 4 5 6; do ln connect "$seller@bore.pub:${{ steps.open.outputs.port }}" >> out/channel.txt 2>&1 && break; sleep 20; done
-          ln openchannel --node_key "$seller" --local_amt 50000 | tee -a out/channel.txt
+          # 25,000 sat: above LND's default minimum channel (20,000). Funding at
+          # 2 sat/vB: the funder picks this fee alone (note 34).
+          ln openchannel --node_key "$seller" --local_amt "$CHANNEL_SAT" --sat_per_vbyte 2 | tee -a out/channel.txt
           txid=$(grep -oE '"funding_txid": *"[0-9a-f]{64}"' out/channel.txt | grep -oE '[0-9a-f]{64}' | tail -n 1)
           [ -n "$txid" ] || { echo "no funding txid"; exit 1; }
           echo "txid=$txid" >> "$GITHUB_OUTPUT"
@@ -393,7 +399,7 @@ jobs:
           after=0
           for i in $(seq 40); do
             after=$(ln walletbalance | jq -r .confirmed_balance)
-            [ "$after" -ge $((before - 50000 - fee_open + settled - 1000)) ] && break
+            [ "$after" -ge $((before - CHANNEL_SAT - fee_open + settled - 1000)) ] && break
             sleep 15
           done
           echo "$after" > out/balance-after.txt
