@@ -1,0 +1,13 @@
+guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+listening on http://127.0.0.1:8650 (put a TLS proxy in front)
+[seller 1793157063] seller up: 0 offers, 0 sales on record
+[seller 1793157332] offer f4f87b8c30b7 sent
+[seller 1793157332] accept f4f87b8c30b7 : proving
+[seller 1793157411] proved f4f87b8c30b7 in 78.977 s
+[seller 1793157411] invoice f4f87b8c30b7 sent
+[seller 1793157411] bundle f4f87b8c30b7 sent again
+[seller 1793157413] bundle f4f87b8c30b7 sent again
+[seller 1793157413] SETTLED: revealed k, 1000000 msat
+[seller 1793157413] seller done: 1 sales over, committed 1000000 msat
+seller summary: settled 1 cancelled 0 refused 0 proofs 1 committed_msat 1000000
+prove-row,job=sudoku9,segments=1,user_cycles=88606,total_cycles=131072,prove_s=78.977,receipt_bytes=223748,peak_rss_mib=1427
