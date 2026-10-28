@@ -1,0 +1,40 @@
+#2156100	REDUCE cov: 4261 ft: 9673 corp: 1549/163Kb lim: 4096 exec/s: 2472 rss: 574Mb L: 45/4060 MS: 3 ChangeByte-ChangeByte-EraseBytes-
+#2157792	NEW    cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2471 rss: 574Mb L: 1284/4060 MS: 2 ShuffleBytes-CopyPart-
+#2157893	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2471 rss: 574Mb L: 31/4060 MS: 1 EraseBytes-
+#2160270	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2471 rss: 574Mb L: 160/4060 MS: 2 ShuffleBytes-EraseBytes-
+#2164186	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2473 rss: 574Mb L: 144/4060 MS: 1 EraseBytes-
+#2167492	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2471 rss: 574Mb L: 52/4060 MS: 1 EraseBytes-
+#2167684	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2471 rss: 574Mb L: 1326/4060 MS: 2 ChangeBit-EraseBytes-
+#2172516	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2474 rss: 574Mb L: 152/4060 MS: 2 ChangeBit-EraseBytes-
+#2185843	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2472 rss: 574Mb L: 1492/4060 MS: 2 ChangeASCIIInt-EraseBytes-
+#2187479	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2474 rss: 574Mb L: 80/4060 MS: 1 EraseBytes-
+#2187775	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2474 rss: 574Mb L: 115/4060 MS: 1 EraseBytes-
+#2187912	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2475 rss: 574Mb L: 58/4060 MS: 2 InsertByte-EraseBytes-
+#2188483	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2472 rss: 574Mb L: 394/4060 MS: 1 EraseBytes-
+#2197151	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2474 rss: 574Mb L: 359/4060 MS: 3 ChangeByte-EraseBytes-CopyPart-
+#2200699	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2475 rss: 574Mb L: 58/4060 MS: 3 ChangeByte-ChangeBit-EraseBytes-
+#2201665	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2473 rss: 574Mb L: 149/4060 MS: 1 EraseBytes-
+#2205942	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2473 rss: 574Mb L: 193/4060 MS: 2 CrossOver-EraseBytes-
+#2206303	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2473 rss: 574Mb L: 508/4060 MS: 1 EraseBytes-
+#2209849	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2474 rss: 574Mb L: 32/4060 MS: 1 EraseBytes-
+#2210835	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2475 rss: 574Mb L: 27/4060 MS: 1 EraseBytes-
+#2224256	REDUCE cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2474 rss: 574Mb L: 21/4060 MS: 1 EraseBytes-
+#2229226	DONE   cov: 4261 ft: 9679 corp: 1550/164Kb lim: 4096 exec/s: 2474 rss: 574Mb
+###### Recommended dictionary. ######
+"offer_e" # Uses: 39435
+"principal_s" # Uses: 34631
+"\001\000\0001" # Uses: 35001
+"version" # Uses: 25036
+"min_htlc_secs" # Uses: 15028
+"\011\000\000\000\000\000\000\000" # Uses: 10217
+"\000\000\000\000" # Uses: 7166
+"cap_msat" # Uses: 5154
+"\377\377\377\377" # Uses: 4252
+"\376\377\377\377" # Uses: 4280
+"\001\000\000\000\000\000\000\010" # Uses: 2143
+"backend_id" # Uses: 2008
+"created_at" # Uses: 764
+"\022\000\000\000\000\000\000\000" # Uses: 662
+"backen" # Uses: 593
+###### End of recommended dictionary. ######
+Done 2229226 runs in 901 second(s)
