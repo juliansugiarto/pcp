@@ -1,0 +1,40 @@
+#9918703	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16698 rss: 629Mb L: 26/4037 MS: 4 ChangeBit-EraseBytes-EraseBytes-PersAutoDict- DE: "not initiated"-
+#9922549	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16676 rss: 629Mb L: 143/4037 MS: 1 EraseBytes-
+#9928755	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16686 rss: 629Mb L: 39/4037 MS: 1 EraseBytes-
+#9941113	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16679 rss: 629Mb L: 3488/4037 MS: 3 ChangeBit-CopyPart-EraseBytes-
+#9942346	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16681 rss: 629Mb L: 13/4037 MS: 3 EraseBytes-EraseBytes-InsertByte-
+#9949522	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16665 rss: 629Mb L: 44/4037 MS: 1 EraseBytes-
+#9960435	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16656 rss: 629Mb L: 137/4037 MS: 3 InsertByte-ChangeASCIIInt-EraseBytes-
+#9962470	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16659 rss: 629Mb L: 1728/4037 MS: 5 InsertByte-ShuffleBytes-InsertByte-ChangeByte-EraseBytes-
+#9963857	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16661 rss: 629Mb L: 12/4037 MS: 2 ChangeByte-EraseBytes-
+#9978329	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16658 rss: 629Mb L: 47/4037 MS: 1 EraseBytes-
+#9978895	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16659 rss: 629Mb L: 157/4037 MS: 1 EraseBytes-
+#9980917	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16662 rss: 629Mb L: 46/4037 MS: 2 EraseBytes-CopyPart-
+#9994603	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16657 rss: 630Mb L: 121/4037 MS: 1 EraseBytes-
+#9998544	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16664 rss: 630Mb L: 202/4037 MS: 1 EraseBytes-
+#9998905	REDUCE cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16664 rss: 630Mb L: 82/4037 MS: 1 EraseBytes-
+#9999040	DONE   cov: 1736 ft: 8509 corp: 2427/265Kb lim: 4096 exec/s: 16637 rss: 630Mb
+###### Recommended dictionary. ######
+"cr>$.[333321&." # Uses: 283470
+"error" # Uses: 79672
+"\377\003" # Uses: 81214
+"\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277" # Uses: 28591
+"not initiated" # Uses: 28737
+"\031\000\000\000\000\000\000\000" # Uses: 28504
+"?\000\000\000\000\000\000\000" # Uses: 26923
+"c9\357\277" # Uses: 27095
+"\377\015" # Uses: 24484
+"\377\377\377\377\377\377\377>" # Uses: 19766
+"isn't initiated" # Uses: 18093
+"cr>" # Uses: 18373
+"c22" # Uses: 16496
+"\377\014" # Uses: 13551
+"\377\377\377\377\377\377\377?" # Uses: 11986
+"cr>$[3333223c3228\015>37323$333223\015>$[,\01533323r" # Uses: 9639
+"\377\377\377\377" # Uses: 11348
+"cr>$[32~" # Uses: 4056
+"cr>$[\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275h3r\357\277\275a\357" # Uses: 3298
+"cr>$,\015333/,\015\357\277\275a\357\277\275\357\277\275e" # Uses: 3394
+"c\357\277\275\357\277\27577\357" # Uses: 1850
+###### End of recommended dictionary. ######
+Done 9999040 runs in 601 second(s)
