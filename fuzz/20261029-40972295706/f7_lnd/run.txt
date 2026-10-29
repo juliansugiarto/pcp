@@ -1,0 +1,40 @@
+#8067218	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13908 rss: 624Mb L: 14/3958 MS: 2 CMP-EraseBytes- DE: "\000\000\000\000\000\000\000\000"-
+#8072795	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13894 rss: 624Mb L: 2421/3958 MS: 2 ChangeBit-EraseBytes-
+#8075186	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13898 rss: 624Mb L: 2778/3958 MS: 1 EraseBytes-
+#8079269	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13881 rss: 624Mb L: 193/3958 MS: 3 ShuffleBytes-ChangeASCIIInt-EraseBytes-
+#8103335	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13851 rss: 624Mb L: 2525/3958 MS: 1 EraseBytes-
+#8105663	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13832 rss: 624Mb L: 2393/3958 MS: 3 CrossOver-EraseBytes-ChangeASCIIInt-
+#8105819	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13832 rss: 624Mb L: 1640/3958 MS: 1 EraseBytes-
+#8119121	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13808 rss: 624Mb L: 1406/3958 MS: 2 ChangeBinInt-EraseBytes-
+#8125797	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13795 rss: 624Mb L: 88/3958 MS: 1 EraseBytes-
+#8130344	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13803 rss: 624Mb L: 3314/3958 MS: 2 ShuffleBytes-EraseBytes-
+#8134025	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13786 rss: 624Mb L: 552/3958 MS: 1 EraseBytes-
+#8146096	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13760 rss: 624Mb L: 297/3958 MS: 1 EraseBytes-
+#8156208	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13754 rss: 624Mb L: 498/3958 MS: 2 ChangeASCIIInt-EraseBytes-
+#8168679	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13728 rss: 624Mb L: 89/3958 MS: 1 EraseBytes-
+#8172006	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13734 rss: 624Mb L: 100/3958 MS: 2 ChangeBinInt-EraseBytes-
+#8172218	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13734 rss: 624Mb L: 2005/3958 MS: 2 CrossOver-EraseBytes-
+#8188046	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13692 rss: 624Mb L: 1989/3958 MS: 3 InsertByte-InsertByte-EraseBytes-
+#8188358	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13692 rss: 624Mb L: 141/3958 MS: 2 ChangeASCIIInt-EraseBytes-
+#8196210	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13683 rss: 624Mb L: 95/3958 MS: 1 EraseBytes-
+#8199046	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13687 rss: 624Mb L: 122/3958 MS: 1 EraseBytes-
+#8200958	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13691 rss: 624Mb L: 488/3958 MS: 2 ChangeASCIIInt-EraseBytes-
+#8201019	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13691 rss: 624Mb L: 1201/3958 MS: 1 EraseBytes-
+#8205112	REDUCE cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13675 rss: 624Mb L: 160/3958 MS: 3 ChangeBit-ShuffleBytes-EraseBytes-
+#8208027	DONE   cov: 1782 ft: 8844 corp: 2476/268Kb lim: 4096 exec/s: 13657 rss: 624Mb
+###### Recommended dictionary. ######
+"\000V" # Uses: 125865
+"cr>$[,\01533323$[23$r\015\357\277" # Uses: 80205
+"\"code\": 5," # Uses: 87849
+"cr>$$[,\0153331e" # Uses: 72586
+"\357\277\275e" # Uses: 60637
+"c223\015/,\015\357\277\275az\357\277\275" # Uses: 47460
+"\002\000\000\000\000\000\000\000" # Uses: 45889
+"\377\377" # Uses: 42079
+"htlcs" # Uses: 38425
+"f1$r" # Uses: 33763
+"not initiated" # Uses: 20776
+"f\275\277\357" # Uses: 6660
+"\000\000\000\000\000\000\000\000" # Uses: 878
+###### End of recommended dictionary. ######
+Done 8208027 runs in 601 second(s)
