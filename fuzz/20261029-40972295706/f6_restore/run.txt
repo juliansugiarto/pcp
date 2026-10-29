@@ -1,0 +1,40 @@
+#845485	NEW    cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1075 rss: 569Mb L: 212/3983 MS: 5 PersAutoDict-CMP-ChangeASCIIInt-ChangeASCIIInt-ChangeBit- DE: "clock"-"agent_sig"-
+#849054	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 193/3983 MS: 4 PersAutoDict-ShuffleBytes-CopyPart-EraseBytes- DE: "version"-
+#852747	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 12/3983 MS: 3 ShuffleBytes-ChangeBinInt-EraseBytes-
+#859838	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 109/3983 MS: 1 EraseBytes-
+#871709	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 211/3983 MS: 1 EraseBytes-
+#882970	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 143/3983 MS: 1 EraseBytes-
+#884571	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 164/3983 MS: 1 EraseBytes-
+#897977	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 410/3983 MS: 1 EraseBytes-
+#904553	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 17/3983 MS: 1 EraseBytes-
+#905484	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 25/3983 MS: 1 EraseBytes-
+#905617	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 517/3983 MS: 3 InsertByte-CopyPart-EraseBytes-
+#907773	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 93/3983 MS: 1 EraseBytes-
+#911229	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1075 rss: 569Mb L: 169/3983 MS: 1 EraseBytes-
+#915155	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 93/3983 MS: 1 EraseBytes-
+#916086	REDUCE cov: 5122 ft: 11793 corp: 1776/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 162/3983 MS: 1 EraseBytes-
+#916903	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1076 rss: 569Mb L: 49/3983 MS: 2 InsertByte-ShuffleBytes-
+#921206	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1076 rss: 570Mb L: 112/3983 MS: 3 CopyPart-ChangeASCIIInt-EraseBytes-
+#922622	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1076 rss: 570Mb L: 23/3983 MS: 1 EraseBytes-
+#935273	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1076 rss: 570Mb L: 209/3983 MS: 1 EraseBytes-
+#943532	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1075 rss: 570Mb L: 238/3983 MS: 4 ShuffleBytes-ChangeBit-CopyPart-EraseBytes-
+#943604	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1075 rss: 570Mb L: 161/3983 MS: 2 ShuffleBytes-EraseBytes-
+#946475	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1075 rss: 570Mb L: 62/3983 MS: 1 EraseBytes-
+#949021	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1075 rss: 570Mb L: 16/3983 MS: 1 EraseBytes-
+#953502	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1076 rss: 570Mb L: 149/3983 MS: 1 EraseBytes-
+#955274	REDUCE cov: 5122 ft: 11794 corp: 1777/242Kb lim: 4096 exec/s: 1075 rss: 570Mb L: 174/3983 MS: 2 ChangeByte-EraseBytes-
+#956310	REDUCE cov: 5122 ft: 11795 corp: 1778/242Kb lim: 4096 exec/s: 1075 rss: 570Mb L: 733/3983 MS: 1 CopyPart-
+#959902	NEW    cov: 5123 ft: 11796 corp: 1779/242Kb lim: 4096 exec/s: 1076 rss: 570Mb L: 43/3983 MS: 2 ShuffleBytes-EraseBytes-
+#961704	REDUCE cov: 5123 ft: 11796 corp: 1779/242Kb lim: 4096 exec/s: 1075 rss: 570Mb L: 185/3983 MS: 2 ChangeByte-EraseBytes-
+#964261	NEW    cov: 5123 ft: 11801 corp: 1780/242Kb lim: 4096 exec/s: 1076 rss: 570Mb L: 175/3983 MS: 2 CopyPart-CopyPart-
+#965177	REDUCE cov: 5123 ft: 11801 corp: 1780/242Kb lim: 4096 exec/s: 1076 rss: 570Mb L: 149/3983 MS: 1 EraseBytes-
+#968647	DONE   cov: 5123 ft: 11801 corp: 1780/242Kb lim: 4096 exec/s: 1075 rss: 570Mb
+###### Recommended dictionary. ######
+"\376\377\377\377\377\377\377\007" # Uses: 28400
+"clock" # Uses: 25266
+"version" # Uses: 10901
+"mandate" # Uses: 9427
+"2\000\000\000" # Uses: 4464
+"agent_sig" # Uses: 1666
+###### End of recommended dictionary. ######
+Done 968647 runs in 901 second(s)
