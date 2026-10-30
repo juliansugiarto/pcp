@@ -1,0 +1,40 @@
+#874455	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1031 rss: 578Mb L: 17/3983 MS: 1 EraseBytes-
+#874508	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1031 rss: 578Mb L: 494/3983 MS: 3 ChangeASCIIInt-ChangeASCIIInt-EraseBytes-
+#875529	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1031 rss: 578Mb L: 1525/3983 MS: 1 EraseBytes-
+#876581	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1031 rss: 578Mb L: 48/3983 MS: 2 ShuffleBytes-EraseBytes-
+#876677	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 75/3983 MS: 1 EraseBytes-
+#878303	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 30/3983 MS: 1 EraseBytes-
+#878535	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1031 rss: 578Mb L: 107/3983 MS: 2 CMP-EraseBytes- DE: "backend_id"-
+#879302	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 118/3983 MS: 2 ChangeBinInt-EraseBytes-
+#882583	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1031 rss: 578Mb L: 377/3983 MS: 1 EraseBytes-
+#882634	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 47/3983 MS: 1 EraseBytes-
+#885565	REDUCE cov: 5148 ft: 11848 corp: 1800/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 103/3983 MS: 1 EraseBytes-
+#886731	REDUCE cov: 5149 ft: 11853 corp: 1801/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 61/3983 MS: 1 EraseBytes-
+#887397	REDUCE cov: 5149 ft: 11853 corp: 1801/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 171/3983 MS: 1 EraseBytes-
+#890418	REDUCE cov: 5149 ft: 11853 corp: 1801/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 244/3983 MS: 1 EraseBytes-
+#895365	REDUCE cov: 5149 ft: 11853 corp: 1801/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 357/3983 MS: 2 ShuffleBytes-EraseBytes-
+#900022	REDUCE cov: 5149 ft: 11853 corp: 1801/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 1100/3983 MS: 2 ChangeASCIIInt-EraseBytes-
+#902814	REDUCE cov: 5149 ft: 11853 corp: 1801/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 69/3983 MS: 2 InsertByte-EraseBytes-
+#903346	REDUCE cov: 5149 ft: 11853 corp: 1801/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 233/3983 MS: 2 PersAutoDict-EraseBytes- DE: "offers"-
+#911487	NEW    cov: 5149 ft: 11856 corp: 1802/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 61/3983 MS: 1 ChangeByte-
+#911535	REDUCE cov: 5149 ft: 11856 corp: 1802/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 3486/3983 MS: 3 EraseBytes-ChangeBit-CopyPart-
+#913651	REDUCE cov: 5149 ft: 11856 corp: 1802/241Kb lim: 4096 exec/s: 1030 rss: 578Mb L: 54/3983 MS: 1 EraseBytes-
+#916507	REDUCE cov: 5149 ft: 11856 corp: 1802/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 193/3983 MS: 1 EraseBytes-
+#917299	REDUCE cov: 5156 ft: 11863 corp: 1803/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 141/3983 MS: 2 CopyPart-CopyPart-
+#920440	REDUCE cov: 5156 ft: 11863 corp: 1803/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 138/3983 MS: 1 EraseBytes-
+#921812	REDUCE cov: 5156 ft: 11863 corp: 1803/241Kb lim: 4096 exec/s: 1028 rss: 578Mb L: 145/3983 MS: 2 PersAutoDict-EraseBytes- DE: "statement"-
+#922405	REDUCE cov: 5156 ft: 11863 corp: 1803/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 107/3983 MS: 3 ChangeBinInt-ShuffleBytes-EraseBytes-
+#922602	REDUCE cov: 5156 ft: 11863 corp: 1803/241Kb lim: 4096 exec/s: 1029 rss: 578Mb L: 770/3983 MS: 2 PersAutoDict-EraseBytes- DE: "backend_id"-
+#926667	DONE   cov: 5156 ft: 11863 corp: 1803/241Kb lim: 4096 exec/s: 1028 rss: 578Mb
+###### Recommended dictionary. ######
+"\001\000\000\000\000\000\000\004" # Uses: 33781
+"\000\000\000\000\000\000\000\035" # Uses: 11409
+"offers" # Uses: 8596
+"ciphertext" # Uses: 4632
+"statement" # Uses: 3075
+"ciphertex" # Uses: 3110
+"\001\000\021\000" # Uses: 3206
+"\001\000\000d" # Uses: 1095
+"backend_id" # Uses: 422
+###### End of recommended dictionary. ######
+Done 926667 runs in 901 second(s)
