@@ -1,0 +1,40 @@
+#8458835	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14410 rss: 631Mb L: 168/3750 MS: 1 EraseBytes-
+#8466631	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14399 rss: 631Mb L: 83/3750 MS: 1 EraseBytes-
+#8467927	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14401 rss: 631Mb L: 27/3750 MS: 1 EraseBytes-
+#8470578	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14381 rss: 631Mb L: 1916/3750 MS: 1 EraseBytes-
+#8473189	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14385 rss: 631Mb L: 92/3750 MS: 1 EraseBytes-
+#8474301	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14387 rss: 631Mb L: 86/3750 MS: 2 ChangeByte-EraseBytes-
+#8478687	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14370 rss: 631Mb L: 128/3750 MS: 1 EraseBytes-
+#8481878	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14376 rss: 631Mb L: 735/3750 MS: 1 EraseBytes-
+#8498235	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14355 rss: 631Mb L: 741/3750 MS: 1 EraseBytes-
+#8509936	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14326 rss: 631Mb L: 1555/3750 MS: 1 EraseBytes-
+#8521702	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14298 rss: 631Mb L: 1694/3750 MS: 1 EraseBytes-
+#8527955	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14308 rss: 631Mb L: 22/3750 MS: 3 ShuffleBytes-EraseBytes-CMP- DE: "\377\377\377\377"-
+#8531226	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14290 rss: 631Mb L: 895/3750 MS: 1 CrossOver-
+#8540632	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14281 rss: 631Mb L: 406/3750 MS: 1 EraseBytes-
+#8543540	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14263 rss: 631Mb L: 804/3750 MS: 3 InsertByte-ChangeBinInt-EraseBytes-
+#8545423	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14266 rss: 631Mb L: 2523/3750 MS: 3 ChangeByte-PersAutoDict-EraseBytes- DE: "\377\377\377\277"-
+#8545453	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14266 rss: 631Mb L: 977/3750 MS: 5 ChangeByte-CrossOver-ChangeASCIIInt-InsertRepeatedBytes-EraseBytes-
+#8552430	REDUCE cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14254 rss: 631Mb L: 1404/3750 MS: 2 ChangeASCIIInt-EraseBytes-
+#8556990	DONE   cov: 1797 ft: 8992 corp: 2507/269Kb lim: 4096 exec/s: 14237 rss: 631Mb
+###### Recommended dictionary. ######
+"\005\000\000\000\000\000\000\000" # Uses: 189908
+"\011\000\000\000\000\000\000\000" # Uses: 102557
+"\375\377\377\377" # Uses: 87373
+"\244\000\000\000\000\000\000\000" # Uses: 72495
+"\377\021" # Uses: 79120
+"\377\377\377\377\377\377\377\377" # Uses: 37928
+"\377\377\377\377\377\377\377_" # Uses: 31076
+"cr>$" # Uses: 19057
+"\377\377\377\377\377\377\377\203" # Uses: 13382
+"B\000\000\000\000\000\000\000" # Uses: 12242
+"cr>r>$[333" # Uses: 10449
+"\377\377\377\377" # Uses: 10664
+"\377\377\377\377\377\377\377?" # Uses: 9466
+"cr>3" # Uses: 8362
+"\377\377" # Uses: 6482
+"\376\377\377\377" # Uses: 2379
+"\377\377\377\377\377\377\377\234" # Uses: 1466
+"\377\377\377\277" # Uses: 1467
+###### End of recommended dictionary. ######
+Done 8556990 runs in 601 second(s)
