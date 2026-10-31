@@ -1,0 +1,40 @@
+#11070008	REDUCE cov: 1808 ft: 9075 corp: 2539/297Kb lim: 4096 exec/s: 18667 rss: 640Mb L: 173/4010 MS: 1 EraseBytes-
+#11078114	REDUCE cov: 1808 ft: 9075 corp: 2539/297Kb lim: 4096 exec/s: 18650 rss: 640Mb L: 113/4010 MS: 1 EraseBytes-
+#11082416	NEW    cov: 1808 ft: 9076 corp: 2540/301Kb lim: 4096 exec/s: 18657 rss: 640Mb L: 3627/4010 MS: 2 ShuffleBytes-ChangeASCIIInt-
+#11083847	REDUCE cov: 1808 ft: 9076 corp: 2540/301Kb lim: 4096 exec/s: 18659 rss: 640Mb L: 3353/4010 MS: 1 EraseBytes-
+#11086248	REDUCE cov: 1808 ft: 9076 corp: 2540/301Kb lim: 4096 exec/s: 18632 rss: 640Mb L: 363/4010 MS: 1 EraseBytes-
+#11095179	REDUCE cov: 1808 ft: 9076 corp: 2540/301Kb lim: 4096 exec/s: 18647 rss: 640Mb L: 486/4010 MS: 1 EraseBytes-
+#11099630	REDUCE cov: 1808 ft: 9076 corp: 2540/301Kb lim: 4096 exec/s: 18623 rss: 640Mb L: 1384/4010 MS: 1 EraseBytes-
+#11104486	REDUCE cov: 1808 ft: 9076 corp: 2540/301Kb lim: 4096 exec/s: 18631 rss: 640Mb L: 181/4010 MS: 1 EraseBytes-
+#11109694	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18640 rss: 640Mb L: 2389/4010 MS: 3 InsertByte-CopyPart-EraseBytes-
+#11116760	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18621 rss: 640Mb L: 411/4010 MS: 1 EraseBytes-
+#11117071	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18621 rss: 640Mb L: 482/4010 MS: 1 EraseBytes-
+#11127482	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18607 rss: 640Mb L: 194/4010 MS: 1 EraseBytes-
+#11128698	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18609 rss: 640Mb L: 1408/4010 MS: 1 EraseBytes-
+#11132439	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18616 rss: 640Mb L: 1393/4010 MS: 1 EraseBytes-
+#11132781	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18616 rss: 640Mb L: 219/4010 MS: 2 ChangeBit-EraseBytes-
+#11134632	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18619 rss: 640Mb L: 253/4010 MS: 1 EraseBytes-
+#11141526	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18600 rss: 640Mb L: 146/4010 MS: 4 CMP-ChangeASCIIInt-CMP-EraseBytes- DE: "\223\377\377\377"-"\357\277\275\357\277\275"-
+#11151702	REDUCE cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18586 rss: 640Mb L: 2619/4010 MS: 1 EraseBytes-
+#11162817	DONE   cov: 1808 ft: 9076 corp: 2540/300Kb lim: 4096 exec/s: 18573 rss: 640Mb
+###### Recommended dictionary. ######
+"\304\377\377\377" # Uses: 325988
+"not initiated" # Uses: 97307
+"\377\377\377\377\377\377\377\377" # Uses: 102322
+"\377\377\377\377\377\377\377\000" # Uses: 96122
+"\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357\277\275\357" # Uses: 56497
+"\001\000\000\000\000\000\000\012" # Uses: 58750
+"!\000\000\000\000\000\000\000" # Uses: 38005
+">2" # Uses: 30504
+"cr>$[,\0151e" # Uses: 14848
+"\377\377\377\377\377\377\377~" # Uses: 8982
+"\001\206" # Uses: 9365
+"c \316\215\357\277\275\357" # Uses: 7462
+"d\275\277\357" # Uses: 7720
+"\362\377\377\377" # Uses: 6707
+"cr>3333223\015>$[,," # Uses: 1920
+"\012\000\000\000\000\000\000\000" # Uses: 1752
+"\223\377\377\377" # Uses: 94
+"\357\277\275\357\277\275" # Uses: 111
+###### End of recommended dictionary. ######
+Done 11162817 runs in 601 second(s)
