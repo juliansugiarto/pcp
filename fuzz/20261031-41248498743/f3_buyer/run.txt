@@ -1,0 +1,40 @@
+#1489337	REDUCE cov: 4440 ft: 10035 corp: 1648/184Kb lim: 4096 exec/s: 1711 rss: 547Mb L: 57/4060 MS: 2 ChangeASCIIInt-EraseBytes-
+#1490763	REDUCE cov: 4440 ft: 10035 corp: 1648/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 87/4060 MS: 1 EraseBytes-
+#1494394	REDUCE cov: 4440 ft: 10035 corp: 1648/184Kb lim: 4096 exec/s: 1711 rss: 547Mb L: 77/4060 MS: 1 EraseBytes-
+#1496025	REDUCE cov: 4441 ft: 10036 corp: 1649/184Kb lim: 4096 exec/s: 1711 rss: 547Mb L: 62/4060 MS: 1 CopyPart-
+#1498737	REDUCE cov: 4441 ft: 10036 corp: 1649/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 559/4060 MS: 2 ChangeBinInt-EraseBytes-
+#1499383	REDUCE cov: 4441 ft: 10036 corp: 1649/184Kb lim: 4096 exec/s: 1711 rss: 547Mb L: 690/4060 MS: 1 EraseBytes-
+#1499849	REDUCE cov: 4441 ft: 10036 corp: 1649/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 557/4060 MS: 1 EraseBytes-
+#1500900	REDUCE cov: 4441 ft: 10037 corp: 1650/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 84/4060 MS: 1 CrossOver-
+#1504022	REDUCE cov: 4441 ft: 10037 corp: 1650/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 42/4060 MS: 1 EraseBytes-
+#1507873	REDUCE cov: 4441 ft: 10037 corp: 1650/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 86/4060 MS: 1 EraseBytes-
+#1508564	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 52/4060 MS: 1 InsertByte-
+#1510180	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 55/4060 MS: 1 EraseBytes-
+#1510317	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 81/4060 MS: 2 CMP-EraseBytes- DE: "version"-
+#1512214	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 79/4060 MS: 2 ShuffleBytes-EraseBytes-
+#1512775	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 78/4060 MS: 1 EraseBytes-
+#1512898	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 78/4060 MS: 3 InsertRepeatedBytes-ChangeBinInt-EraseBytes-
+#1513214	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1711 rss: 547Mb L: 40/4060 MS: 1 EraseBytes-
+#1514101	REDUCE cov: 4443 ft: 10039 corp: 1651/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 59/4060 MS: 2 ChangeBinInt-EraseBytes-
+#1532477	NEW    cov: 4443 ft: 10040 corp: 1652/184Kb lim: 4096 exec/s: 1712 rss: 547Mb L: 46/4060 MS: 1 CrossOver-
+#1535353	REDUCE cov: 4443 ft: 10040 corp: 1652/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 53/4060 MS: 1 EraseBytes-
+#1536854	REDUCE cov: 4443 ft: 10040 corp: 1652/184Kb lim: 4096 exec/s: 1713 rss: 547Mb L: 17/4060 MS: 1 EraseBytes-
+#1543064	DONE   cov: 4443 ft: 10040 corp: 1652/184Kb lim: 4096 exec/s: 1712 rss: 547Mb
+###### Recommended dictionary. ######
+"principal_sig" # Uses: 23389
+"mandate" # Uses: 12406
+"$serde_json::private::RawValue" # Uses: 8193
+"\377\377\377\377\377\377\377\005" # Uses: 7749
+"scope" # Uses: 6839
+"\001\000\000\000\000\000\000\036" # Uses: 6085
+"version" # Uses: 5319
+"\001\000\0007" # Uses: 5620
+"2333333\003" # Uses: 4260
+"\000\000\000\000\000\000\000\000" # Uses: 3997
+"role" # Uses: 3726
+"buyer_nonce" # Uses: 2715
+"agent_sig" # Uses: 1385
+"\017\000\000\000\000\000\000\000" # Uses: 1141
+"offer_e" # Uses: 485
+###### End of recommended dictionary. ######
+Done 1543064 runs in 901 second(s)
