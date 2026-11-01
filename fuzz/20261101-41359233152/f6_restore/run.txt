@@ -1,0 +1,40 @@
+#1305650	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 18/3983 MS: 1 EraseBytes-
+#1308366	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1517 rss: 584Mb L: 59/3983 MS: 1 EraseBytes-
+#1311637	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 98/3983 MS: 1 EraseBytes-
+#1313868	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1517 rss: 584Mb L: 444/3983 MS: 1 EraseBytes-
+#1314264	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1517 rss: 584Mb L: 618/3983 MS: 1 EraseBytes-
+#1316700	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 74/3983 MS: 1 EraseBytes-
+#1318471	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1517 rss: 584Mb L: 121/3983 MS: 1 EraseBytes-
+#1327402	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 46/3983 MS: 1 EraseBytes-
+#1327435	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 110/3983 MS: 3 ShuffleBytes-CrossOver-EraseBytes-
+#1329126	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1519 rss: 584Mb L: 144/3983 MS: 1 EraseBytes-
+#1332987	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 46/3983 MS: 1 EraseBytes-
+#1340458	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 29/3983 MS: 1 EraseBytes-
+#1342056	REDUCE cov: 5443 ft: 12348 corp: 1918/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 128/3983 MS: 3 CrossOver-ShuffleBytes-EraseBytes-
+#1346817	NEW    cov: 5443 ft: 12350 corp: 1919/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 90/3983 MS: 1 EraseBytes-
+#1351868	REDUCE cov: 5443 ft: 12350 corp: 1919/253Kb lim: 4096 exec/s: 1518 rss: 584Mb L: 872/3983 MS: 1 EraseBytes-
+#1352004	REDUCE cov: 5443 ft: 12350 corp: 1919/253Kb lim: 4096 exec/s: 1519 rss: 584Mb L: 1266/3983 MS: 1 EraseBytes-
+#1352986	REDUCE cov: 5443 ft: 12350 corp: 1919/253Kb lim: 4096 exec/s: 1520 rss: 584Mb L: 399/3983 MS: 2 PersAutoDict-EraseBytes- DE: "closed"-
+#1358240	REDUCE cov: 5443 ft: 12350 corp: 1919/253Kb lim: 4096 exec/s: 1519 rss: 584Mb L: 102/3983 MS: 4 ChangeBinInt-ShuffleBytes-ChangeASCIIInt-EraseBytes-
+#1360657	REDUCE cov: 5443 ft: 12350 corp: 1919/252Kb lim: 4096 exec/s: 1520 rss: 584Mb L: 576/3983 MS: 2 EraseBytes-CopyPart-
+#1362858	REDUCE cov: 5443 ft: 12350 corp: 1919/252Kb lim: 4096 exec/s: 1519 rss: 584Mb L: 85/3983 MS: 1 EraseBytes-
+#1363794	REDUCE cov: 5443 ft: 12350 corp: 1919/252Kb lim: 4096 exec/s: 1520 rss: 584Mb L: 127/3983 MS: 1 EraseBytes-
+#1366465	REDUCE cov: 5443 ft: 12350 corp: 1919/252Kb lim: 4096 exec/s: 1519 rss: 584Mb L: 112/3983 MS: 1 EraseBytes-
+#1366511	REDUCE cov: 5443 ft: 12350 corp: 1919/252Kb lim: 4096 exec/s: 1520 rss: 584Mb L: 189/3983 MS: 1 EraseBytes-
+#1368177	REDUCE cov: 5443 ft: 12350 corp: 1919/252Kb lim: 4096 exec/s: 1520 rss: 584Mb L: 71/3983 MS: 1 EraseBytes-
+#1368332	DONE   cov: 5443 ft: 12350 corp: 1919/252Kb lim: 4096 exec/s: 1518 rss: 584Mb
+###### Recommended dictionary. ######
+"e\000\000\000" # Uses: 15596
+"2\000\000\000" # Uses: 15562
+"closed" # Uses: 11847
+"\000\000\0003" # Uses: 7999
+"\001\000\000f" # Uses: 6916
+"\000\000\000\000\000\000\000\023" # Uses: 5790
+"\000\000\000\000\000\000\000\000" # Uses: 5275
+"\377\377\377\377\377\377\377\003" # Uses: 4536
+"offer_expi" # Uses: 4224
+"enc_scheme" # Uses: 3859
+"state" # Uses: 2906
+"\001\000\000\000\000\000\000\000" # Uses: 1607
+###### End of recommended dictionary. ######
+Done 1368332 runs in 901 second(s)
