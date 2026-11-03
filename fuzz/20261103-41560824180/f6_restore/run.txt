@@ -1,0 +1,40 @@
+#1518394	REDUCE cov: 5520 ft: 12728 corp: 1997/257Kb lim: 4096 exec/s: 1759 rss: 564Mb L: 12/4080 MS: 1 EraseBytes-
+#1520506	REDUCE cov: 5520 ft: 12728 corp: 1997/257Kb lim: 4096 exec/s: 1757 rss: 564Mb L: 47/4080 MS: 2 ChangeASCIIInt-EraseBytes-
+#1528366	REDUCE cov: 5520 ft: 12728 corp: 1997/257Kb lim: 4096 exec/s: 1758 rss: 564Mb L: 571/4080 MS: 5 CopyPart-ShuffleBytes-EraseBytes-PersAutoDict-CopyPart- DE: "\000\000\000\000"-
+#1533132	REDUCE cov: 5520 ft: 12728 corp: 1997/257Kb lim: 4096 exec/s: 1758 rss: 564Mb L: 39/4080 MS: 1 EraseBytes-
+#1534908	NEW    cov: 5520 ft: 12729 corp: 1998/257Kb lim: 4096 exec/s: 1758 rss: 564Mb L: 38/4080 MS: 1 CopyPart-
+#1537079	REDUCE cov: 5520 ft: 12729 corp: 1998/257Kb lim: 4096 exec/s: 1758 rss: 564Mb L: 69/4080 MS: 1 EraseBytes-
+#1539035	REDUCE cov: 5520 ft: 12729 corp: 1998/257Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 90/4080 MS: 1 EraseBytes-
+#1543351	NEW    cov: 5521 ft: 12730 corp: 1999/257Kb lim: 4096 exec/s: 1757 rss: 564Mb L: 87/4080 MS: 1 CopyPart-
+#1543702	REDUCE cov: 5521 ft: 12730 corp: 1999/257Kb lim: 4096 exec/s: 1758 rss: 564Mb L: 40/4080 MS: 1 EraseBytes-
+#1544103	REDUCE cov: 5521 ft: 12730 corp: 1999/257Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 113/4080 MS: 1 EraseBytes-
+#1545974	NEW    cov: 5522 ft: 12732 corp: 2000/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 99/4080 MS: 1 ChangeASCIIInt-
+#1547697	REDUCE cov: 5522 ft: 12732 corp: 2000/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 866/4080 MS: 3 CopyPart-ChangeByte-EraseBytes-
+#1550654	REDUCE cov: 5522 ft: 12733 corp: 2001/258Kb lim: 4096 exec/s: 1758 rss: 564Mb L: 75/4080 MS: 2 ChangeByte-CopyPart-
+#1551285	REDUCE cov: 5522 ft: 12733 corp: 2001/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 34/4080 MS: 1 EraseBytes-
+#1551876	REDUCE cov: 5522 ft: 12733 corp: 2001/258Kb lim: 4096 exec/s: 1757 rss: 564Mb L: 62/4080 MS: 1 EraseBytes-
+#1555038	NEW    cov: 5522 ft: 12749 corp: 2002/258Kb lim: 4096 exec/s: 1757 rss: 564Mb L: 85/4080 MS: 2 CopyPart-ChangeBit-
+#1556080	NEW    cov: 5522 ft: 12750 corp: 2003/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 66/4080 MS: 2 PersAutoDict-EraseBytes- DE: "buyer_non"-
+#1559516	NEW    cov: 5522 ft: 12751 corp: 2004/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 87/4080 MS: 1 CopyPart-
+#1561228	REDUCE cov: 5522 ft: 12751 corp: 2004/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 68/4080 MS: 2 CrossOver-EraseBytes-
+#1564824	REDUCE cov: 5522 ft: 12751 corp: 2004/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 113/4080 MS: 1 EraseBytes-
+#1571170	REDUCE cov: 5522 ft: 12751 corp: 2004/258Kb lim: 4096 exec/s: 1755 rss: 564Mb L: 75/4080 MS: 1 EraseBytes-
+#1571691	REDUCE cov: 5522 ft: 12751 corp: 2004/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 44/4080 MS: 1 EraseBytes-
+#1571747	REDUCE cov: 5522 ft: 12751 corp: 2004/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 77/4080 MS: 1 EraseBytes-
+#1575788	REDUCE cov: 5523 ft: 12752 corp: 2005/258Kb lim: 4096 exec/s: 1756 rss: 564Mb L: 68/4080 MS: 1 CrossOver-
+#1576527	REDUCE cov: 5523 ft: 12752 corp: 2005/258Kb lim: 4096 exec/s: 1755 rss: 564Mb L: 81/4080 MS: 4 CopyPart-ShuffleBytes-InsertByte-EraseBytes-
+#1580269	REDUCE cov: 5523 ft: 12752 corp: 2005/258Kb lim: 4096 exec/s: 1755 rss: 564Mb L: 425/4080 MS: 2 ChangeASCIIInt-EraseBytes-
+#1581209	DONE   cov: 5523 ft: 12752 corp: 2005/258Kb lim: 4096 exec/s: 1754 rss: 564Mb
+###### Recommended dictionary. ######
+"offer_e" # Uses: 24477
+"\025\000\000\000\000\000\000\000" # Uses: 16322
+"cap_msa" # Uses: 15441
+"&5555[555555555555,*5555555555" # Uses: 12804
+"\000\000\000\000" # Uses: 15793
+"selle" # Uses: 12774
+"scope" # Uses: 12604
+"version" # Uses: 11246
+"buyer_non" # Uses: 8325
+"\000\000\000\000\000\000\000\023" # Uses: 2373
+###### End of recommended dictionary. ######
+Done 1581209 runs in 901 second(s)
