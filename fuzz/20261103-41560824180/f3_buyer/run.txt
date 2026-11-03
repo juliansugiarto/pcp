@@ -1,0 +1,40 @@
+#1242690	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 38/4060 MS: 1 EraseBytes-
+#1244106	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 316/4060 MS: 1 EraseBytes-
+#1248327	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 29/4060 MS: 1 EraseBytes-
+#1251334	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 58/4060 MS: 2 ShuffleBytes-EraseBytes-
+#1254635	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 86/4060 MS: 1 EraseBytes-
+#1255576	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 112/4060 MS: 1 EraseBytes-
+#1257392	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 61/4060 MS: 1 EraseBytes-
+#1260525	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 48/4060 MS: 3 InsertRepeatedBytes-ShuffleBytes-EraseBytes-
+#1264046	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1447 rss: 544Mb L: 65/4060 MS: 1 EraseBytes-
+#1267774	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 346/4060 MS: 3 ChangeBinInt-CrossOver-EraseBytes-
+#1267995	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1449 rss: 544Mb L: 81/4060 MS: 1 EraseBytes-
+#1268560	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 2508/4060 MS: 5 ChangeBit-InsertByte-CrossOver-ChangeBit-EraseBytes-
+#1271276	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1447 rss: 544Mb L: 57/4060 MS: 1 EraseBytes-
+#1275587	REDUCE cov: 4777 ft: 11039 corp: 1877/199Kb lim: 4096 exec/s: 1447 rss: 544Mb L: 86/4060 MS: 1 EraseBytes-
+#1276065	REDUCE cov: 4777 ft: 11039 corp: 1877/198Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 2384/4060 MS: 3 CopyPart-CrossOver-EraseBytes-
+#1276691	REDUCE cov: 4777 ft: 11039 corp: 1877/198Kb lim: 4096 exec/s: 1447 rss: 544Mb L: 139/4060 MS: 1 EraseBytes-
+#1278302	REDUCE cov: 4777 ft: 11039 corp: 1877/198Kb lim: 4096 exec/s: 1447 rss: 544Mb L: 65/4060 MS: 1 EraseBytes-
+#1279823	REDUCE cov: 4777 ft: 11039 corp: 1877/198Kb lim: 4096 exec/s: 1447 rss: 544Mb L: 105/4060 MS: 1 EraseBytes-
+#1280601	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1448 rss: 544Mb L: 126/4060 MS: 3 ShuffleBytes-ChangeBit-ChangeBit-
+#1281432	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1447 rss: 544Mb L: 66/4060 MS: 1 EraseBytes-
+#1283203	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1448 rss: 545Mb L: 74/4060 MS: 1 EraseBytes-
+#1283699	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1447 rss: 545Mb L: 76/4060 MS: 1 EraseBytes-
+#1286571	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1447 rss: 545Mb L: 3981/4050 MS: 2 EraseBytes-CopyPart-
+#1286927	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1447 rss: 545Mb L: 68/4050 MS: 1 EraseBytes-
+#1287833	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1447 rss: 545Mb L: 104/4050 MS: 1 EraseBytes-
+#1290104	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1446 rss: 545Mb L: 110/4050 MS: 1 EraseBytes-
+#1294935	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1446 rss: 545Mb L: 190/4050 MS: 1 EraseBytes-
+#1295671	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1446 rss: 545Mb L: 66/4050 MS: 1 EraseBytes-
+#1296739	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1447 rss: 545Mb L: 1799/4050 MS: 3 CrossOver-EraseBytes-CopyPart-
+#1299732	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1447 rss: 545Mb L: 56/4050 MS: 3 ShuffleBytes-ChangeBinInt-EraseBytes-
+#1300785	REDUCE cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1446 rss: 545Mb L: 161/4050 MS: 3 CopyPart-EraseBytes-ShuffleBytes-
+#1302895	DONE   cov: 4777 ft: 11040 corp: 1878/198Kb lim: 4096 exec/s: 1446 rss: 545Mb
+###### Recommended dictionary. ######
+"\001\000\0006" # Uses: 75094
+"backend_id" # Uses: 9924
+"\000\000\000\000" # Uses: 10314
+"\001\000\000\000\000\000\000\024" # Uses: 8593
+"2\000\000\000" # Uses: 8647
+###### End of recommended dictionary. ######
+Done 1302895 runs in 901 second(s)
