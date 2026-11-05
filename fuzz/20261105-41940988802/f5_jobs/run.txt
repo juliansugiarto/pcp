@@ -1,0 +1,40 @@
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 1975 min: 1b max: 2383b total: 339395b rss: 51Mb
+#1976	INITED cov: 438 ft: 1428 corp: 373/30Kb exec/s: 40 rss: 101Mb
+#2048	pulse  cov: 438 ft: 1428 corp: 373/30Kb lim: 2079 exec/s: 41 rss: 101Mb
+#4096	pulse  cov: 438 ft: 1428 corp: 373/30Kb lim: 2090 exec/s: 83 rss: 105Mb
+#8192	pulse  cov: 438 ft: 1428 corp: 373/30Kb lim: 2134 exec/s: 120 rss: 113Mb
+#16384	pulse  cov: 438 ft: 1428 corp: 373/30Kb lim: 2222 exec/s: 176 rss: 130Mb
+#32768	pulse  cov: 438 ft: 1428 corp: 373/30Kb lim: 2376 exec/s: 212 rss: 162Mb
+#43577	REDUCE cov: 438 ft: 1428 corp: 373/30Kb lim: 2486 exec/s: 247 rss: 185Mb L: 25/2068 MS: 1 EraseBytes-
+#44525	REDUCE cov: 438 ft: 1428 corp: 373/30Kb lim: 2486 exec/s: 250 rss: 188Mb L: 67/2068 MS: 3 CopyPart-CopyPart-EraseBytes-
+#44982	REDUCE cov: 438 ft: 1428 corp: 373/30Kb lim: 2486 exec/s: 252 rss: 189Mb L: 716/2068 MS: 2 EraseBytes-CopyPart-
+#49415	REDUCE cov: 438 ft: 1428 corp: 373/30Kb lim: 2530 exec/s: 264 rss: 198Mb L: 65/2068 MS: 3 ChangeASCIIInt-CopyPart-EraseBytes-
+#56916	REDUCE cov: 438 ft: 1428 corp: 373/30Kb lim: 2596 exec/s: 272 rss: 214Mb L: 69/2068 MS: 1 EraseBytes-
+#59142	REDUCE cov: 438 ft: 1428 corp: 373/30Kb lim: 2618 exec/s: 282 rss: 220Mb L: 49/2068 MS: 1 EraseBytes-
+#65536	pulse  cov: 438 ft: 1428 corp: 373/30Kb lim: 2673 exec/s: 292 rss: 232Mb
+#70670	REDUCE cov: 438 ft: 1428 corp: 373/30Kb lim: 2728 exec/s: 290 rss: 243Mb L: 27/2068 MS: 3 ShuffleBytes-ShuffleBytes-EraseBytes-
+#74611	NEW    cov: 438 ft: 1429 corp: 374/30Kb lim: 2761 exec/s: 284 rss: 251Mb L: 99/2068 MS: 1 CrossOver-
+#76597	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 2772 exec/s: 292 rss: 255Mb L: 982/2068 MS: 1 EraseBytes-
+#77874	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 2783 exec/s: 293 rss: 257Mb L: 1921/2068 MS: 2 ChangeASCIIInt-EraseBytes-
+#81825	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 2816 exec/s: 279 rss: 265Mb L: 1488/2068 MS: 1 EraseBytes-
+#94077	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 2937 exec/s: 274 rss: 291Mb L: 1486/2068 MS: 2 ChangeASCIIInt-EraseBytes-
+#96098	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 2948 exec/s: 273 rss: 295Mb L: 52/2068 MS: 5 ShuffleBytes-CopyPart-InsertByte-CopyPart-EraseBytes-
+#101099	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 2992 exec/s: 274 rss: 305Mb L: 30/2068 MS: 1 EraseBytes-
+#106196	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3036 exec/s: 265 rss: 317Mb L: 90/2068 MS: 2 ChangeASCIIInt-EraseBytes-
+#111634	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3080 exec/s: 268 rss: 330Mb L: 66/2068 MS: 3 ShuffleBytes-ChangeASCIIInt-EraseBytes-
+#127866	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3234 exec/s: 259 rss: 366Mb L: 1903/2068 MS: 2 ChangeASCIIInt-EraseBytes-
+#131072	pulse  cov: 438 ft: 1429 corp: 374/30Kb lim: 3256 exec/s: 266 rss: 372Mb
+#132807	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3278 exec/s: 266 rss: 376Mb L: 2063/2063 MS: 1 EraseBytes-
+#141218	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3355 exec/s: 275 rss: 394Mb L: 712/2063 MS: 1 EraseBytes-
+#142450	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3366 exec/s: 274 rss: 398Mb L: 1881/2063 MS: 2 ChangeASCIIInt-EraseBytes-
+#143101	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3366 exec/s: 275 rss: 399Mb L: 128/2063 MS: 1 EraseBytes-
+#172537	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3652 exec/s: 273 rss: 423Mb L: 126/2063 MS: 1 EraseBytes-
+#181793	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3740 exec/s: 282 rss: 423Mb L: 918/2063 MS: 1 EraseBytes-
+#186429	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3784 exec/s: 281 rss: 423Mb L: 70/2063 MS: 1 EraseBytes-
+#203951	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 3949 exec/s: 278 rss: 423Mb L: 1846/2063 MS: 2 CopyPart-EraseBytes-
+#215901	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 4059 exec/s: 281 rss: 423Mb L: 108/2063 MS: 5 ChangeByte-CopyPart-ChangeASCIIInt-ChangeASCIIInt-EraseBytes-
+#230643	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 4096 exec/s: 284 rss: 423Mb L: 1845/2063 MS: 2 CopyPart-EraseBytes-
+#241021	REDUCE cov: 438 ft: 1429 corp: 374/30Kb lim: 4096 exec/s: 285 rss: 423Mb L: 26/2063 MS: 3 ChangeByte-ShuffleBytes-EraseBytes-
+#255381	DONE   cov: 438 ft: 1429 corp: 374/30Kb lim: 4096 exec/s: 283 rss: 423Mb
+Done 255381 runs in 901 second(s)
