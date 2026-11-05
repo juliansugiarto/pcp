@@ -1,0 +1,40 @@
+#1917915	REDUCE cov: 4823 ft: 11699 corp: 1981/299Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 95/4031 MS: 2 ChangeByte-EraseBytes-
+#1927851	REDUCE cov: 4823 ft: 11699 corp: 1981/299Kb lim: 4096 exec/s: 2171 rss: 566Mb L: 82/4031 MS: 1 EraseBytes-
+#1928702	REDUCE cov: 4824 ft: 11700 corp: 1982/300Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 1036/4031 MS: 1 CopyPart-
+#1930399	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2168 rss: 566Mb L: 776/4031 MS: 2 ChangeBinInt-EraseBytes-
+#1930483	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 101/4031 MS: 4 ChangeByte-ChangeASCIIInt-ChangeBit-EraseBytes-
+#1931544	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2170 rss: 566Mb L: 92/4031 MS: 1 EraseBytes-
+#1937410	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 42/4031 MS: 1 EraseBytes-
+#1937996	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2170 rss: 566Mb L: 67/4031 MS: 1 EraseBytes-
+#1938060	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2170 rss: 566Mb L: 955/4031 MS: 4 CMP-ChangeBit-ChangeBit-EraseBytes- DE: "proof"-
+#1938175	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2170 rss: 566Mb L: 283/4031 MS: 5 InsertByte-ChangeBinInt-ChangeBinInt-EraseBytes-CopyPart-
+#1940345	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2170 rss: 566Mb L: 1800/4031 MS: 5 ShuffleBytes-ChangeBinInt-ChangeBinInt-EraseBytes-CopyPart-
+#1942052	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 693/4031 MS: 2 ChangeASCIIInt-EraseBytes-
+#1943368	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2168 rss: 566Mb L: 145/4031 MS: 1 EraseBytes-
+#1945214	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2168 rss: 566Mb L: 39/4031 MS: 1 EraseBytes-
+#1945542	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2168 rss: 566Mb L: 24/4031 MS: 3 InsertByte-CopyPart-EraseBytes-
+#1948346	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 890/4031 MS: 4 InsertByte-ChangeBinInt-CopyPart-EraseBytes-
+#1950407	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 169/4031 MS: 1 EraseBytes-
+#1951854	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2168 rss: 566Mb L: 168/4031 MS: 2 ShuffleBytes-EraseBytes-
+#1952690	REDUCE cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2169 rss: 566Mb L: 406/4031 MS: 1 EraseBytes-
+#1953365	DONE   cov: 4824 ft: 11700 corp: 1982/299Kb lim: 4096 exec/s: 2167 rss: 566Mb
+###### Recommended dictionary. ######
+"princ" # Uses: 27580
+"e\000\000\000" # Uses: 26157
+"4\000\000\000" # Uses: 17671
+"\376\377\377\377\377\377\377\177" # Uses: 15282
+"\001\000\000\000\000\000\000\001" # Uses: 15380
+"\001\000\0003" # Uses: 15674
+"\377\377\020\000" # Uses: 12599
+"job_id" # Uses: 7597
+"enc_scheme" # Uses: 6468
+"agent_sig" # Uses: 6123
+"price_msat" # Uses: 5002
+"version" # Uses: 3920
+"\001\000\000\000\000\000\000\007" # Uses: 2507
+"expiry_secs" # Uses: 2365
+"expires_" # Uses: 1560
+"\000\000\000\000" # Uses: 1578
+"proof" # Uses: 87
+###### End of recommended dictionary. ######
+Done 1953365 runs in 901 second(s)
