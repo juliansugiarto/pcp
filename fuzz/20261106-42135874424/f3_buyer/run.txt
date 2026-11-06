@@ -1,0 +1,40 @@
+#2207713	REDUCE cov: 4835 ft: 11775 corp: 2016/299Kb lim: 4096 exec/s: 2525 rss: 569Mb L: 59/4031 MS: 1 EraseBytes-
+#2212869	REDUCE cov: 4835 ft: 11775 corp: 2016/299Kb lim: 4096 exec/s: 2526 rss: 569Mb L: 53/4031 MS: 1 EraseBytes-
+#2223816	REDUCE cov: 4835 ft: 11775 corp: 2016/299Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 341/4031 MS: 2 ChangeByte-EraseBytes-
+#2223832	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 619/4031 MS: 1 EraseBytes-
+#2226738	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 53/4031 MS: 1 EraseBytes-
+#2227319	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2525 rss: 569Mb L: 2027/4031 MS: 1 EraseBytes-
+#2227377	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2525 rss: 569Mb L: 971/4031 MS: 3 InsertByte-CopyPart-EraseBytes-
+#2238373	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2526 rss: 569Mb L: 532/4031 MS: 1 EraseBytes-
+#2238894	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 682/4031 MS: 1 EraseBytes-
+#2244660	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 41/4031 MS: 1 EraseBytes-
+#2248576	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2526 rss: 569Mb L: 777/4031 MS: 1 EraseBytes-
+#2251572	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 204/4031 MS: 1 EraseBytes-
+#2252238	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 18/4031 MS: 1 EraseBytes-
+#2258059	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2525 rss: 569Mb L: 84/4031 MS: 1 EraseBytes-
+#2263525	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2526 rss: 569Mb L: 73/4031 MS: 1 EraseBytes-
+#2265436	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2525 rss: 569Mb L: 669/4031 MS: 1 EraseBytes-
+#2265767	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2525 rss: 569Mb L: 810/4031 MS: 1 EraseBytes-
+#2265993	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2526 rss: 569Mb L: 429/4031 MS: 1 EraseBytes-
+#2266964	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 569Mb L: 70/4031 MS: 1 EraseBytes-
+#2270570	REDUCE cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2525 rss: 570Mb L: 522/4031 MS: 1 EraseBytes-
+#2274755	DONE   cov: 4835 ft: 11775 corp: 2016/298Kb lim: 4096 exec/s: 2524 rss: 570Mb
+###### Recommended dictionary. ######
+"\000\000\000\000" # Uses: 22805
+"\377\377\377\377" # Uses: 20394
+"2\000\000\000" # Uses: 19703
+"\000\000\000\000\000\000\000\010" # Uses: 18171
+"min_htlc_secs" # Uses: 14686
+"enc_scheme" # Uses: 14030
+"\006\000\000\000\000\000\000\000" # Uses: 13595
+"\001\000\000\000\000\000\000 " # Uses: 12243
+"version" # Uses: 11880
+"75e77a886bf406b51fb4ffc1d8e9359aa56de94687510b1060f20a6c48db37bf" # Uses: 7906
+"\377\377\020\000" # Uses: 10593
+"e " # Uses: 8610
+"a\000\000\000" # Uses: 5137
+"ciphe" # Uses: 4960
+"amount_msat" # Uses: 4296
+"expiry_secs" # Uses: 3328
+###### End of recommended dictionary. ######
+Done 2274755 runs in 901 second(s)
