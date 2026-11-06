@@ -1,0 +1,40 @@
+#968947	REDUCE cov: 5551 ft: 13716 corp: 2161/363Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 143/4059 MS: 2 ChangeASCIIInt-EraseBytes-
+#971428	REDUCE cov: 5551 ft: 13716 corp: 2161/363Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 79/4059 MS: 1 EraseBytes-
+#973679	REDUCE cov: 5551 ft: 13716 corp: 2161/363Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 89/4059 MS: 1 EraseBytes-
+#978900	REDUCE cov: 5551 ft: 13716 corp: 2161/363Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 84/4059 MS: 1 EraseBytes-
+#979286	REDUCE cov: 5551 ft: 13716 corp: 2161/363Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 54/4059 MS: 1 EraseBytes-
+#983207	REDUCE cov: 5551 ft: 13716 corp: 2161/363Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 430/4059 MS: 1 EraseBytes-
+#986413	REDUCE cov: 5551 ft: 13716 corp: 2161/363Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 22/4059 MS: 1 EraseBytes-
+#988995	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 440/4059 MS: 2 ChangeBit-EraseBytes-
+#991414	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 48/4059 MS: 4 ChangeBinInt-CMP-ChangeBit-EraseBytes- DE: "\001\000\0006"-
+#993331	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 237/4059 MS: 2 ChangeBinInt-EraseBytes-
+#997267	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 329/4059 MS: 1 EraseBytes-
+#997688	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 282/4059 MS: 1 EraseBytes-
+#999279	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 328/4059 MS: 1 EraseBytes-
+#999451	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 2579/4059 MS: 2 CrossOver-EraseBytes-
+#1001362	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 168/4059 MS: 1 EraseBytes-
+#1002763	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 123/4059 MS: 1 EraseBytes-
+#1004389	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 82/4059 MS: 1 EraseBytes-
+#1004705	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1130 rss: 569Mb L: 217/4059 MS: 1 EraseBytes-
+#1005472	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 481/4059 MS: 2 ShuffleBytes-EraseBytes-
+#1006408	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 67/4059 MS: 1 EraseBytes-
+#1007364	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 760/4059 MS: 1 EraseBytes-
+#1008660	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1129 rss: 569Mb L: 513/4059 MS: 1 EraseBytes-
+#1010366	REDUCE cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1128 rss: 569Mb L: 76/4059 MS: 1 EraseBytes-
+#1016941	DONE   cov: 5551 ft: 13716 corp: 2161/362Kb lim: 4096 exec/s: 1128 rss: 569Mb
+###### Recommended dictionary. ######
+"\001\000\000d" # Uses: 19366
+"\377\377" # Uses: 17908
+"job_id" # Uses: 14115
+"invoiced" # Uses: 8248
+"\001\000\0007" # Uses: 7655
+"\377\377\020\000" # Uses: 7028
+"bundl" # Uses: 2372
+"stateme" # Uses: 2209
+"\024\000\000\000" # Uses: 1872
+"\001\000\0009" # Uses: 1580
+"\000\000\0001" # Uses: 1529
+"!\000\000\000\000\000\000\000" # Uses: 1283
+"\001\000\0006" # Uses: 174
+###### End of recommended dictionary. ######
+Done 1016941 runs in 901 second(s)
