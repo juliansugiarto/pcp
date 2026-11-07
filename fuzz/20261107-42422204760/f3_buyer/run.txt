@@ -1,0 +1,40 @@
+#1247690	REDUCE cov: 4827 ft: 11824 corp: 2031/290Kb lim: 4096 exec/s: 1516 rss: 569Mb L: 56/4027 MS: 1 EraseBytes-
+#1250242	REDUCE cov: 4827 ft: 11824 corp: 2031/290Kb lim: 4096 exec/s: 1515 rss: 569Mb L: 65/4027 MS: 2 ShuffleBytes-EraseBytes-
+#1252498	REDUCE cov: 4827 ft: 11824 corp: 2031/290Kb lim: 4096 exec/s: 1516 rss: 570Mb L: 101/4027 MS: 1 EraseBytes-
+#1260999	REDUCE cov: 4827 ft: 11824 corp: 2031/290Kb lim: 4096 exec/s: 1515 rss: 570Mb L: 328/4027 MS: 1 EraseBytes-
+#1263370	REDUCE cov: 4827 ft: 11824 corp: 2031/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 63/4027 MS: 1 EraseBytes-
+#1263566	NEW    cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1515 rss: 570Mb L: 52/4027 MS: 1 CopyPart-
+#1265132	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1515 rss: 570Mb L: 164/4027 MS: 1 EraseBytes-
+#1266678	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1515 rss: 570Mb L: 341/4027 MS: 1 EraseBytes-
+#1268929	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 34/4027 MS: 1 EraseBytes-
+#1272125	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 1372/4027 MS: 1 EraseBytes-
+#1274387	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1515 rss: 570Mb L: 57/4027 MS: 2 InsertByte-EraseBytes-
+#1279638	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 246/4027 MS: 1 EraseBytes-
+#1280235	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1515 rss: 570Mb L: 82/4027 MS: 2 ChangeBinInt-EraseBytes-
+#1282702	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 639/4027 MS: 2 EraseBytes-CopyPart-
+#1282973	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 51/4027 MS: 1 EraseBytes-
+#1287374	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 39/4027 MS: 1 EraseBytes-
+#1287850	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1515 rss: 570Mb L: 392/4027 MS: 1 EraseBytes-
+#1291998	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 16/4027 MS: 3 ChangeByte-PersAutoDict-EraseBytes- DE: "invoice"-
+#1297101	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1513 rss: 570Mb L: 74/4027 MS: 3 ChangeByte-EraseBytes-CopyPart-
+#1297762	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 740/4027 MS: 1 EraseBytes-
+#1309958	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 34/4027 MS: 1 EraseBytes-
+#1317659	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 171/4027 MS: 1 EraseBytes-
+#1318435	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1513 rss: 570Mb L: 90/4027 MS: 1 EraseBytes-
+#1324097	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1513 rss: 570Mb L: 145/4027 MS: 2 InsertByte-EraseBytes-
+#1328498	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 510/4027 MS: 1 EraseBytes-
+#1329454	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 271/4027 MS: 1 EraseBytes-
+#1329982	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 89/4027 MS: 3 ChangeASCIIInt-ShuffleBytes-EraseBytes-
+#1330959	REDUCE cov: 4828 ft: 11825 corp: 2032/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 106/4027 MS: 2 ChangeByte-EraseBytes-
+#1334985	REDUCE cov: 4828 ft: 11826 corp: 2033/290Kb lim: 4096 exec/s: 1513 rss: 570Mb L: 15/4027 MS: 1 EraseBytes-
+#1337196	REDUCE cov: 4828 ft: 11826 corp: 2033/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 659/4027 MS: 1 EraseBytes-
+#1349757	REDUCE cov: 4828 ft: 11826 corp: 2033/290Kb lim: 4096 exec/s: 1514 rss: 570Mb L: 76/4027 MS: 1 EraseBytes-
+#1351944	REDUCE cov: 4828 ft: 11826 corp: 2033/290Kb lim: 4096 exec/s: 1513 rss: 570Mb L: 889/4027 MS: 2 ChangeBinInt-EraseBytes-
+#1363004	DONE   cov: 4828 ft: 11826 corp: 2033/290Kb lim: 4096 exec/s: 1512 rss: 570Mb
+###### Recommended dictionary. ######
+"\377\377\377\377\377\377\377\037" # Uses: 29204
+"3\000\000\000" # Uses: 27822
+"backend_id" # Uses: 25290
+"invoice" # Uses: 19587
+###### End of recommended dictionary. ######
+Done 1363004 runs in 901 second(s)
