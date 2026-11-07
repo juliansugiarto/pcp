@@ -1,0 +1,40 @@
+#2459757	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 430/4027 MS: 2 CopyPart-CopyPart-
+#2462193	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 34/4027 MS: 1 EraseBytes-
+#2463494	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2812 rss: 591Mb L: 235/4027 MS: 1 EraseBytes-
+#2463680	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2812 rss: 591Mb L: 1605/4027 MS: 1 EraseBytes-
+#2466482	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2812 rss: 591Mb L: 207/4027 MS: 2 ChangeByte-EraseBytes-
+#2467868	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 39/4027 MS: 1 EraseBytes-
+#2470720	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 711/4027 MS: 2 PersAutoDict-EraseBytes- DE: "\377\377\377\377\377\377\377\007"-
+#2470926	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 516/4027 MS: 1 EraseBytes-
+#2474458	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 22/4027 MS: 2 ChangeBit-EraseBytes-
+#2477549	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2812 rss: 591Mb L: 91/4027 MS: 1 EraseBytes-
+#2479980	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 120/4027 MS: 1 EraseBytes-
+#2484031	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2809 rss: 591Mb L: 506/4027 MS: 1 EraseBytes-
+#2486117	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2812 rss: 591Mb L: 1457/4027 MS: 1 EraseBytes-
+#2489633	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2809 rss: 591Mb L: 118/4027 MS: 1 EraseBytes-
+#2493340	REDUCE cov: 4840 ft: 11852 corp: 2030/298Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 348/4027 MS: 2 ShuffleBytes-EraseBytes-
+#2496161	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 1557/4027 MS: 1 EraseBytes-
+#2496297	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 75/4027 MS: 1 EraseBytes-
+#2497813	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2809 rss: 591Mb L: 146/4027 MS: 1 EraseBytes-
+#2499151	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 65/4027 MS: 3 ShuffleBytes-CMP-EraseBytes- DE: "\377\377\377\377"-
+#2500938	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 291/4027 MS: 2 ChangeASCIIInt-EraseBytes-
+#2501820	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 442/4027 MS: 2 CopyPart-EraseBytes-
+#2502062	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2811 rss: 591Mb L: 95/4027 MS: 2 CMP-EraseBytes- DE: "\032\000\000\000\000\000\000\000"-
+#2506493	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2809 rss: 591Mb L: 47/4027 MS: 1 EraseBytes-
+#2520260	REDUCE cov: 4840 ft: 11852 corp: 2030/297Kb lim: 4096 exec/s: 2812 rss: 591Mb L: 1741/4027 MS: 2 ShuffleBytes-EraseBytes-
+#2520471	NEW    cov: 4840 ft: 11853 corp: 2031/298Kb lim: 4096 exec/s: 2809 rss: 591Mb L: 431/4027 MS: 1 InsertByte-
+#2523499	REDUCE cov: 4840 ft: 11853 corp: 2031/298Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 84/4027 MS: 3 ChangeASCIIInt-ChangeASCIIInt-EraseBytes-
+#2525760	REDUCE cov: 4840 ft: 11853 corp: 2031/298Kb lim: 4096 exec/s: 2812 rss: 591Mb L: 1159/4027 MS: 1 EraseBytes-
+#2526809	REDUCE cov: 4840 ft: 11853 corp: 2031/298Kb lim: 4096 exec/s: 2810 rss: 591Mb L: 105/4027 MS: 4 ShuffleBytes-ChangeASCIIInt-ShuffleBytes-EraseBytes-
+#2531654	DONE   cov: 4840 ft: 11853 corp: 2031/298Kb lim: 4096 exec/s: 2809 rss: 591Mb
+###### Recommended dictionary. ######
+"input_co" # Uses: 91703
+"\000\000\021\000" # Uses: 61128
+"\377\377\377\377\377\377\377\007" # Uses: 24747
+"\377\377\377e" # Uses: 18218
+"\377\377\377\377\377\377\377\377" # Uses: 12606
+"\015\000\000\000\000\000\000\000" # Uses: 4114
+"\377\377\377\377" # Uses: 430
+"\032\000\000\000\000\000\000\000" # Uses: 315
+###### End of recommended dictionary. ######
+Done 2531654 runs in 901 second(s)
