@@ -1,0 +1,40 @@
+#465780	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 669 rss: 427Mb L: 595/2063 MS: 1 EraseBytes-
+#489752	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 686 rss: 427Mb L: 72/2063 MS: 2 CopyPart-EraseBytes-
+#493730	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 685 rss: 427Mb L: 64/2063 MS: 3 ChangeBinInt-ChangeByte-EraseBytes-
+#520151	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 700 rss: 428Mb L: 60/2063 MS: 1 EraseBytes-
+#524288	pulse  cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 700 rss: 428Mb
+#532743	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 703 rss: 428Mb L: 1277/2063 MS: 2 ChangeByte-EraseBytes-
+#541219	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 705 rss: 428Mb L: 64/2063 MS: 1 EraseBytes-
+#552265	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 703 rss: 428Mb L: 315/2063 MS: 1 EraseBytes-
+#552396	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 703 rss: 428Mb L: 49/2063 MS: 1 EraseBytes-
+#559632	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 699 rss: 428Mb L: 1436/2063 MS: 1 EraseBytes-
+#561506	REDUCE cov: 438 ft: 1431 corp: 377/28Kb lim: 4096 exec/s: 700 rss: 430Mb L: 78/2063 MS: 4 ChangeASCIIInt-ChangeASCIIInt-ShuffleBytes-EraseBytes-
+#572323	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 705 rss: 430Mb L: 3282/3282 MS: 2 CopyPart-CopyPart-
+#580074	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 714 rss: 430Mb L: 2921/2921 MS: 1 EraseBytes-
+#581695	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 714 rss: 430Mb L: 1273/2921 MS: 1 EraseBytes-
+#582244	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 715 rss: 430Mb L: 59/2921 MS: 4 InsertByte-ChangeASCIIInt-ChangeBit-EraseBytes-
+#589445	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 719 rss: 430Mb L: 163/2921 MS: 1 EraseBytes-
+#606783	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 727 rss: 431Mb L: 98/2921 MS: 3 CopyPart-EraseBytes-CopyPart-
+#608030	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 729 rss: 431Mb L: 2396/2396 MS: 2 ShuffleBytes-EraseBytes-
+#615706	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 734 rss: 431Mb L: 152/2396 MS: 1 EraseBytes-
+#641652	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 753 rss: 431Mb L: 53/2396 MS: 1 EraseBytes-
+#644879	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 756 rss: 431Mb L: 49/2396 MS: 2 ChangeBit-EraseBytes-
+#647833	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 755 rss: 431Mb L: 51/2396 MS: 4 ChangeByte-InsertByte-ChangeBinInt-EraseBytes-
+#648074	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 756 rss: 431Mb L: 501/2396 MS: 1 EraseBytes-
+#649175	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 757 rss: 431Mb L: 1414/2396 MS: 1 EraseBytes-
+#649246	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 757 rss: 431Mb L: 42/2396 MS: 1 EraseBytes-
+#656492	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 760 rss: 431Mb L: 48/2396 MS: 1 EraseBytes-
+#658228	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 762 rss: 431Mb L: 44/2396 MS: 1 EraseBytes-
+#674369	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 773 rss: 431Mb L: 76/2396 MS: 1 EraseBytes-
+#681303	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 775 rss: 431Mb L: 369/2396 MS: 4 ChangeASCIIInt-ShuffleBytes-ShuffleBytes-EraseBytes-
+#682047	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 776 rss: 431Mb L: 32/2396 MS: 4 ChangeBit-ShuffleBytes-ChangeASCIIInt-EraseBytes-
+#690208	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 779 rss: 432Mb L: 1189/2396 MS: 1 EraseBytes-
+#694824	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 781 rss: 432Mb L: 120/2396 MS: 1 EraseBytes-
+#699840	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 785 rss: 433Mb L: 98/2396 MS: 1 EraseBytes-
+#703947	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 788 rss: 433Mb L: 118/2396 MS: 2 ChangeASCIIInt-EraseBytes-
+#707068	REDUCE cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 790 rss: 433Mb L: 33/2396 MS: 1 EraseBytes-
+#711963	DONE   cov: 438 ft: 1432 corp: 378/31Kb lim: 4096 exec/s: 789 rss: 433Mb
+###### Recommended dictionary. ######
+"-(" # Uses: 34699
+###### End of recommended dictionary. ######
+Done 711963 runs in 902 second(s)
