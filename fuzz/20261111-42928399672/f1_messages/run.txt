@@ -1,0 +1,40 @@
+#8130037	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15664 rss: 681Mb L: 63/3606 MS: 2 InsertByte-EraseBytes-
+#8152473	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15647 rss: 681Mb L: 33/3606 MS: 1 EraseBytes-
+#8165989	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15643 rss: 681Mb L: 48/3606 MS: 1 EraseBytes-
+#8241535	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15668 rss: 681Mb L: 38/3606 MS: 1 EraseBytes-
+#8281447	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15654 rss: 681Mb L: 105/3606 MS: 2 CopyPart-EraseBytes-
+#8349198	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15664 rss: 681Mb L: 19/3606 MS: 1 EraseBytes-
+#8388608	pulse  cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15679 rss: 681Mb
+#8388819	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15680 rss: 681Mb L: 47/3606 MS: 1 EraseBytes-
+#8433925	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15676 rss: 681Mb L: 61/3606 MS: 1 EraseBytes-
+#8500167	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15682 rss: 681Mb L: 385/3606 MS: 2 PersAutoDict-EraseBytes- DE: "e "-
+#8595548	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15685 rss: 681Mb L: 30/3606 MS: 1 EraseBytes-
+#8677359	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15691 rss: 681Mb L: 44/3606 MS: 1 EraseBytes-
+#8714845	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15702 rss: 681Mb L: 39/3606 MS: 1 EraseBytes-
+#8771572	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15719 rss: 681Mb L: 41/3606 MS: 2 EraseBytes-InsertByte-
+#8783883	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15713 rss: 681Mb L: 154/3606 MS: 1 EraseBytes-
+#8801624	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15717 rss: 681Mb L: 20/3606 MS: 1 EraseBytes-
+#8836110	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15694 rss: 681Mb L: 46/3606 MS: 1 EraseBytes-
+#8923566	REDUCE cov: 4928 ft: 17838 corp: 6897/246Kb lim: 4096 exec/s: 15710 rss: 681Mb L: 19/3606 MS: 1 EraseBytes-
+	NEW_FUNC[1/1]: 0x55623ffd0ed0  (/home/runner/work/pcp/pcp/pcp/fuzz/target/x86_64-unknown-linux-gnu/release/f1_messages+0x3a0ed0) (BuildId: 73291890b24e16ea947a3890fd60678132c02b0e)
+#8945962	NEW    cov: 4935 ft: 17859 corp: 6898/246Kb lim: 4096 exec/s: 15694 rss: 681Mb L: 357/3606 MS: 1 CopyPart-
+#8960268	REDUCE cov: 4935 ft: 17859 corp: 6898/246Kb lim: 4096 exec/s: 15692 rss: 681Mb L: 22/3606 MS: 1 EraseBytes-
+#8972044	REDUCE cov: 4935 ft: 17859 corp: 6898/246Kb lim: 4096 exec/s: 15685 rss: 681Mb L: 141/3606 MS: 1 EraseBytes-
+#8982145	NEW    cov: 4936 ft: 17860 corp: 6899/247Kb lim: 4096 exec/s: 15703 rss: 681Mb L: 357/3606 MS: 1 PersAutoDict- DE: "e "-
+#8988027	REDUCE cov: 4936 ft: 17860 corp: 6899/247Kb lim: 4096 exec/s: 15685 rss: 681Mb L: 149/3606 MS: 2 ChangeBit-EraseBytes-
+#9002883	REDUCE cov: 4936 ft: 17860 corp: 6899/247Kb lim: 4096 exec/s: 15684 rss: 681Mb L: 39/3606 MS: 1 EraseBytes-
+#9031549	REDUCE cov: 4936 ft: 17860 corp: 6899/247Kb lim: 4096 exec/s: 15707 rss: 681Mb L: 34/3606 MS: 1 EraseBytes-
+#9054142	REDUCE cov: 4936 ft: 17860 corp: 6899/246Kb lim: 4096 exec/s: 15691 rss: 681Mb L: 303/3606 MS: 3 ChangeByte-PersAutoDict-EraseBytes- DE: "\000\000\000\000\000\000\000\034"-
+#9074238	REDUCE cov: 4936 ft: 17860 corp: 6899/246Kb lim: 4096 exec/s: 15672 rss: 681Mb L: 33/3606 MS: 1 EraseBytes-
+#9076494	REDUCE cov: 4936 ft: 17860 corp: 6899/246Kb lim: 4096 exec/s: 15676 rss: 681Mb L: 25/3606 MS: 1 EraseBytes-
+#9099955	REDUCE cov: 4936 ft: 17860 corp: 6899/246Kb lim: 4096 exec/s: 15662 rss: 681Mb L: 24/3606 MS: 1 EraseBytes-
+#9106351	REDUCE cov: 4936 ft: 17860 corp: 6899/246Kb lim: 4096 exec/s: 15673 rss: 681Mb L: 38/3606 MS: 1 EraseBytes-
+#9108537	NEW    cov: 4937 ft: 17861 corp: 6900/247Kb lim: 4096 exec/s: 15677 rss: 681Mb L: 357/3606 MS: 1 ChangeBinInt-
+#9144433	REDUCE cov: 4937 ft: 17861 corp: 6900/247Kb lim: 4096 exec/s: 15658 rss: 681Mb L: 25/3606 MS: 1 EraseBytes-
+#9365388	DONE   cov: 4937 ft: 17861 corp: 6900/247Kb lim: 4096 exec/s: 15583 rss: 681Mb
+###### Recommended dictionary. ######
+"\377\007\000\000" # Uses: 435599
+"e " # Uses: 285943
+"\000\000\000\000\000\000\000\034" # Uses: 87189
+###### End of recommended dictionary. ######
+Done 9365388 runs in 601 second(s)
