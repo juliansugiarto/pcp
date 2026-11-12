@@ -1,0 +1,40 @@
+#131072	pulse  cov: 3624 ft: 13784 corp: 1557/120Kb lim: 4096 exec/s: 260 rss: 516Mb
+#131587	NEW    cov: 3624 ft: 13785 corp: 1558/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 37/3369 MS: 1 CrossOver-
+#132409	NEW    cov: 3624 ft: 13786 corp: 1559/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 95/3369 MS: 2 ChangeBit-PersAutoDict- DE: "\377\377\377\377\377\377\377\377"-
+#132957	REDUCE cov: 3624 ft: 13786 corp: 1559/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 168/3369 MS: 3 ChangeASCIIInt-ChangeASCIIInt-EraseBytes-
+#132994	REDUCE cov: 3624 ft: 13786 corp: 1559/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 26/3369 MS: 2 CMP-EraseBytes- DE: "\000\000\021\000"-
+#133750	NEW    cov: 3624 ft: 13787 corp: 1560/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 44/3369 MS: 1 EraseBytes-
+#136602	REDUCE cov: 3624 ft: 13787 corp: 1560/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 59/3369 MS: 2 ChangeByte-EraseBytes-
+#138509	NEW    cov: 3624 ft: 13789 corp: 1561/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 45/3369 MS: 2 EraseBytes-EraseBytes-
+#138710	REDUCE cov: 3624 ft: 13789 corp: 1561/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 40/3369 MS: 1 EraseBytes-
+#138741	REDUCE cov: 3624 ft: 13789 corp: 1561/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 47/3369 MS: 1 EraseBytes-
+#141382	NEW    cov: 3624 ft: 13790 corp: 1562/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 131/3369 MS: 1 CMP- DE: "offer_i"-
+#141803	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 69/3369 MS: 1 EraseBytes-
+#141819	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 2626/3369 MS: 1 EraseBytes-
+#142336	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 15/3369 MS: 2 ShuffleBytes-EraseBytes-
+#145687	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 1854/3369 MS: 1 EraseBytes-
+#147338	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 84/3369 MS: 1 EraseBytes-
+#147514	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 108/3369 MS: 1 EraseBytes-
+#147555	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 46/3369 MS: 1 EraseBytes-
+#148161	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 31/3369 MS: 1 EraseBytes-
+#150152	REDUCE cov: 3625 ft: 13791 corp: 1563/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 20/3369 MS: 1 EraseBytes-
+#150448	NEW    cov: 3625 ft: 13792 corp: 1564/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 28/3369 MS: 1 EraseBytes-
+#151164	REDUCE cov: 3625 ft: 13792 corp: 1564/120Kb lim: 4096 exec/s: 261 rss: 516Mb L: 105/3369 MS: 1 EraseBytes-
+#152407	REDUCE cov: 3625 ft: 13792 corp: 1564/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 51/3369 MS: 3 ShuffleBytes-ChangeBit-EraseBytes-
+#153298	REDUCE cov: 3625 ft: 13792 corp: 1564/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 41/3369 MS: 1 EraseBytes-
+#154976	NEW    cov: 3625 ft: 13793 corp: 1565/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 73/3369 MS: 3 ChangeBinInt-ChangeBit-PersAutoDict- DE: "\377\377\377\377"-
+#155692	REDUCE cov: 3625 ft: 13793 corp: 1565/120Kb lim: 4096 exec/s: 260 rss: 516Mb L: 101/3369 MS: 1 EraseBytes-
+#156702	DONE   cov: 3625 ft: 13793 corp: 1565/120Kb lim: 4096 exec/s: 260 rss: 516Mb
+###### Recommended dictionary. ######
+"K\000\000\000\000\000\000\000" # Uses: 1979
+"\377\377\377\377\377\377\377\377" # Uses: 1747
+"\001\000\000\000\000\000\000\000" # Uses: 1653
+"\000\000\000\000\000\000\000D" # Uses: 1340
+"\377\377\377\377" # Uses: 920
+"7\000\000\000" # Uses: 769
+"\001\000\000\000\000\000\000\020" # Uses: 489
+"\001\000\021\000" # Uses: 471
+"\000\000\021\000" # Uses: 195
+"offer_i" # Uses: 141
+###### End of recommended dictionary. ######
+Done 156702 runs in 601 second(s)
