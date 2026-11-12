@@ -1,0 +1,40 @@
+#1493841	NEW    cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1862 rss: 601Mb L: 169/4015 MS: 1 CrossOver-
+#1493949	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1862 rss: 601Mb L: 150/4015 MS: 3 CMP-ChangeBinInt-EraseBytes- DE: "\000\000\000\000\000\000\000\016"-
+#1508856	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 1751/4015 MS: 2 ShuffleBytes-EraseBytes-
+#1509227	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1863 rss: 601Mb L: 867/4015 MS: 1 EraseBytes-
+#1522374	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 61/4015 MS: 2 ChangeBit-EraseBytes-
+#1522870	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1863 rss: 601Mb L: 143/4015 MS: 1 EraseBytes-
+#1546667	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 1668/4015 MS: 2 InsertRepeatedBytes-EraseBytes-
+#1558275	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1866 rss: 601Mb L: 50/4015 MS: 3 ShuffleBytes-CrossOver-EraseBytes-
+#1561721	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 20/4015 MS: 1 EraseBytes-
+#1563627	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 81/4015 MS: 1 EraseBytes-
+#1570758	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 536/4015 MS: 1 EraseBytes-
+#1573804	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 216/4015 MS: 1 EraseBytes-
+#1575935	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 68/4015 MS: 1 EraseBytes-
+#1576646	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 50/4015 MS: 1 EraseBytes-
+#1581378	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 349/4015 MS: 2 ChangeASCIIInt-EraseBytes-
+#1585239	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 53/4015 MS: 1 EraseBytes-
+#1591265	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 128/4015 MS: 1 EraseBytes-
+#1593127	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1865 rss: 601Mb L: 73/4015 MS: 2 ChangeASCIIInt-EraseBytes-
+#1594488	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 1582/4015 MS: 1 EraseBytes-
+#1602879	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1863 rss: 601Mb L: 54/4015 MS: 1 EraseBytes-
+#1605435	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 397/4015 MS: 1 EraseBytes-
+#1609121	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 156/4015 MS: 1 EraseBytes-
+#1622413	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 88/4015 MS: 2 ChangeBit-EraseBytes-
+#1629029	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1863 rss: 601Mb L: 231/4015 MS: 1 EraseBytes-
+#1629140	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 2067/4015 MS: 1 EraseBytes-
+#1638868	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 61/4015 MS: 3 ChangeBit-ChangeASCIIInt-EraseBytes-
+#1641974	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1863 rss: 601Mb L: 111/4015 MS: 1 EraseBytes-
+#1648610	REDUCE cov: 4867 ft: 12012 corp: 2068/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 18/4015 MS: 1 EraseBytes-
+#1650236	NEW    cov: 4868 ft: 12013 corp: 2069/283Kb lim: 4096 exec/s: 1864 rss: 601Mb L: 44/4015 MS: 1 CopyPart-
+#1650922	REDUCE cov: 4868 ft: 12013 corp: 2069/283Kb lim: 4096 exec/s: 1863 rss: 601Mb L: 1054/4015 MS: 1 EraseBytes-
+#1658518	REDUCE cov: 4868 ft: 12013 corp: 2069/283Kb lim: 4096 exec/s: 1863 rss: 602Mb L: 28/4015 MS: 1 EraseBytes-
+#1663744	REDUCE cov: 4868 ft: 12013 corp: 2069/283Kb lim: 4096 exec/s: 1865 rss: 602Mb L: 154/4015 MS: 1 EraseBytes-
+#1668105	REDUCE cov: 4868 ft: 12013 corp: 2069/283Kb lim: 4096 exec/s: 1863 rss: 602Mb L: 56/4015 MS: 1 EraseBytes-
+#1678590	DONE   cov: 4868 ft: 12013 corp: 2069/283Kb lim: 4096 exec/s: 1863 rss: 602Mb
+###### Recommended dictionary. ######
+"\000\000\000\001" # Uses: 37213
+"backend_id" # Uses: 7355
+"\000\000\000\000\000\000\000\016" # Uses: 5292
+###### End of recommended dictionary. ######
+Done 1678590 runs in 901 second(s)
