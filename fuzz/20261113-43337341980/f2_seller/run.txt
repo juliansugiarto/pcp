@@ -1,0 +1,40 @@
+#178238	REDUCE cov: 3631 ft: 13821 corp: 1588/120Kb lim: 4096 exec/s: 351 rss: 523Mb L: 44/3369 MS: 3 ShuffleBytes-ShuffleBytes-EraseBytes-
+#181959	REDUCE cov: 3631 ft: 13821 corp: 1588/120Kb lim: 4096 exec/s: 351 rss: 523Mb L: 38/3369 MS: 1 EraseBytes-
+#182326	REDUCE cov: 3631 ft: 13821 corp: 1588/120Kb lim: 4096 exec/s: 351 rss: 523Mb L: 375/3369 MS: 2 ChangeByte-EraseBytes-
+#183507	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 351 rss: 523Mb L: 35/3369 MS: 1 PersAutoDict- DE: "f\000\000\000"-
+#184043	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 351 rss: 523Mb L: 165/3369 MS: 1 EraseBytes-
+#184616	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 351 rss: 523Mb L: 488/3369 MS: 3 ShuffleBytes-ChangeBit-EraseBytes-
+#184652	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 351 rss: 523Mb L: 74/3369 MS: 1 EraseBytes-
+#185510	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 351 rss: 524Mb L: 10/3369 MS: 3 ChangeBit-ChangeASCIIInt-EraseBytes-
+#187311	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 31/3369 MS: 1 EraseBytes-
+#187312	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 33/3369 MS: 1 EraseBytes-
+#187973	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 54/3369 MS: 1 EraseBytes-
+#188614	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 351 rss: 524Mb L: 32/3369 MS: 1 EraseBytes-
+#188660	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 78/3369 MS: 1 EraseBytes-
+#189421	REDUCE cov: 3631 ft: 13822 corp: 1589/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 40/3369 MS: 1 EraseBytes-
+#191567	NEW    cov: 3631 ft: 13823 corp: 1590/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 59/3369 MS: 1 CrossOver-
+#195238	REDUCE cov: 3631 ft: 13823 corp: 1590/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 34/3369 MS: 1 EraseBytes-
+#195239	REDUCE cov: 3632 ft: 13824 corp: 1591/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 35/3369 MS: 1 ChangeBit-
+#196601	NEW    cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 102/3369 MS: 2 ChangeBit-CrossOver-
+#196926	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 107/3369 MS: 5 CMP-InsertByte-PersAutoDict-ShuffleBytes-EraseBytes- DE: "principal_key"-"\377\377\377e"-
+#199667	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 55/3369 MS: 1 EraseBytes-
+#200831	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 2737/3369 MS: 4 ChangeASCIIInt-PersAutoDict-ChangeASCIIInt-EraseBytes- DE: "f\000\000\000"-
+#201934	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 349 rss: 524Mb L: 42/3369 MS: 3 ChangeBinInt-CMP-EraseBytes- DE: "agen"-
+#202535	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 34/3369 MS: 1 EraseBytes-
+#203201	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 19/3369 MS: 1 EraseBytes-
+#203986	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 46/3369 MS: 5 ChangeBit-InsertByte-InsertByte-InsertByte-EraseBytes-
+#204377	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 83/3369 MS: 1 EraseBytes-
+#204543	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 21/3369 MS: 1 EraseBytes-
+#204974	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 11/3369 MS: 1 EraseBytes-
+#205130	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 29/3369 MS: 1 EraseBytes-
+#207131	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 40/3369 MS: 1 EraseBytes-
+#209312	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 350 rss: 524Mb L: 29/3369 MS: 1 EraseBytes-
+#209579	REDUCE cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 349 rss: 524Mb L: 100/3369 MS: 2 ChangeByte-EraseBytes-
+#210239	DONE   cov: 3632 ft: 13826 corp: 1592/120Kb lim: 4096 exec/s: 349 rss: 524Mb
+###### Recommended dictionary. ######
+"\377\377\377e" # Uses: 5159
+"f\000\000\000" # Uses: 5206
+"principal_key" # Uses: 306
+"agen" # Uses: 183
+###### End of recommended dictionary. ######
+Done 210239 runs in 601 second(s)
