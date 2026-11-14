@@ -1,0 +1,40 @@
+#158133	REDUCE cov: 3649 ft: 13883 corp: 1600/121Kb lim: 4096 exec/s: 363 rss: 521Mb L: 93/3369 MS: 2 ChangeBinInt-EraseBytes-
+#162734	REDUCE cov: 3649 ft: 13883 corp: 1600/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 40/3369 MS: 1 EraseBytes-
+#163890	REDUCE cov: 3649 ft: 13883 corp: 1600/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 181/3369 MS: 1 EraseBytes-
+#164036	REDUCE cov: 3649 ft: 13883 corp: 1600/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 42/3369 MS: 1 EraseBytes-
+#166783	REDUCE cov: 3649 ft: 13883 corp: 1600/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 39/3369 MS: 2 ShuffleBytes-EraseBytes-
+#166844	REDUCE cov: 3649 ft: 13883 corp: 1600/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 1814/3369 MS: 1 EraseBytes-
+#168575	NEW    cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 143/3369 MS: 1 PersAutoDict- DE: "\000\000\000\000"-
+#168576	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 27/3369 MS: 1 EraseBytes-
+#170522	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 362 rss: 521Mb L: 29/3369 MS: 1 EraseBytes-
+#177263	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 361 rss: 521Mb L: 27/3369 MS: 1 EraseBytes-
+#179344	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 361 rss: 521Mb L: 50/3369 MS: 1 EraseBytes-
+#182145	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 361 rss: 521Mb L: 35/3369 MS: 1 EraseBytes-
+#184785	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 9/3369 MS: 5 CopyPart-ChangeByte-EraseBytes-InsertByte-InsertByte-
+#185581	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 361 rss: 521Mb L: 116/3369 MS: 1 EraseBytes-
+#186192	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 40/3369 MS: 1 EraseBytes-
+#186433	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 42/3369 MS: 1 EraseBytes-
+#186484	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 27/3369 MS: 1 EraseBytes-
+#186911	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 41/3369 MS: 2 ChangeBit-EraseBytes-
+#187292	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 49/3369 MS: 1 EraseBytes-
+#187466	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 56/3369 MS: 4 ChangeBit-ChangeBinInt-PersAutoDict-EraseBytes- DE: "scope"-
+#188408	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 1211/3369 MS: 2 ShuffleBytes-EraseBytes-
+#188945	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 32/3369 MS: 2 ChangeBinInt-EraseBytes-
+#194506	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 15/3369 MS: 1 EraseBytes-
+#198528	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 359 rss: 521Mb L: 87/3369 MS: 2 ChangeByte-EraseBytes-
+#200545	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 360 rss: 521Mb L: 27/3369 MS: 2 ChangeBit-EraseBytes-
+#203957	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 359 rss: 521Mb L: 36/3369 MS: 2 ChangeBit-EraseBytes-
+#204872	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 359 rss: 521Mb L: 9/3369 MS: 5 ChangeBit-ShuffleBytes-ChangeByte-InsertByte-EraseBytes-
+#206435	REDUCE cov: 3649 ft: 13884 corp: 1601/121Kb lim: 4096 exec/s: 359 rss: 521Mb L: 108/3369 MS: 3 ChangeByte-ChangeByte-EraseBytes-
+#207193	REDUCE cov: 3649 ft: 13886 corp: 1602/121Kb lim: 4096 exec/s: 359 rss: 521Mb L: 192/3369 MS: 3 CrossOver-CopyPart-ChangeBit-
+#210379	REDUCE cov: 3649 ft: 13886 corp: 1602/121Kb lim: 4096 exec/s: 359 rss: 521Mb L: 23/3369 MS: 1 EraseBytes-
+#211445	REDUCE cov: 3649 ft: 13886 corp: 1602/121Kb lim: 4096 exec/s: 358 rss: 521Mb L: 56/3369 MS: 1 EraseBytes-
+#212616	REDUCE cov: 3649 ft: 13886 corp: 1602/121Kb lim: 4096 exec/s: 359 rss: 521Mb L: 42/3369 MS: 1 EraseBytes-
+#214573	NEW    cov: 3649 ft: 13890 corp: 1603/121Kb lim: 4096 exec/s: 358 rss: 521Mb L: 162/3369 MS: 2 CMP-CrossOver- DE: "\377\377\377\377\377\023\336\371"-
+#215573	DONE   cov: 3649 ft: 13890 corp: 1603/121Kb lim: 4096 exec/s: 358 rss: 522Mb
+###### Recommended dictionary. ######
+"\000\000\000\000" # Uses: 9087
+"scope" # Uses: 8382
+"\377\377\377\377\377\023\336\371" # Uses: 32
+###### End of recommended dictionary. ######
+Done 215573 runs in 601 second(s)
