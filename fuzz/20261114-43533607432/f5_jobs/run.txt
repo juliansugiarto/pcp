@@ -1,0 +1,40 @@
+INFO: seed corpus: files: 2339 min: 1b max: 2396b total: 509591b rss: 47Mb
+#2048	pulse  cov: 438 ft: 1414 corp: 366/17Kb exec/s: 42 rss: 90Mb
+#2340	INITED cov: 438 ft: 1435 corp: 379/31Kb exec/s: 48 rss: 117Mb
+#4096	pulse  cov: 438 ft: 1435 corp: 379/31Kb lim: 2239 exec/s: 71 rss: 121Mb
+#8192	pulse  cov: 438 ft: 1435 corp: 379/31Kb lim: 2283 exec/s: 130 rss: 130Mb
+#15756	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2360 exec/s: 173 rss: 145Mb L: 688/2217 MS: 1 EraseBytes-
+#16384	pulse  cov: 438 ft: 1435 corp: 379/31Kb lim: 2360 exec/s: 180 rss: 146Mb
+#18337	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2382 exec/s: 191 rss: 150Mb L: 75/2217 MS: 1 EraseBytes-
+#29089	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2481 exec/s: 238 rss: 171Mb L: 352/2217 MS: 2 CopyPart-EraseBytes-
+#32390	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2503 exec/s: 238 rss: 179Mb L: 49/2217 MS: 1 EraseBytes-
+#32768	pulse  cov: 438 ft: 1435 corp: 379/31Kb lim: 2503 exec/s: 235 rss: 181Mb
+#57377	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2745 exec/s: 268 rss: 228Mb L: 60/2217 MS: 2 InsertByte-EraseBytes-
+#65536	pulse  cov: 438 ft: 1435 corp: 379/31Kb lim: 2822 exec/s: 286 rss: 246Mb
+#75755	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2921 exec/s: 282 rss: 266Mb L: 346/2217 MS: 3 ChangeASCIIInt-ChangeASCIIInt-EraseBytes-
+#80456	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2965 exec/s: 282 rss: 274Mb L: 45/2217 MS: 1 EraseBytes-
+#82893	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 2987 exec/s: 283 rss: 279Mb L: 73/2217 MS: 2 ShuffleBytes-EraseBytes-
+#112799	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 3284 exec/s: 296 rss: 346Mb L: 687/2217 MS: 1 EraseBytes-
+#123210	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 3383 exec/s: 301 rss: 371Mb L: 92/2217 MS: 1 EraseBytes-
+#125395	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 3394 exec/s: 297 rss: 376Mb L: 66/2217 MS: 5 EraseBytes-ChangeBit-ChangeBinInt-ShuffleBytes-ChangeBit-
+#131072	pulse  cov: 438 ft: 1435 corp: 379/31Kb lim: 3449 exec/s: 288 rss: 389Mb
+#154381	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 3680 exec/s: 311 rss: 423Mb L: 1166/2217 MS: 1 EraseBytes-
+#157762	REDUCE cov: 438 ft: 1435 corp: 379/31Kb lim: 3713 exec/s: 313 rss: 423Mb L: 48/2217 MS: 1 EraseBytes-
+#159473	NEW    cov: 438 ft: 1436 corp: 380/31Kb lim: 3724 exec/s: 314 rss: 423Mb L: 73/2217 MS: 1 CrossOver-
+#163500	REDUCE cov: 438 ft: 1436 corp: 380/31Kb lim: 3757 exec/s: 322 rss: 423Mb L: 1138/2217 MS: 2 EraseBytes-CopyPart-
+#163921	REDUCE cov: 438 ft: 1436 corp: 380/31Kb lim: 3757 exec/s: 319 rss: 423Mb L: 91/2217 MS: 1 EraseBytes-
+#187267	REDUCE cov: 438 ft: 1436 corp: 380/31Kb lim: 3988 exec/s: 333 rss: 423Mb L: 1102/2217 MS: 1 EraseBytes-
+#187433	REDUCE cov: 438 ft: 1436 corp: 380/31Kb lim: 3988 exec/s: 334 rss: 423Mb L: 51/2217 MS: 1 EraseBytes-
+#218045	REDUCE cov: 438 ft: 1436 corp: 380/31Kb lim: 4096 exec/s: 334 rss: 423Mb L: 1083/2217 MS: 2 ChangeASCIIInt-EraseBytes-
+#222972	REDUCE cov: 438 ft: 1436 corp: 380/31Kb lim: 4096 exec/s: 337 rss: 423Mb L: 1134/2217 MS: 2 ShuffleBytes-EraseBytes-
+#245827	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 348 rss: 423Mb L: 603/2217 MS: 5 InsertByte-CopyPart-CopyPart-EraseBytes-CopyPart-
+#257503	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 356 rss: 423Mb L: 1097/2217 MS: 1 EraseBytes-
+#262144	pulse  cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 357 rss: 423Mb
+#282384	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 357 rss: 423Mb L: 46/2217 MS: 1 EraseBytes-
+#286360	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 354 rss: 423Mb L: 369/2217 MS: 1 EraseBytes-
+#293461	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 353 rss: 423Mb L: 1095/2217 MS: 1 EraseBytes-
+#305202	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 353 rss: 423Mb L: 1066/2217 MS: 1 EraseBytes-
+#305318	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 353 rss: 423Mb L: 1060/2217 MS: 1 EraseBytes-
+#312431	REDUCE cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 353 rss: 423Mb L: 1067/2217 MS: 1 EraseBytes-
+#314787	DONE   cov: 438 ft: 1436 corp: 380/30Kb lim: 4096 exec/s: 349 rss: 423Mb
+Done 314787 runs in 901 second(s)
