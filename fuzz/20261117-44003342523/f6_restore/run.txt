@@ -1,0 +1,40 @@
+#1121200	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1483 rss: 647Mb L: 455/4054 MS: 1 EraseBytes-
+#1124911	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1482 rss: 647Mb L: 390/4054 MS: 1 EraseBytes-
+#1139238	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1483 rss: 647Mb L: 353/4054 MS: 2 ShuffleBytes-EraseBytes-
+#1144569	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1484 rss: 647Mb L: 68/4054 MS: 1 EraseBytes-
+#1151205	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1485 rss: 647Mb L: 42/4054 MS: 1 EraseBytes-
+#1152666	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1485 rss: 647Mb L: 81/4054 MS: 1 EraseBytes-
+#1163207	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1485 rss: 647Mb L: 1217/4054 MS: 1 EraseBytes-
+#1166479	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1485 rss: 647Mb L: 502/4054 MS: 2 CopyPart-EraseBytes-
+#1181900	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1486 rss: 647Mb L: 2036/4054 MS: 1 EraseBytes-
+#1195626	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1487 rss: 647Mb L: 201/4054 MS: 1 EraseBytes-
+#1198632	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1487 rss: 647Mb L: 48/4054 MS: 1 EraseBytes-
+#1204687	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1487 rss: 647Mb L: 252/4054 MS: 5 ShuffleBytes-ChangeBit-EraseBytes-ChangeByte-CopyPart-
+#1215668	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1487 rss: 647Mb L: 425/4054 MS: 1 EraseBytes-
+#1223464	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1488 rss: 647Mb L: 190/4054 MS: 1 EraseBytes-
+#1229300	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1488 rss: 647Mb L: 100/4054 MS: 1 EraseBytes-
+#1260501	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1489 rss: 647Mb L: 160/4054 MS: 1 EraseBytes-
+#1276017	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1490 rss: 647Mb L: 53/4054 MS: 1 EraseBytes-
+#1276718	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1491 rss: 647Mb L: 49/4054 MS: 1 EraseBytes-
+#1289814	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1491 rss: 647Mb L: 132/4054 MS: 1 EraseBytes-
+#1295260	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1492 rss: 647Mb L: 1795/4054 MS: 1 EraseBytes-
+#1303466	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1493 rss: 647Mb L: 79/4054 MS: 1 EraseBytes-
+#1305227	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1491 rss: 647Mb L: 64/4054 MS: 1 EraseBytes-
+#1309389	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1493 rss: 647Mb L: 200/4054 MS: 2 ShuffleBytes-EraseBytes-
+#1310645	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1492 rss: 647Mb L: 247/4054 MS: 1 EraseBytes-
+#1313301	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1492 rss: 647Mb L: 27/4054 MS: 1 EraseBytes-
+#1316012	REDUCE cov: 5605 ft: 14030 corp: 2261/377Kb lim: 4096 exec/s: 1492 rss: 647Mb L: 1366/4054 MS: 1 EraseBytes-
+#1318788	NEW    cov: 5608 ft: 14033 corp: 2262/377Kb lim: 4096 exec/s: 1491 rss: 647Mb L: 73/4054 MS: 1 CrossOver-
+#1319827	REDUCE cov: 5608 ft: 14033 corp: 2262/377Kb lim: 4096 exec/s: 1491 rss: 647Mb L: 452/4054 MS: 4 CrossOver-InsertByte-ChangeBinInt-EraseBytes-
+#1333769	REDUCE cov: 5608 ft: 14033 corp: 2262/377Kb lim: 4096 exec/s: 1491 rss: 647Mb L: 96/4054 MS: 2 ChangeASCIIInt-EraseBytes-
+#1334450	REDUCE cov: 5608 ft: 14033 corp: 2262/377Kb lim: 4096 exec/s: 1492 rss: 647Mb L: 13/4054 MS: 1 EraseBytes-
+#1341821	REDUCE cov: 5608 ft: 14033 corp: 2262/377Kb lim: 4096 exec/s: 1492 rss: 647Mb L: 219/4054 MS: 1 EraseBytes-
+#1344456	DONE   cov: 5608 ft: 14033 corp: 2262/377Kb lim: 4096 exec/s: 1492 rss: 647Mb
+###### Recommended dictionary. ######
+"1\000\000\000" # Uses: 75436
+"state" # Uses: 13005
+"closed" # Uses: 11284
+"per_d" # Uses: 10304
+"bundle" # Uses: 6739
+###### End of recommended dictionary. ######
+Done 1344456 runs in 901 second(s)
