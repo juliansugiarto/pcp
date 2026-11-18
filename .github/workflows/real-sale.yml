@@ -58,7 +58,7 @@ jobs:
         run: |
           # The installer is fetched, hashed and kept with the results; the
           # components are pinned to the versions CI used on 22 October 2026
-          # (risc0-zkvm 3.0.6), instead of "latest".
+          # (risc0-zkvm 3.1.0), instead of "latest".
           curl -sSfL https://risczero.com/install -o rzup-install.sh
           sha256sum rzup-install.sh | tee out/rzup-installer-sha256.txt
           # Upstream rzup/install at risc0/risc0 164c64bb3 (26 October 2026, #3819,
@@ -74,10 +74,10 @@ jobs:
           # are listed.
           ok=""
           for i in 1 2 3 4; do
-            { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.0.6 && rzup install cargo-risczero 3.0.6; } > out/rzup-install-$i.txt 2>&1 || true
+            { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.1.0 && rzup install cargo-risczero 3.1.0; } > out/rzup-install-$i.txt 2>&1 || true
             tail -n 20 out/rzup-install-$i.txt
             rzup show 2>&1 | tee out/rzup-show.txt
-            if grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.0\.6' && grep -A1 -x rust out/rzup-show.txt | grep -q '1\.97\.0'; then ok=1; break; fi
+            if grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.1\.0' && grep -A1 -x rust out/rzup-show.txt | grep -q '1\.97\.0'; then ok=1; break; fi
             sleep $((i * 20))
           done
           [ -n "$ok" ] || { echo "rzup install failed"; exit 1; }

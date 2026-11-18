@@ -12,7 +12,7 @@ publish = false
 [workspace]
 
 [dependencies]
-risc0-zkvm = { version = "3.0.6", default-features = false, features = ["std"] }
+risc0-zkvm = { version = "3.1.0", default-features = false, features = ["std"] }
 # The statement core only: `default-features = false` turns off `std` in
 # pcp, which leaves encoding, crypto, job and statement (no_std + alloc;
 # dependencies sha2 and chacha20poly1305, nothing else).
