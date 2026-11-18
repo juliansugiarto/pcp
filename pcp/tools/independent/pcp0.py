@@ -725,9 +725,9 @@ class BuyerPolicy:
 
 
 def is_secure_backend(backend_id: str) -> bool:
-    """7.3: the dev backend is insecure.  7.2: ``risc0-zkvm-3-succinct/<image id>``
+    """7.3: the dev backend is insecure.  7.2: ``risc0-zkvm-3.1-succinct/<image id>``
     is the secure one.  Anything else we do not know and treat as not secure."""
-    return backend_id.startswith("risc0-zkvm-3-succinct/")
+    return backend_id.startswith("risc0-zkvm-3.1-succinct/")
 
 
 class Buyer:

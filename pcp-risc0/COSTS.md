@@ -32,11 +32,13 @@ Three `real-sale` runs over LND v0.21.4 regtest with this guest; in each, both s
 | `real-sale/20261021T173907Z` | 88,606 / 131,072 | 102.4 s | 0.019 s | 1,428 MiB | 158.9 s | 2,359 MiB |
 | `real-sale/20261021T175527Z` | 88,606 / 131,072 | 78.7 s | 0.015 s | 1,428 MiB | 122.5 s | 2,358 MiB |
 
-The receipt stays 223,748 bytes. The second and third folders checked the image id against the expected `cc6e7b82…` (`match: yes`); the first ran the same guest before that check was updated. The third run is public commit `de0beb8`.
+**RISC Zero 3.1.0 (18 November 2026).** Upstream corrected the recursion and rv32im circuits, so the guest was rebuilt against risc0-zkvm 3.1.0 (same source, image id `b5b5a8f7…ab8c`). One `real-sale` run, `real-sale/20261118T033549Z`: sudoku n=9 88,694 user cycles (88 more than under 3.0.6), still 131,072 total; prove 71.3 s, verify 0.013 s, receipt 223,748 bytes, peak 1,429 MiB; test-suite job 106,961 user cycles, 262,144 total, prove 114.4 s, receipt 223,770 bytes. The times sit inside the spread of the three 3.0.6 runs above, and that is all one run can say: runners differ by 1.6 times.
+
+The rows above are risc0 3.0.6. There the receipt stays 223,748 bytes. The second and third folders checked the image id against the expected `cc6e7b82…` (`match: yes`); the first ran the same guest before that check was updated. The third run is public commit `de0beb8`.
 
 All three runs used the same guest; the slowest runner was about 1.6 times slower than the fastest on both jobs. GitHub-hosted runners vary that much, so compare times only within one run. Within one run, the 2^17 sudoku took 0.64 times as long as the 2^18 test-suite job (62.0 / 97.3, 102.4 / 158.9 and 78.7 / 122.5), and peak memory fell from 2,359 MiB to about 1,425 MiB. An earlier note here expected "151 s to about 65 s"; that compared different runners. The like-for-like gain is about 1.55 times, not 2.3.
 
-How close 88,606 user cycles are to the 2^17 limit (user plus paging cycles) is not measured; a guest change that adds a few thousand cycles could push it back to 2^18. `--execute-only` now prints the padded total, so this can be checked without proving.
+How close 88,694 user cycles (88,606 under 3.0.6) are to the 2^17 limit (user plus paging cycles) is not measured; a guest change that adds a few thousand cycles could push it back to 2^18. `--execute-only` now prints the padded total, so this can be checked without proving.
 
 ## A real sale: real proof, real Lightning (21 October 2026) (first guest, builder r0.1.88.0)
 

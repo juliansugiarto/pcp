@@ -26,16 +26,16 @@ use serde::de::IgnoredAny;
 use serde::Deserialize;
 
 /// Image id of the PCP/0 guest, built reproducibly in Docker (builder
-/// `r0.1.97.0`, risc0-zkvm 3.0.6). See `../IMAGE-ID.md`. CI checks that the
+/// `r0.1.97.0`, risc0-zkvm 3.1.0). See `../IMAGE-ID.md`. CI checks that the
 /// guest it builds has this id.
 pub const PINNED_IMAGE_ID: &str =
-    "cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328";
+    "b5b5a8f7a6290a0b46146ed3dd75030684187d2d47c7711cfd7f815bd8e4ab8c";
 
 /// Largest receipt deserialised (a succinct receipt is about 224 KB).
 pub const MAX_RECEIPT_BYTES: usize = 512 * 1024;
 
 /// Depth of RISC Zero's tree of allowed recursion programs
-/// (`ALLOWED_CODE_MERKLE_DEPTH` in risc0-zkvm 3.0.6, not exported). Every
+/// (`ALLOWED_CODE_MERKLE_DEPTH` in risc0-zkvm 3.1.0, not exported). Every
 /// honest inclusion proof has exactly this many digests.
 pub const CONTROL_TREE_DEPTH: usize = 8;
 
@@ -91,9 +91,9 @@ pub fn decode_receipt(bytes: &[u8]) -> Result<Receipt, VerifyError> {
     }
 }
 
-/// `risc0-zkvm-3-succinct/<image id hex>`: what an offer names.
+/// `risc0-zkvm-3.1-succinct/<image id hex>`: what an offer names.
 pub fn backend_id_for(image_id: &Digest) -> String {
-    format!("risc0-zkvm-3-succinct/{}", hex::encode(image_id.as_bytes()))
+    format!("risc0-zkvm-3.1-succinct/{}", hex::encode(image_id.as_bytes()))
 }
 
 /// Parse a 64-hex-character image id.
@@ -188,7 +188,7 @@ mod tests {
         let v = Risc0Verifier::pinned();
         assert_eq!(
             v.backend_id(),
-            format!("risc0-zkvm-3-succinct/{PINNED_IMAGE_ID}")
+            format!("risc0-zkvm-3.1-succinct/{PINNED_IMAGE_ID}")
         );
         assert!(parse_image_id("00").is_none());
         assert!(parse_image_id(&"zz".repeat(32)).is_none());

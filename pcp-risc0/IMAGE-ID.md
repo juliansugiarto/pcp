@@ -1,12 +1,12 @@
 # The PCP/0 guest image id
 
 ```
-cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+b5b5a8f7a6290a0b46146ed3dd75030684187d2d47c7711cfd7f815bd8e4ab8c
 ```
 
-This is the RISC Zero image id of the PCP/0 guest (`methods/guest/`), built reproducibly in Docker with risc0-zkvm 3.0.6 and the RISC Zero builder image `r0.1.97.0` (pinned by tag in `methods/build.rs`). A receipt valid for this id says: the PCP/0 statement core ran to completion (exit code 0) on some input and wrote the journal shown. The buyer compares that journal with the statement it expects, so the receipt means "this ciphertext decrypts, under the key whose hash is the invoice's payment hash, to a result that passes the job's check" (SPEC 7.2).
+This is the RISC Zero image id of the PCP/0 guest (`methods/guest/`), built reproducibly in Docker with risc0-zkvm 3.1.0 and the RISC Zero builder image `r0.1.97.0` (pinned by tag and digest in `methods/build.rs`). Two independent Docker builds in CI on 18 November 2026 gave this id (`risc0-image-id/20261118T032523Z-docker-2` and `real-sale/20261118T033549Z` on branch `ci-results-lnd`). The id before it, `cc6e7b82…e328`, was the same guest source built against risc0-zkvm 3.0.6; RISC Zero 3.1.0 corrected the recursion and rv32im circuits, and receipts of the two versions do not verify under each other's verifier, so that id is retired. A receipt valid for this id says: the PCP/0 statement core ran to completion (exit code 0) on some input and wrote the journal shown. The buyer compares that journal with the statement it expects, so the receipt means "this ciphertext decrypts, under the key whose hash is the invoice's payment hash, to a result that passes the job's check" (SPEC 7.2).
 
-An offer names its guest in `backend_id`: `risc0-zkvm-3-succinct/<image id>`. A buyer pinned to this id refuses any other (`backend_not_accepted`) before anything is proven or paid.
+An offer names its guest in `backend_id`: `risc0-zkvm-3.1-succinct/<image id>`. The name carries the RISC Zero minor version because a circuit fix upstream can change the verifier without changing the guest; a buyer on another version then refuses the offer instead of a proof. A buyer pinned to this id refuses any other (`backend_not_accepted`) before anything is proven or paid.
 
 ## Where it is pinned
 
@@ -29,7 +29,7 @@ The `risc0-image-id` workflow does this twice on separate runners and publishes 
 
 ## When it changes
 
-Any change to the code compiled into the guest changes the id: `pcp/src/job/`, `encoding`, `crypto`, `statement`, `lib.rs`, the guest itself, its `Cargo.lock`, or the builder. Even a change that only moves lines does, because panic locations (file, line, column) are embedded in the guest binary. A new id means a new release: update `PINNED_IMAGE_ID`, this file and every document that quotes the id, in the same commit.
+Any change to the code compiled into the guest changes the id: `pcp/src/job/`, `encoding`, `crypto`, `statement`, `lib.rs`, the guest itself, its `Cargo.lock`, the risc0-zkvm version it links, or the builder. Even a change that only moves lines does, because panic locations (file, line, column) are embedded in the guest binary. A new id means a new release: update `PINNED_IMAGE_ID`, this file and every document that quotes the id, in the same commit.
 
 ## A buyer without the RISC Zero toolchain
 

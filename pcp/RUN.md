@@ -63,7 +63,7 @@ Install the toolchain as CI does:
 ```bash
 curl -L https://risczero.com/install | bash
 rzup install
-rzup show        # CI recorded cargo-risczero 3.0.6 and r0vm 3.0.6
+rzup show        # CI recorded cargo-risczero 3.1.0 and r0vm 3.1.0
 ```
 
 Build the guest in Docker, then the host. `pcp-risc0/` is a virtual workspace, so every cargo command there names the package with `-p`:
@@ -79,10 +79,10 @@ cargo build --release -p pcp-risc0-host --features lnd   # --features lnd only f
 The first line of the last command must be:
 
 ```text
-guest image id cc6e7b82fb2da7bba9aa051331c0662ad123ac9821820c0daa34f4e942d0e328
+guest image id b5b5a8f7a6290a0b46146ed3dd75030684187d2d47c7711cfd7f815bd8e4ab8c
 ```
 
-Two separate CI builds (`risc0-image-id` workflow) and the `real-sale` workflow got this value. With `RISC0_USE_DOCKER=1`, `methods/build.rs` builds the guest in the Docker image `risczero/risc0-guest-builder:r0.1.97.0` (set in `build.rs`; risc0-build 3.0.6's own default, `r0.1.88.0`, gives a different image id and a guest that pads to 2^18 cycles), with the repository root as the build context and `methods/guest/Cargo.lock` locked. Keep the variable exported for every cargo command in this folder: `build.rs` rebuilds the guest when it changes, and a build without it is native, with an image id that depends on your local toolchain.
+Two separate CI builds (`risc0-image-id` workflow) and the `real-sale` workflow got this value. With `RISC0_USE_DOCKER=1`, `methods/build.rs` builds the guest in the Docker image `risczero/risc0-guest-builder:r0.1.97.0` (set in `build.rs`; risc0-build 3.0.6's default was `r0.1.88.0`, which gives a different image id and a guest that pads to 2^18 cycles), with the repository root as the build context and `methods/guest/Cargo.lock` locked. Keep the variable exported for every cargo command in this folder: `build.rs` rebuilds the guest when it changes, and a build without it is native, with an image id that depends on your local toolchain.
 
 A sale with a real proof over the simulated Lightning rail:
 
@@ -146,7 +146,7 @@ After section 3 (built with `--features lnd`, `RISC0_USE_DOCKER=1`):
 ./pcp-risc0/target/release/pcp-risc0 --job testsuite --rail lnd
 ```
 
-Each run prints `offer accepted: 1000000 msat, backend risc0-zkvm-3-succinct/cc6e7b82…, rail lightning-bolt11/0`, then `SETTLED.` and a `cost-row,` line. The seller's channel balance rises by 1,000 sat per sale:
+Each run prints `offer accepted: 1000000 msat, backend risc0-zkvm-3.1-succinct/b5b5a8f7…, rail lightning-bolt11/0`, then `SETTLED.` and a `cost-row,` line. The seller's channel balance rises by 1,000 sat per sale:
 
 ```bash
 docker exec bob lncli --network=regtest channelbalance

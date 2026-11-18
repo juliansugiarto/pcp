@@ -14,13 +14,14 @@
 //!   buyer runs: public fields, size cap, no fake receipt, receipt valid for
 //!   the image id (exit code 0), journal equal to the expected statement.
 //!
-//! `backend_id` is `risc0-zkvm-3-succinct/<image id hex>`, so the offer
+//! `backend_id` is `risc0-zkvm-3.1-succinct/<image id hex>`, so the offer
 //! (whose `offer_id` commits to `backend_id`) names the exact guest binary.
 //!
-//! STATUS: built and run in CI against risc0-zkvm 3.0.6, 21 October 2026.
+//! STATUS: built and run in CI against risc0-zkvm 3.1.0, 18 November 2026
+//! (3.0.6 from 21 October 2026 until then).
 //! Over the simulated rail, sudoku n=4, sudoku n=9 and the test-suite job
 //! each settled with a real proof. With the guest built reproducibly in
-//! Docker (`RISC0_USE_DOCKER=1`, builder r0.1.97.0, image id `cc6e7b82…e328`), a sudoku sale
+//! Docker (`RISC0_USE_DOCKER=1`, builder r0.1.97.0, image id `b5b5a8f7…ab8c`), a sudoku sale
 //! and a test-suite sale settled over two LND v0.21.4 nodes on regtest
 //! (`real-sale` workflow). Not audited. See ../README.md and ../COSTS.md.
 //!

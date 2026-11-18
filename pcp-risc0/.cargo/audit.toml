@@ -1,5 +1,6 @@
 # cargo audit for the RISC Zero workspace. Every ignored advisory below was
-# read on 22 October 2026 and traced with `cargo tree -i`; none is reachable
+# read on 22 October 2026 (re-read on 18 November 2026 for risc0-zkvm 3.1.0,
+# which no longer pulls zip: its three exceptions were removed) and traced with `cargo tree -i`; none is reachable
 # with input from a stranger. The verify-buyer workflow fails on any other
 # advisory. Re-read each one when risc0-zkvm is upgraded.
 [advisories]
@@ -16,11 +17,4 @@ ignore = [
   # refuses Groth16 receipts before decoding them. In pcp-risc0-verify's tree,
   # not reachable.
   "RUSTSEC-2025-0055",
-  # zip 2.6.1, three extraction issues (symlinks, permissions, SUID bits).
-  # Pulled by risc0-circuit-keccak/recursion (prover side) to read the
-  # archive bundled inside those crates. PCP extracts no archive from anyone.
-  # Not in pcp-risc0-verify.
-  "RUSTSEC-2026-0367",
-  "RUSTSEC-2026-0368",
-  "RUSTSEC-2026-0369",
 ]

@@ -9,7 +9,7 @@
 // with Docker: `RISC0_USE_DOCKER=1 cargo build --release`. Without Docker,
 // the image id depends on the local toolchain and two machines may disagree.
 //
-// risc0-build 3.0.6 does not read RISC0_USE_DOCKER itself (only
+// risc0-build (3.0.6, 3.0.7) does not read RISC0_USE_DOCKER itself (only
 // `cargo risczero build` does), so this script maps it to `use_docker`.
 // The Docker build context is the repository root (`../..` from here),
 // because the guest depends on `../../../pcp`, outside `pcp-risc0/`. The
@@ -20,7 +20,9 @@ use std::collections::HashMap;
 use risc0_build::{DockerOptionsBuilder, GuestOptionsBuilder};
 
 /// The guest builder image (`risczero/risc0-guest-builder:<tag>`). risc0-build
-/// 3.0.6 defaults to `r0.1.88.0` (Rust 1.88), whose guest needs 98,941 user
+/// 3.0.7 defaults to `r0.1.97.0` too; the pin stays because it also fixes the
+/// digest, which a default cannot. History: risc0-build
+/// 3.0.6 defaulted to `r0.1.88.0` (Rust 1.88), whose guest needs 98,941 user
 /// cycles for sudoku9 and so pads to 2^18; `rzup install` ships Rust 1.97 and
 /// the same guest fits 2^17 (88,606 user cycles), proving about 1.55x faster
 /// on the same runner with 0.6x the memory (COSTS.md). `r0.1.97.0` is the
