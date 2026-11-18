@@ -1,0 +1,40 @@
+	NEW_FUNC[1/1]: 0x55a0e50bd7b0  (/home/runner/work/pcp/pcp/pcp/fuzz/target/x86_64-unknown-linux-gnu/release/f3_buyer+0x2ee7b0) (BuildId: 8ac776dc81936c5292a392590c17197067dc44d5)
+#1142578	NEW    cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1462 rss: 569Mb L: 104/4015 MS: 4 CopyPart-ChangeByte-InsertByte-CopyPart-
+#1145674	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1461 rss: 569Mb L: 69/4015 MS: 1 EraseBytes-
+#1151625	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1461 rss: 569Mb L: 65/4015 MS: 1 EraseBytes-
+#1158628	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1461 rss: 569Mb L: 54/4015 MS: 3 InsertByte-ChangeASCIIInt-EraseBytes-
+#1160349	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1461 rss: 569Mb L: 200/4015 MS: 1 EraseBytes-
+#1169665	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1460 rss: 569Mb L: 65/4015 MS: 1 EraseBytes-
+#1170501	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1461 rss: 569Mb L: 80/4015 MS: 1 EraseBytes-
+#1179093	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1461 rss: 569Mb L: 3623/4015 MS: 2 ShuffleBytes-EraseBytes-
+#1183284	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1460 rss: 569Mb L: 99/4015 MS: 1 EraseBytes-
+#1190255	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1460 rss: 569Mb L: 61/4015 MS: 1 EraseBytes-
+#1196406	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1459 rss: 569Mb L: 50/4015 MS: 1 EraseBytes-
+#1197892	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1459 rss: 569Mb L: 549/4015 MS: 1 EraseBytes-
+#1202658	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1459 rss: 569Mb L: 1688/4015 MS: 1 EraseBytes-
+#1204889	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1458 rss: 569Mb L: 40/4015 MS: 1 EraseBytes-
+#1211415	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1459 rss: 569Mb L: 63/4015 MS: 1 EraseBytes-
+#1216256	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1458 rss: 569Mb L: 77/4015 MS: 1 EraseBytes-
+#1227097	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1457 rss: 569Mb L: 47/4015 MS: 1 EraseBytes-
+#1231618	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1457 rss: 569Mb L: 147/4015 MS: 1 EraseBytes-
+#1234869	REDUCE cov: 4892 ft: 12130 corp: 2147/309Kb lim: 4096 exec/s: 1456 rss: 569Mb L: 107/4015 MS: 1 EraseBytes-
+#1234871	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1456 rss: 569Mb L: 144/4015 MS: 2 InsertRepeatedBytes-EraseBytes-
+#1235622	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1457 rss: 569Mb L: 86/4015 MS: 1 EraseBytes-
+#1243153	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1457 rss: 569Mb L: 244/4015 MS: 1 EraseBytes-
+#1255779	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1456 rss: 569Mb L: 1021/4015 MS: 1 EraseBytes-
+#1263855	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1456 rss: 569Mb L: 256/4015 MS: 1 EraseBytes-
+#1264176	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1456 rss: 569Mb L: 32/4015 MS: 1 EraseBytes-
+#1265432	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1456 rss: 569Mb L: 49/4015 MS: 1 EraseBytes-
+#1277898	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1455 rss: 569Mb L: 18/4015 MS: 1 EraseBytes-
+#1280564	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1455 rss: 569Mb L: 1633/4015 MS: 1 EraseBytes-
+#1282824	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1456 rss: 569Mb L: 345/4015 MS: 5 InsertByte-ShuffleBytes-ChangeASCIIInt-ChangeBinInt-EraseBytes-
+#1283910	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1455 rss: 569Mb L: 49/4015 MS: 1 EraseBytes-
+#1291966	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1454 rss: 569Mb L: 68/4015 MS: 1 EraseBytes-
+#1293567	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1455 rss: 569Mb L: 261/4015 MS: 1 EraseBytes-
+#1300713	REDUCE cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1454 rss: 569Mb L: 90/4015 MS: 1 EraseBytes-
+#1310018	DONE   cov: 4892 ft: 12130 corp: 2147/308Kb lim: 4096 exec/s: 1453 rss: 569Mb
+###### Recommended dictionary. ######
+"\001\000\000\000\000\000\000 " # Uses: 40126
+"e\000\000\000" # Uses: 35979
+###### End of recommended dictionary. ######
+Done 1310018 runs in 901 second(s)
