@@ -1,0 +1,16 @@
+guest image id b5b5a8f7a6290a0b46146ed3dd75030684187d2d47c7711cfd7f815bd8e4ab8c
+listening on http://127.0.0.1:18702 (put a TLS proxy in front)
+[seller 1794975849] seller up: 0 offers, 0 sales on record
+[seller 1794975849] offer 9215a07ab27d sent
+[seller 1794975849] accept 9215a07ab27d : proving
+[seller 1794975930] proved 9215a07ab27d in 80.550 s
+PCP_CRASH_AT=seller:invoice:post: aborting
+timeout: the monitored command dumped core
+--- restarted after seller:invoice:post ---
+guest image id b5b5a8f7a6290a0b46146ed3dd75030684187d2d47c7711cfd7f815bd8e4ab8c
+listening on http://127.0.0.1:18702 (put a TLS proxy in front)
+[seller 1794975930] seller up: 1 offers, 1 sales on record
+[seller 1794975931] bundle 9215a07ab27d sent again
+[seller 1794975931] SETTLED: revealed k, 1000000 msat
+[seller 1794975931] seller done: 1 sales over, committed 1000000 msat
+seller summary: settled 1 cancelled 0 refused 0 proofs 0 committed_msat 1000000

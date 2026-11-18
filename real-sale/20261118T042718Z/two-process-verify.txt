@@ -1,0 +1,3 @@
+clean                  PASS  buyer exits [0] seller exits [0] 
+wrong-backend          PASS  buyer exits [11] seller exits [0] 
+rail=lnd wire=http cases=2 failed=0

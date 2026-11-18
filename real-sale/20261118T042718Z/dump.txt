@@ -1,0 +1,53 @@
+out:
+total 296
+drwxr-xr-x  6 runner runner  4096 Nov 18 04:27 .
+drwxr-xr-x 16 runner runner  4096 Nov 18 04:27 ..
+-rw-r--r--  1 runner runner  2809 Nov 18 04:27 alice-state.txt
+-rw-r--r--  1 runner runner  2806 Nov 18 04:27 bob-state.txt
+-rw-r--r--  1 runner runner 18233 Nov 18 04:14 build-host-full.txt
+-rw-r--r--  1 runner runner 10221 Nov 18 03:42 build-methods-full.txt
+-rw-r--r--  1 runner runner    19 Nov 18 03:39 build-mode.txt
+-rw-r--r--  1 runner runner  2837 Nov 18 04:19 build-verify-full.txt
+-rw-r--r--  1 runner runner   251 Nov 18 04:16 cost-row-sudoku9.txt
+-rw-r--r--  1 runner runner   255 Nov 18 04:18 cost-row-testsuite.txt
+-rw-r--r--  1 runner runner 33983 Nov 18 04:27 docker-alice.log
+-rw-r--r--  1 runner runner 63510 Nov 18 04:27 docker-bitcoind.log
+-rw-r--r--  1 runner runner 29045 Nov 18 04:27 docker-bob.log
+-rw-r--r--  1 runner runner     0 Nov 18 03:42 docker-images.txt
+-rw-r--r--  1 runner runner     0 Nov 18 04:27 dump.txt
+-rw-r--r--  1 runner runner   194 Nov 18 04:14 execute-sudoku9.txt
+-rw-r--r--  1 runner runner   294 Nov 18 04:14 guest-elf-sha256.txt
+-rw-r--r--  1 runner runner   161 Nov 18 04:14 image-id.txt
+-rw-r--r--  1 runner runner  1655 Nov 18 04:27 leakcheck.txt
+-rw-r--r--  1 runner runner   710 Nov 18 03:39 machine.txt
+drwxr-xr-x  2 runner runner  4096 Nov 18 04:27 rest
+-rw-r--r--  1 runner runner   704 Nov 18 03:39 rzup-binaries.txt
+-rw-r--r--  1 runner runner   755 Nov 18 03:39 rzup-install-1.txt
+-rw-r--r--  1 runner runner    82 Nov 18 03:39 rzup-installer-sha256.txt
+-rw-r--r--  1 runner runner   144 Nov 18 03:39 rzup-show.txt
+-rw-r--r--  1 runner runner  2312 Nov 18 04:16 sale-sudoku9.txt
+-rw-r--r--  1 runner runner  2110 Nov 18 04:18 sale-testsuite.txt
+-rw-r--r--  1 runner runner   166 Nov 18 04:27 seed-sha256.txt
+-rw-r--r--  1 runner runner  1492 Nov 18 04:15 setup.txt
+-rw-r--r--  1 runner runner  2627 Nov 18 04:16 state-after-sudoku9.txt
+-rw-r--r--  1 runner runner  2629 Nov 18 04:18 state-after-testsuite.txt
+-rw-r--r--  1 runner runner   478 Nov 18 04:15 state-before-sudoku9.txt
+-rw-r--r--  1 runner runner   578 Nov 18 03:39 toolchain.txt
+drwxr-xr-x  4 runner runner  4096 Nov 18 04:27 two-process
+-rw-r--r--  1 runner runner   760 Nov 18 04:27 two-process-costs.txt
+drwxr-xr-x  4 runner runner  4096 Nov 18 04:27 two-process-http
+-rw-r--r--  1 runner runner   292 Nov 18 04:25 two-process-http.txt
+drwxr-xr-x  4 runner runner  4096 Nov 18 04:27 two-process-verify
+-rw-r--r--  1 runner runner   163 Nov 18 04:27 two-process-verify.txt
+-rw-r--r--  1 runner runner   291 Nov 18 04:22 two-process.txt
+
+out/rest:
+total 56
+drwxr-xr-x 2 runner runner  4096 Nov 18 04:27 .
+drwxr-xr-x 6 runner runner  4096 Nov 18 04:27 ..
+-rw-r--r-- 1 runner runner 13923 Nov 18 04:27 alice-v1-payments.json
+-rw-r--r-- 1 runner runner   764 Nov 18 04:27 alice-v1-payreq.json
+-rw-r--r-- 1 runner runner  1872 Nov 18 04:27 bob-v1-getinfo.json
+-rw-r--r-- 1 runner runner  1587 Nov 18 04:27 bob-v1-invoice-by-hash.json
+-rw-r--r-- 1 runner runner    70 Nov 18 04:27 bob-v1-invoice-unknown.txt
+-rw-r--r-- 1 runner runner 13858 Nov 18 04:27 bob-v1-invoices.json
