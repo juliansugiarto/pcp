@@ -1,0 +1,11 @@
+date: 2026-11-18T02:56:19Z
+commit: 839e95ea3dd55b74037f95261f23af712193f956
+Linux ip-10-0-129-54 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+4
+               total        used        free      shared  buff/cache   available
+Mem:           15701        1275       13122          44        1636       14426
+Swap:           3071           0        3071
+Docker version 28.0.4, build b8034c0
+rustc 1.99.0 (b940084d7 2026-09-28)
+LND_IMAGE=lightninglabs/lnd:v0.21.4-beta@sha256:04d06edcc0f6e99a5e797ea34959f330add222226f840cd86afbc31f8f29627d
+BTC_IMAGE=polarlightning/bitcoind:28.0@sha256:ff435d758c89f01823924e057d5d5e4206d350ae69dff5e0dc1bbc9c6a36d010

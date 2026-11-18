@@ -1,0 +1,3 @@
+clean                  FAIL  buyer exits [11] seller exits [0] buyer-exit audit-buyer audit-seller
+wrong-backend          PASS  buyer exits [11] seller exits [0] 
+rail=lnd wire=http cases=2 failed=1
