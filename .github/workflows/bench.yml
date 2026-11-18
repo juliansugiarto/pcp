@@ -59,9 +59,16 @@ jobs:
           echo "e0a0c1ab3a86ce33efc566a0c9a24ac5eba688769d124d3a510337853b051a3c  rzup-install.sh" | sha256sum -c -
           bash rzup-install.sh
           export PATH="$HOME/.risc0/bin:$PATH"
-          { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.1.0 && rzup install cargo-risczero 3.1.0; } 2>&1 | tail -n 20
-          rzup show 2>&1 | tee out/rzup-show.txt
-          grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.1\.0' || { echo "r0vm 3.1.0 not installed"; exit 1; }
+          # rzup's downloads fail now and then (an empty install on 18 November
+          # 2026); retry like real-sale does.
+          ok=""
+          for i in 1 2 3 4; do
+            { rzup install rust 1.97.0 && rzup install cpp 2024.1.5 && rzup install r0vm 3.1.0 && rzup install cargo-risczero 3.1.0; } > out/rzup-install-$i.txt 2>&1 || true
+            rzup show 2>&1 | tee out/rzup-show.txt
+            if grep -A1 -x r0vm out/rzup-show.txt | grep -q '3\.1\.0' && grep -A1 -x rust out/rzup-show.txt | grep -q '1\.97\.0'; then ok=1; break; fi
+            sleep 20
+          done
+          [ -n "$ok" ] || { echo "r0vm 3.1.0 not installed"; exit 1; }
           echo "$HOME/.risc0/bin" >> "$GITHUB_PATH"
           # Recorded, not yet pinned (note 31): the binaries rzup wrote.
           { "$HOME/.risc0/bin/rzup" --version; find "$HOME/.risc0" -type f \( -name rzup -o -name r0vm -o -name cargo-risczero -o -name rustc -o -name cargo \) -exec sha256sum {} + | sort -k2; } > out/rzup-binaries.txt 2>&1 || true
