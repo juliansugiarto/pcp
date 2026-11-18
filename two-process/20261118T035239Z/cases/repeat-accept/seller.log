@@ -1,0 +1,10 @@
+WARNING: proof backend = InsecureDevTransparentBackend (no zero knowledge).
+[seller 1794973483] seller up: 0 offers, 0 sales on record
+[seller 1794973483] offer b37a3707fac5 sent
+[seller 1794973484] accept b37a3707fac5 : proving
+[seller 1794973487] proved b37a3707fac5 in 0.001 s
+[seller 1794973487] invoice b37a3707fac5 sent
+[seller 1794973487] bundle b37a3707fac5 sent again
+[seller 1794973487] SETTLED: revealed k, 1000000 msat
+[seller 1794973487] seller done: 1 sales over, committed 1000000 msat
+seller summary: settled 1 cancelled 0 refused 0 proofs 1 committed_msat 1000000
