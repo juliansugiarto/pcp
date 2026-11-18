@@ -1,0 +1,10 @@
+not synced after 5 minutes: restarting LND once
+sync_secs: 350
+buyer_ready: 04:44:05
+opened: 2026-11-18T04:44:28Z
+channel_opened: 04:44:34 height 331361
+channel_active: 04:52:06 height 331362
+buy_start: 04:52:06
+buy_end: 04:53:15 exit 0
+close_requested: 04:53:26
+close_confirmed: 05:25:00 {"close_type":"COOPERATIVE_CLOSE","settled_balance":"14350","closing_tx_hash":"c23276ce2cf4907215dbe08f7e905c4d0a0891db7cd367a531b734063ff6f22d","close_height":331363}

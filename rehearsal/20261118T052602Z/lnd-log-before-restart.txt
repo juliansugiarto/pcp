@@ -1,0 +1,46 @@
+2026-11-18 04:36:43.961 [WRN] LTND: open /root/.lnd/lnd.conf: no such file or directory
+2026-11-18 04:36:43.961 [INF] LTND: Version Info rev=390b2d version=0.21.4-beta commit=v0.21.4-beta debuglevel=production logging=info
+2026-11-18 04:36:43.961 [INF] LTND: Network Info rev=390b2d active_chain=Bitcoin network=signet
+2026-11-18 04:36:43.961 [INF] RPCS: Generating TLS certificates...
+2026-11-18 04:36:43.962 [INF] RPCS: Done generating TLS certificates
+2026-11-18 04:36:43.962 [INF] RPCS: RPC server listening on 127.0.0.1:10009
+2026-11-18 04:36:43.968 [INF] RPCS: gRPC proxy started at 0.0.0.0:8080
+2026-11-18 04:36:43.968 [INF] LTND: Opening the main database, this might take a few minutes...
+2026-11-18 04:36:43.968 [INF] LTND: Opening bbolt database, sync_freelist=false, auto_compact=false
+2026-11-18 04:36:43.969 [INF] LTND: Creating local graph and channel state DB instances
+2026-11-18 04:36:43.969 [INF] CHDB: Checking for schema update: latest_version=35, db_version=35
+2026-11-18 04:36:43.969 [INF] CHDB: Applying 2 optional migrations
+2026-11-18 04:36:43.970 [INF] CHDB: Checking for optional update: name=prune_revocation_log
+2026-11-18 04:36:43.970 [INF] CHDB: Checking for optional update: name=gc_decayed_log
+2026-11-18 04:36:43.970 [INF] CHDB: Performing database optional migration: gc_decayed_log
+2026-11-18 04:36:43.970 [INF] CHDB: Migrating decayed log...
+2026-11-18 04:36:43.970 [INF] CHDB: Decayed log migrated successfully
+2026-11-18 04:36:43.970 [INF] CHDB: Successfully applied optional migration: gc_decayed_log
+2026-11-18 04:36:43.973 [INF] LTND: Database(s) now open (time_to_open=4.96109ms)!
+2026-11-18 04:36:44.132 [INF] BTCN: Loaded 0 addresses from file '/root/.lnd/data/chain/bitcoin/signet/peers.json'
+2026-11-18 04:36:44.132 [INF] BTCN: Registering block subscription: id=1
+2026-11-18 04:36:44.132 [INF] BTCN: Broadcaster now active
+2026-11-18 04:36:44.133 [INF] CMGR: 1 addresses found from DNS seed 2a01:7c8:d005:390::5
+2026-11-18 04:36:44.133 [INF] CMGR: DNS discovery failed on seed v7ajjeirttkbnt32wpy3c6w3emwnfr3fkla7hpxcfokr3ysd3kqtzmqd.onion:38333: lookup v7ajjeirttkbnt32wpy3c6w3emwnfr3fkla7hpxcfokr3ysd3kqtzmqd.onion:38333: no such host
+2026-11-18 04:36:44.133 [INF] CMGR: 1 addresses found from DNS seed 178.128.221.177
+2026-11-18 04:36:45.112 [INF] CMGR: 2 addresses found from DNS seed x49.seed.signet.bitcoin.sprovoost.nl
+2026-11-18 04:36:45.906 [INF] BTWL: Opened wallet
+2026-11-18 04:36:46.469 [INF] BTWL: The wallet has been unlocked without a time limit
+2026-11-18 04:36:46.491 [INF] CHRE: LightningWallet opened
+2026-11-18 04:36:46.493 [INF] HSWC: Cleaning circuits from disk for closed channels
+2026-11-18 04:36:46.493 [INF] HSWC: Finished cleaning: no closed channels found, no actions taken.
+2026-11-18 04:36:46.493 [INF] HSWC: Restoring in-memory circuit state from disk
+2026-11-18 04:36:46.493 [INF] HSWC: Payment circuits loaded: num_pending=0, num_open=0
+2026-11-18 04:36:46.494 [INF] CRTR: Loaded 0 mission control entries
+2026-11-18 04:36:46.494 [INF] ACSM: Access Manager initialized
+2026-11-18 04:36:46.494 [INF] SWPR: Migrating UTXO nursery finalized TXIDs
+2026-11-18 04:36:46.494 [INF] LTND: Channel backup proxy channel notifier starting
+2026-11-18 04:36:46.494 [INF] CHIO: Registered queue=1 with 3 blockbeat consumers
+2026-11-18 04:36:46.494 [INF] ATPL: Instantiating autopilot with active=false, max_channels=5, allocation=0.600000, min_chan_size=20000, max_chan_size=16777215, private=false, min_confs=1, conf_target=3
+2026-11-18 04:36:46.495 [INF] NTFR: Baking macaroons for ChainNotifier RPC Server at: /root/.lnd/data/chain/bitcoin/signet/chainnotifier.macaroon
+2026-11-18 04:36:46.495 [INF] SGNR: Making macaroons for Signer RPC Server at: /root/.lnd/data/chain/bitcoin/signet/signer.macaroon
+2026-11-18 04:36:46.495 [INF] WLKT: Baking macaroons for WalletKit RPC Server at: /root/.lnd/data/chain/bitcoin/signet/walletkit.macaroon
+2026-11-18 04:36:46.495 [INF] IRPC: Baking macaroons for invoices RPC Server at: /root/.lnd/data/chain/bitcoin/signet/invoices.macaroon
+2026-11-18 04:36:46.495 [INF] RRPC: Making macaroons for Router RPC Server at: /root/.lnd/data/chain/bitcoin/signet/router.macaroon
+2026-11-18 04:36:46.495 [INF] LTND: We're not running within systemd or the service type is not 'notify'
+2026-11-18 04:36:46.495 [INF] LTND: Waiting for chain backend to finish sync rev=390b2d start_height=0
