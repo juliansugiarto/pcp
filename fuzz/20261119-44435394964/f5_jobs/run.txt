@@ -1,0 +1,40 @@
+#4096	pulse  cov: 439 ft: 1444 corp: 395/30Kb lim: 2221 exec/s: 107 rss: 126Mb
+#5013	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2232 exec/s: 125 rss: 127Mb L: 36/2199 MS: 1 EraseBytes-
+#8192	pulse  cov: 439 ft: 1444 corp: 395/30Kb lim: 2254 exec/s: 174 rss: 135Mb
+#16384	pulse  cov: 439 ft: 1444 corp: 395/30Kb lim: 2342 exec/s: 210 rss: 150Mb
+#22384	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2397 exec/s: 243 rss: 159Mb L: 50/2199 MS: 1 EraseBytes-
+#26226	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2430 exec/s: 254 rss: 167Mb L: 1281/2199 MS: 2 InsertByte-EraseBytes-
+#32768	pulse  cov: 439 ft: 1444 corp: 395/30Kb lim: 2485 exec/s: 273 rss: 179Mb
+#41903	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2584 exec/s: 275 rss: 195Mb L: 547/2199 MS: 2 CrossOver-EraseBytes-
+#50535	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2661 exec/s: 285 rss: 213Mb L: 2126/2126 MS: 2 ChangeASCIIInt-EraseBytes-
+#52992	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2683 exec/s: 292 rss: 218Mb L: 82/2126 MS: 2 ChangeByte-EraseBytes-
+#65536	pulse  cov: 439 ft: 1444 corp: 395/30Kb lim: 2804 exec/s: 316 rss: 241Mb
+#65619	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2804 exec/s: 317 rss: 242Mb L: 44/2126 MS: 2 ChangeASCIIInt-EraseBytes-
+#71285	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2859 exec/s: 299 rss: 254Mb L: 1054/2126 MS: 1 EraseBytes-
+#72797	REDUCE cov: 439 ft: 1444 corp: 395/30Kb lim: 2870 exec/s: 303 rss: 259Mb L: 1023/2126 MS: 2 ChangeBit-EraseBytes-
+#80110	NEW    cov: 439 ft: 1445 corp: 396/30Kb lim: 2936 exec/s: 302 rss: 276Mb L: 55/2126 MS: 3 CMP-ChangeASCIIInt-CopyPart- DE: "\177\354\353\260\232{\000\000"-
+#82362	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 2958 exec/s: 298 rss: 281Mb L: 1040/2126 MS: 2 EraseBytes-CopyPart-
+#86595	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 2991 exec/s: 311 rss: 290Mb L: 36/2126 MS: 3 ChangeBit-ChangeBit-EraseBytes-
+#114637	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3266 exec/s: 361 rss: 333Mb L: 254/2126 MS: 2 ChangeBinInt-EraseBytes-
+#116786	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3277 exec/s: 362 rss: 338Mb L: 44/2126 MS: 4 ShuffleBytes-ChangeBit-ChangeBit-EraseBytes-
+#124237	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3343 exec/s: 365 rss: 349Mb L: 32/2126 MS: 1 EraseBytes-
+#131072	pulse  cov: 439 ft: 1445 corp: 396/30Kb lim: 3409 exec/s: 374 rss: 363Mb
+#166174	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3750 exec/s: 380 rss: 412Mb L: 29/2126 MS: 2 ChangeByte-EraseBytes-
+#184441	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3926 exec/s: 397 rss: 425Mb L: 28/2126 MS: 2 ChangeBinInt-EraseBytes-
+#186957	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3948 exec/s: 394 rss: 425Mb L: 1273/2126 MS: 1 EraseBytes-
+#190189	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3970 exec/s: 399 rss: 425Mb L: 27/2126 MS: 2 ChangeBit-EraseBytes-
+#191616	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 3981 exec/s: 396 rss: 425Mb L: 786/2126 MS: 2 ShuffleBytes-EraseBytes-
+#202433	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4080 exec/s: 407 rss: 426Mb L: 80/2126 MS: 2 CopyPart-EraseBytes-
+#215885	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 396 rss: 426Mb L: 1015/2126 MS: 2 CopyPart-EraseBytes-
+#241501	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 405 rss: 426Mb L: 62/2126 MS: 1 EraseBytes-
+#247424	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 402 rss: 426Mb L: 585/2126 MS: 3 PersAutoDict-CopyPart-EraseBytes- DE: "\177\354\353\260\232{\000\000"-
+#262144	pulse  cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 402 rss: 426Mb
+#290137	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 404 rss: 426Mb L: 35/2126 MS: 3 PersAutoDict-ChangeASCIIInt-EraseBytes- DE: "\177\354\353\260\232{\000\000"-
+#309110	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 413 rss: 426Mb L: 2100/2100 MS: 3 EraseBytes-ChangeASCIIInt-CopyPart-
+#356521	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 426 rss: 426Mb L: 43/2100 MS: 1 EraseBytes-
+#368898	REDUCE cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 432 rss: 426Mb L: 237/2100 MS: 2 EraseBytes-CopyPart-
+#392838	DONE   cov: 439 ft: 1445 corp: 396/30Kb lim: 4096 exec/s: 435 rss: 426Mb
+###### Recommended dictionary. ######
+"\177\354\353\260\232{\000\000" # Uses: 28093
+###### End of recommended dictionary. ######
+Done 392838 runs in 903 second(s)
