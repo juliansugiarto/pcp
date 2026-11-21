@@ -1,0 +1,40 @@
+#205903	REDUCE cov: 3712 ft: 14239 corp: 1700/127Kb lim: 4096 exec/s: 408 rss: 533Mb L: 72/3361 MS: 1 EraseBytes-
+#207594	NEW    cov: 3712 ft: 14240 corp: 1701/127Kb lim: 4096 exec/s: 407 rss: 534Mb L: 58/3361 MS: 1 ChangeBit-
+#208651	REDUCE cov: 3712 ft: 14240 corp: 1701/127Kb lim: 4096 exec/s: 408 rss: 534Mb L: 60/3361 MS: 2 ChangeBit-EraseBytes-
+#209352	REDUCE cov: 3712 ft: 14240 corp: 1701/127Kb lim: 4096 exec/s: 408 rss: 534Mb L: 24/3361 MS: 1 EraseBytes-
+#210738	REDUCE cov: 3712 ft: 14240 corp: 1701/127Kb lim: 4096 exec/s: 407 rss: 534Mb L: 35/3361 MS: 1 EraseBytes-
+#210939	REDUCE cov: 3712 ft: 14240 corp: 1701/127Kb lim: 4096 exec/s: 408 rss: 534Mb L: 179/3361 MS: 1 EraseBytes-
+#213245	REDUCE cov: 3712 ft: 14240 corp: 1701/127Kb lim: 4096 exec/s: 407 rss: 534Mb L: 55/3361 MS: 1 EraseBytes-
+#214066	REDUCE cov: 3712 ft: 14240 corp: 1701/127Kb lim: 4096 exec/s: 407 rss: 534Mb L: 32/3361 MS: 1 EraseBytes-
+#216630	REDUCE cov: 3712 ft: 14240 corp: 1701/126Kb lim: 4096 exec/s: 407 rss: 534Mb L: 230/3361 MS: 4 ShuffleBytes-ChangeASCIIInt-ChangeByte-EraseBytes-
+#220523	REDUCE cov: 3712 ft: 14240 corp: 1701/126Kb lim: 4096 exec/s: 408 rss: 534Mb L: 59/3361 MS: 3 ShuffleBytes-ChangeByte-EraseBytes-
+#222789	NEW    cov: 3712 ft: 14245 corp: 1702/128Kb lim: 4096 exec/s: 408 rss: 534Mb L: 1096/3361 MS: 1 CopyPart-
+#223221	NEW    cov: 3712 ft: 14247 corp: 1703/129Kb lim: 4096 exec/s: 408 rss: 534Mb L: 1104/3361 MS: 2 CrossOver-PersAutoDict- DE: "mandate"-
+#223927	REDUCE cov: 3712 ft: 14247 corp: 1703/129Kb lim: 4096 exec/s: 407 rss: 534Mb L: 119/3361 MS: 1 EraseBytes-
+#225478	REDUCE cov: 3712 ft: 14247 corp: 1703/129Kb lim: 4096 exec/s: 408 rss: 534Mb L: 743/3361 MS: 1 EraseBytes-
+#227844	NEW    cov: 3713 ft: 14250 corp: 1704/130Kb lim: 4096 exec/s: 408 rss: 535Mb L: 1104/3361 MS: 1 ChangeBit-
+#229360	REDUCE cov: 3713 ft: 14250 corp: 1704/130Kb lim: 4096 exec/s: 408 rss: 535Mb L: 30/3361 MS: 1 EraseBytes-
+#229611	REDUCE cov: 3713 ft: 14250 corp: 1704/130Kb lim: 4096 exec/s: 407 rss: 535Mb L: 51/3361 MS: 1 EraseBytes-
+#230387	REDUCE cov: 3713 ft: 14250 corp: 1704/130Kb lim: 4096 exec/s: 407 rss: 535Mb L: 77/3361 MS: 1 EraseBytes-
+#230463	REDUCE cov: 3713 ft: 14250 corp: 1704/130Kb lim: 4096 exec/s: 407 rss: 535Mb L: 59/3361 MS: 1 EraseBytes-
+#231248	REDUCE cov: 3713 ft: 14250 corp: 1704/130Kb lim: 4096 exec/s: 407 rss: 535Mb L: 17/3361 MS: 5 InsertByte-ChangeBit-ShuffleBytes-ShuffleBytes-EraseBytes-
+#231289	REDUCE cov: 3713 ft: 14250 corp: 1704/130Kb lim: 4096 exec/s: 407 rss: 535Mb L: 30/3361 MS: 1 EraseBytes-
+#233255	NEW    cov: 3713 ft: 14252 corp: 1705/131Kb lim: 4096 exec/s: 407 rss: 535Mb L: 1096/3361 MS: 1 PersAutoDict- DE: "\015z\272\264\322\017\035\015v\036\335\232\266\271\314\300Z\343V\224\371d\361\255)\037\032H8\234\2679"-
+#235176	REDUCE cov: 3713 ft: 14252 corp: 1705/131Kb lim: 4096 exec/s: 408 rss: 535Mb L: 52/3361 MS: 1 EraseBytes-
+#235527	REDUCE cov: 3713 ft: 14252 corp: 1705/131Kb lim: 4096 exec/s: 408 rss: 535Mb L: 27/3361 MS: 1 EraseBytes-
+#237944	REDUCE cov: 3713 ft: 14252 corp: 1705/131Kb lim: 4096 exec/s: 408 rss: 535Mb L: 87/3361 MS: 2 InsertByte-EraseBytes-
+#240601	NEW    cov: 3714 ft: 14253 corp: 1706/132Kb lim: 4096 exec/s: 407 rss: 535Mb L: 1104/3361 MS: 2 ChangeByte-ChangeBit-
+#241422	REDUCE cov: 3714 ft: 14253 corp: 1706/132Kb lim: 4096 exec/s: 407 rss: 535Mb L: 107/3361 MS: 1 EraseBytes-
+#242043	REDUCE cov: 3714 ft: 14253 corp: 1706/132Kb lim: 4096 exec/s: 408 rss: 535Mb L: 264/3361 MS: 1 EraseBytes-
+#242340	REDUCE cov: 3714 ft: 14253 corp: 1706/132Kb lim: 4096 exec/s: 407 rss: 535Mb L: 1078/3361 MS: 2 InsertByte-EraseBytes-
+#242979	NEW    cov: 3715 ft: 14254 corp: 1707/134Kb lim: 4096 exec/s: 407 rss: 535Mb L: 1931/3361 MS: 4 ChangeASCIIInt-ChangeBinInt-CMP-CopyPart- DE: "\012<83&\016\323<v\315s]K\000V\206\361_\024\263\217\032\252\004\"\254\225\341w\227\365\240"-
+#244984	DONE   cov: 3715 ft: 14254 corp: 1707/134Kb lim: 4096 exec/s: 407 rss: 535Mb
+###### Recommended dictionary. ######
+"offer_id" # Uses: 4229
+"3\000\000\000" # Uses: 3764
+"agen" # Uses: 2032
+"\015z\272\264\322\017\035\015v\036\335\232\266\271\314\300Z\343V\224\371d\361\255)\037\032H8\234\2679" # Uses: 828
+"mandate" # Uses: 1002
+"\012<83&\016\323<v\315s]K\000V\206\361_\024\263\217\032\252\004\"\254\225\341w\227\365\240" # Uses: 16
+###### End of recommended dictionary. ######
+Done 244984 runs in 601 second(s)
