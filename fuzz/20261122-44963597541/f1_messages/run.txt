@@ -1,0 +1,40 @@
+#9855645	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18630 rss: 671Mb L: 51/3127 MS: 1 EraseBytes-
+#9945151	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18623 rss: 671Mb L: 261/3127 MS: 1 EraseBytes-
+#9969432	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18634 rss: 671Mb L: 145/3127 MS: 1 EraseBytes-
+#10012039	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18609 rss: 671Mb L: 145/3127 MS: 2 ShuffleBytes-EraseBytes-
+#10041680	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18630 rss: 671Mb L: 330/3127 MS: 1 EraseBytes-
+#10049752	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18610 rss: 671Mb L: 32/3127 MS: 2 InsertByte-EraseBytes-
+#10079004	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18630 rss: 671Mb L: 27/3127 MS: 2 ShuffleBytes-EraseBytes-
+#10262605	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18625 rss: 671Mb L: 26/3127 MS: 1 EraseBytes-
+#10295371	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18617 rss: 671Mb L: 23/3127 MS: 1 EraseBytes-
+#10325383	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18637 rss: 671Mb L: 921/3127 MS: 2 InsertByte-EraseBytes-
+#10331009	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18614 rss: 671Mb L: 35/3127 MS: 1 EraseBytes-
+#10360140	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18633 rss: 671Mb L: 17/3127 MS: 1 EraseBytes-
+#10412846	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18627 rss: 671Mb L: 33/3127 MS: 1 EraseBytes-
+#10500952	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18618 rss: 671Mb L: 37/3127 MS: 1 EraseBytes-
+#10543088	REDUCE cov: 5141 ft: 18278 corp: 7154/257Kb lim: 4096 exec/s: 18627 rss: 671Mb L: 312/3127 MS: 1 EraseBytes-
+#10549118	NEW    cov: 5141 ft: 18279 corp: 7155/257Kb lim: 4096 exec/s: 18605 rss: 671Mb L: 88/3127 MS: 5 ChangeBit-ChangeBinInt-ChangeBit-ChangeByte-PersAutoDict- DE: "spent_msat"-
+#10609429	REDUCE cov: 5141 ft: 18279 corp: 7155/257Kb lim: 4096 exec/s: 18613 rss: 671Mb L: 23/3127 MS: 1 EraseBytes-
+#10618930	REDUCE cov: 5141 ft: 18279 corp: 7155/257Kb lim: 4096 exec/s: 18597 rss: 671Mb L: 59/3127 MS: 1 EraseBytes-
+#10645522	REDUCE cov: 5141 ft: 18279 corp: 7155/257Kb lim: 4096 exec/s: 18611 rss: 671Mb L: 31/3127 MS: 2 ChangeByte-EraseBytes-
+#10649683	REDUCE cov: 5141 ft: 18279 corp: 7155/257Kb lim: 4096 exec/s: 18618 rss: 671Mb L: 24/3127 MS: 1 EraseBytes-
+#10727350	NEW    cov: 5143 ft: 18282 corp: 7156/257Kb lim: 4096 exec/s: 18623 rss: 671Mb L: 51/3127 MS: 2 ShuffleBytes-CrossOver-
+#10743792	REDUCE cov: 5143 ft: 18282 corp: 7156/257Kb lim: 4096 exec/s: 18620 rss: 671Mb L: 533/3127 MS: 2 PersAutoDict-EraseBytes- DE: "mandatebuyer_nonce"-
+#10744798	NEW    cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18621 rss: 671Mb L: 576/3127 MS: 1 CopyPart-
+#10811364	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18608 rss: 671Mb L: 47/3127 MS: 1 EraseBytes-
+#10885455	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18607 rss: 671Mb L: 68/3127 MS: 1 EraseBytes-
+#10902441	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18604 rss: 671Mb L: 35/3127 MS: 1 EraseBytes-
+#10964862	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18616 rss: 671Mb L: 28/3127 MS: 1 EraseBytes-
+#11009143	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18596 rss: 671Mb L: 49/3127 MS: 1 EraseBytes-
+#11031074	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18602 rss: 671Mb L: 50/3127 MS: 1 EraseBytes-
+#11033080	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18605 rss: 671Mb L: 47/3127 MS: 1 EraseBytes-
+#11072226	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18608 rss: 671Mb L: 39/3127 MS: 1 EraseBytes-
+#11160492	REDUCE cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18600 rss: 671Mb L: 78/3127 MS: 1 EraseBytes-
+#11170197	DONE   cov: 5143 ft: 18288 corp: 7157/257Kb lim: 4096 exec/s: 18586 rss: 671Mb
+###### Recommended dictionary. ######
+"\032\000\000\000\000\000\000\000" # Uses: 695457
+"spent_msat" # Uses: 137201
+"bundle" # Uses: 108659
+"mandatebuyer_nonce" # Uses: 36798
+###### End of recommended dictionary. ######
+Done 11170197 runs in 601 second(s)
