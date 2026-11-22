@@ -1,0 +1,40 @@
+     Running `fuzz/target/x86_64-unknown-linux-gnu/release/f5_jobs -artifact_prefix=/home/runner/work/pcp/pcp/pcp/fuzz/artifacts/f5_jobs/ -max_total_time=900 -timeout=20 -rss_limit_mb=2048 fuzz/corpus/f5_jobs`
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3252258514
+INFO: Loaded 1 modules   (1537 inline 8-bit counters): 1537 [0x564b62cc1b30, 0x564b62cc2131), 
+INFO: Loaded 1 PC tables (1537 PCs): 1537 [0x564b62cc2138,0x564b62cc8148), 
+INFO:     2584 files found in fuzz/corpus/f5_jobs
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 2584 min: 1b max: 2396b total: 611343b rss: 47Mb
+#2048	pulse  cov: 439 ft: 1415 corp: 380/16Kb exec/s: 52 rss: 87Mb
+#2585	INITED cov: 439 ft: 1447 corp: 398/30Kb exec/s: 64 rss: 129Mb
+#4096	pulse  cov: 439 ft: 1447 corp: 398/30Kb lim: 2115 exec/s: 97 rss: 131Mb
+#8192	pulse  cov: 439 ft: 1447 corp: 398/30Kb lim: 2159 exec/s: 174 rss: 138Mb
+#16384	pulse  cov: 439 ft: 1447 corp: 398/30Kb lim: 2236 exec/s: 264 rss: 157Mb
+#17222	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2247 exec/s: 264 rss: 157Mb L: 68/2093 MS: 2 ShuffleBytes-EraseBytes-
+#18018	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2247 exec/s: 268 rss: 160Mb L: 334/2093 MS: 1 EraseBytes-
+#25185	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2313 exec/s: 318 rss: 175Mb L: 462/2093 MS: 2 CopyPart-EraseBytes-
+#32768	pulse  cov: 439 ft: 1447 corp: 398/30Kb lim: 2379 exec/s: 352 rss: 189Mb
+#37763	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2434 exec/s: 337 rss: 197Mb L: 77/2093 MS: 3 ChangeBit-ChangeByte-EraseBytes-
+#53813	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2588 exec/s: 332 rss: 227Mb L: 821/2093 MS: 5 ShuffleBytes-ShuffleBytes-ChangeASCIIInt-ChangeASCIIInt-EraseBytes-
+#59217	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2632 exec/s: 321 rss: 238Mb L: 785/2093 MS: 4 ChangeBit-ShuffleBytes-CopyPart-EraseBytes-
+#62790	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2665 exec/s: 325 rss: 246Mb L: 74/2093 MS: 2 ChangeByte-EraseBytes-
+#65536	pulse  cov: 439 ft: 1447 corp: 398/30Kb lim: 2687 exec/s: 334 rss: 252Mb
+#94052	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 2973 exec/s: 334 rss: 306Mb L: 76/2093 MS: 2 ChangeASCIIInt-EraseBytes-
+#101403	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 3039 exec/s: 338 rss: 320Mb L: 61/2093 MS: 1 EraseBytes-
+#104786	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 3072 exec/s: 332 rss: 326Mb L: 963/2093 MS: 3 ShuffleBytes-ChangeByte-EraseBytes-
+#120862	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 3226 exec/s: 346 rss: 354Mb L: 309/2093 MS: 1 EraseBytes-
+#131072	pulse  cov: 439 ft: 1447 corp: 398/30Kb lim: 3325 exec/s: 348 rss: 375Mb
+#191448	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 3919 exec/s: 402 rss: 426Mb L: 606/2093 MS: 1 EraseBytes-
+#203439	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4029 exec/s: 400 rss: 426Mb L: 336/2093 MS: 1 EraseBytes-
+#206132	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4051 exec/s: 397 rss: 426Mb L: 593/2093 MS: 3 ChangeASCIIInt-CrossOver-EraseBytes-
+#222232	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 393 rss: 426Mb L: 456/2093 MS: 5 ChangeBinInt-ChangeBit-ChangeBit-ChangeASCIIInt-EraseBytes-
+#230891	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 385 rss: 426Mb L: 31/2093 MS: 4 CopyPart-ShuffleBytes-ChangeASCIIInt-EraseBytes-
+#245832	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 392 rss: 426Mb L: 186/2093 MS: 1 EraseBytes-
+#255991	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 394 rss: 426Mb L: 482/2093 MS: 4 ChangeASCIIInt-ChangeBinInt-EraseBytes-ChangeByte-
+#262144	pulse  cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 394 rss: 426Mb
+#271257	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 385 rss: 426Mb L: 453/2093 MS: 1 EraseBytes-
+#274355	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 387 rss: 426Mb L: 152/2093 MS: 3 EraseBytes-ChangeASCIIInt-CopyPart-
+#332842	REDUCE cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 373 rss: 426Mb L: 182/2093 MS: 2 CopyPart-EraseBytes-
+#333902	DONE   cov: 439 ft: 1447 corp: 398/30Kb lim: 4096 exec/s: 368 rss: 426Mb
+Done 333902 runs in 905 second(s)
