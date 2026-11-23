@@ -1,0 +1,40 @@
+#729592	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1039 rss: 618Mb L: 1629/4042 MS: 1 EraseBytes-
+#733048	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1038 rss: 618Mb L: 49/4042 MS: 1 EraseBytes-
+#743149	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1039 rss: 618Mb L: 133/4042 MS: 1 EraseBytes-
+#750220	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1039 rss: 618Mb L: 161/4042 MS: 1 EraseBytes-
+#760376	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1040 rss: 618Mb L: 800/4042 MS: 1 EraseBytes-
+#764572	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1040 rss: 618Mb L: 49/4042 MS: 1 EraseBytes-
+#775905	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1040 rss: 618Mb L: 83/4042 MS: 3 ChangeByte-ChangeBinInt-EraseBytes-
+#781756	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1040 rss: 619Mb L: 45/4042 MS: 1 EraseBytes-
+#797127	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1041 rss: 619Mb L: 145/4042 MS: 1 EraseBytes-
+#801373	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1042 rss: 619Mb L: 662/4042 MS: 1 EraseBytes-
+#822940	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1043 rss: 619Mb L: 180/4042 MS: 2 EraseBytes-CopyPart-
+#824601	REDUCE cov: 5615 ft: 14072 corp: 2287/365Kb lim: 4096 exec/s: 1042 rss: 619Mb L: 2077/4042 MS: 1 EraseBytes-
+#826788	NEW    cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1042 rss: 619Mb L: 60/4042 MS: 2 ShuffleBytes-CrossOver-
+#830354	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1043 rss: 619Mb L: 237/4042 MS: 1 EraseBytes-
+#842125	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1043 rss: 619Mb L: 63/4042 MS: 1 EraseBytes-
+#845776	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 267/4042 MS: 1 EraseBytes-
+#849371	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1043 rss: 619Mb L: 1879/4042 MS: 5 InsertByte-ChangeBinInt-EraseBytes-ChangeBinInt-CopyPart-
+#854963	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1043 rss: 619Mb L: 222/4042 MS: 2 ShuffleBytes-EraseBytes-
+#864500	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 164/4042 MS: 2 InsertByte-EraseBytes-
+#870181	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 172/4042 MS: 1 EraseBytes-
+#872809	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 458/4042 MS: 3 ChangeASCIIInt-ChangeBinInt-EraseBytes-
+#875995	REDUCE cov: 5617 ft: 14074 corp: 2288/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 806/4042 MS: 1 EraseBytes-
+#876567	NEW    cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 145/4042 MS: 2 ChangeBit-CrossOver-
+#884300	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1045 rss: 619Mb L: 58/4042 MS: 3 EraseBytes-ChangeBinInt-CopyPart-
+#903521	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 1197/4042 MS: 1 EraseBytes-
+#913662	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 72/4042 MS: 1 EraseBytes-
+#918265	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 146/4042 MS: 3 EraseBytes-CopyPart-EraseBytes-
+#921162	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 54/4042 MS: 2 ChangeByte-EraseBytes-
+#928289	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 26/4042 MS: 2 EraseBytes-EraseBytes-
+#929634	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1044 rss: 619Mb L: 39/4042 MS: 5 ChangeASCIIInt-ChangeASCIIInt-ChangeASCIIInt-CopyPart-EraseBytes-
+#938193	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1043 rss: 620Mb L: 3852/4042 MS: 4 ChangeASCIIInt-ChangeASCIIInt-ChangeByte-EraseBytes-
+#939054	REDUCE cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1043 rss: 620Mb L: 43/4042 MS: 1 EraseBytes-
+#940014	DONE   cov: 5617 ft: 14075 corp: 2289/365Kb lim: 4096 exec/s: 1043 rss: 620Mb
+###### Recommended dictionary. ######
+"selle" # Uses: 31560
+"price_msat" # Uses: 12747
+"O\000\000\000\000\000\000\000" # Uses: 5932
+"backe" # Uses: 5763
+###### End of recommended dictionary. ######
+Done 940014 runs in 901 second(s)
