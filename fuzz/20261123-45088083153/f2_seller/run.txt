@@ -1,0 +1,40 @@
+#128668	NEW    cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 160/3361 MS: 4 CopyPart-ChangeByte-InsertByte-ChangeByte-
+#128729	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 491/3361 MS: 1 EraseBytes-
+#128877	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 147/3361 MS: 3 ChangeBit-CMP-EraseBytes- DE: "\377\377\377\377\377\377\377\377"-
+#129390	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 640/3361 MS: 3 InsertByte-ChangeByte-EraseBytes-
+#129526	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 386/3361 MS: 1 EraseBytes-
+#129827	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 62/3361 MS: 1 EraseBytes-
+#130038	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 362/3361 MS: 1 EraseBytes-
+#130139	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 73/3361 MS: 1 EraseBytes-
+#131072	pulse  cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb
+#131090	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 35/3361 MS: 1 EraseBytes-
+#132936	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 21/3361 MS: 1 EraseBytes-
+#133517	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 62/3361 MS: 1 EraseBytes-
+#136013	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 123/3361 MS: 1 EraseBytes-
+#137845	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 653/3361 MS: 2 PersAutoDict-EraseBytes- DE: "\377\377\377\377\377\377\377\377"-
+#141681	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 119/3361 MS: 1 EraseBytes-
+#142033	REDUCE cov: 3717 ft: 14317 corp: 1714/144Kb lim: 4096 exec/s: 292 rss: 537Mb L: 20/3361 MS: 2 ChangeBit-EraseBytes-
+#142305	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 1334/3361 MS: 2 ShuffleBytes-EraseBytes-
+#142512	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 138/3361 MS: 2 ChangeBinInt-EraseBytes-
+#143624	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 45/3361 MS: 2 ShuffleBytes-EraseBytes-
+#146085	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 21/3361 MS: 1 EraseBytes-
+#146096	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 785/3361 MS: 1 EraseBytes-
+#149957	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 59/3361 MS: 1 EraseBytes-
+#151473	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 52/3361 MS: 1 EraseBytes-
+#152514	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 29/3361 MS: 1 EraseBytes-
+#152852	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 135/3361 MS: 3 ShuffleBytes-ChangeByte-EraseBytes-
+#154488	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 45/3361 MS: 1 EraseBytes-
+#159949	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 28/3361 MS: 1 EraseBytes-
+#164142	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 113/3361 MS: 3 ShuffleBytes-ChangeByte-EraseBytes-
+#170503	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 33/3361 MS: 1 EraseBytes-
+#173964	REDUCE cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 292 rss: 537Mb L: 46/3361 MS: 1 EraseBytes-
+#175469	DONE   cov: 3717 ft: 14317 corp: 1714/143Kb lim: 4096 exec/s: 291 rss: 537Mb
+###### Recommended dictionary. ######
+"\000\000\000\000\000\000\000\000" # Uses: 4286
+"mandate" # Uses: 4082
+"\001\000\000\000\000\000\000D" # Uses: 1926
+"\377\377\377\377\377\377\377A" # Uses: 1237
+"version" # Uses: 1163
+"\377\377\377\377\377\377\377\377" # Uses: 684
+###### End of recommended dictionary. ######
+Done 175469 runs in 601 second(s)
