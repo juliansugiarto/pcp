@@ -1,0 +1,40 @@
+#1214184	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1566 rss: 577Mb L: 111/3979 MS: 1 EraseBytes-
+#1221447	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1565 rss: 577Mb L: 964/3979 MS: 3 ChangeBit-ChangeASCIIInt-EraseBytes-
+#1227083	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1567 rss: 577Mb L: 1528/3979 MS: 1 EraseBytes-
+#1237204	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1566 rss: 577Mb L: 3025/3979 MS: 1 EraseBytes-
+#1237805	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1566 rss: 577Mb L: 120/3979 MS: 1 EraseBytes-
+#1257096	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1567 rss: 577Mb L: 93/3979 MS: 1 EraseBytes-
+#1261232	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1566 rss: 577Mb L: 1507/3979 MS: 1 EraseBytes-
+#1264678	REDUCE cov: 4906 ft: 12226 corp: 2205/325Kb lim: 4096 exec/s: 1567 rss: 578Mb L: 658/3979 MS: 1 EraseBytes-
+#1264995	REDUCE cov: 4906 ft: 12227 corp: 2206/325Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 148/3979 MS: 2 ChangeByte-ChangeBit-
+#1266976	REDUCE cov: 4906 ft: 12227 corp: 2206/325Kb lim: 4096 exec/s: 1566 rss: 579Mb L: 115/3979 MS: 1 EraseBytes-
+#1276304	REDUCE cov: 4906 ft: 12227 corp: 2206/325Kb lim: 4096 exec/s: 1566 rss: 579Mb L: 198/3979 MS: 3 ShuffleBytes-ChangeASCIIInt-EraseBytes-
+#1279091	REDUCE cov: 4906 ft: 12227 corp: 2206/325Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 194/3979 MS: 2 CMP-EraseBytes- DE: "version"-
+#1285817	NEW    cov: 4906 ft: 12228 corp: 2207/325Kb lim: 4096 exec/s: 1566 rss: 579Mb L: 87/3979 MS: 1 CopyPart-
+#1288873	NEW    cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1566 rss: 579Mb L: 365/3979 MS: 1 CopyPart-
+#1288959	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1566 rss: 579Mb L: 55/3979 MS: 1 EraseBytes-
+#1304030	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 208/3979 MS: 1 EraseBytes-
+#1311593	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 3949/3971 MS: 3 InsertRepeatedBytes-CopyPart-EraseBytes-
+#1317954	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 30/3971 MS: 1 EraseBytes-
+#1318315	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 161/3971 MS: 1 EraseBytes-
+#1323371	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 3111/3971 MS: 1 EraseBytes-
+#1363632	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 579Mb L: 107/3971 MS: 1 EraseBytes-
+#1369354	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1568 rss: 579Mb L: 68/3971 MS: 2 ChangeByte-EraseBytes-
+#1373010	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 580Mb L: 65/3971 MS: 1 EraseBytes-
+#1381416	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1568 rss: 580Mb L: 162/3971 MS: 1 EraseBytes-
+#1381502	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1568 rss: 580Mb L: 58/3971 MS: 1 EraseBytes-
+#1385253	REDUCE cov: 4906 ft: 12229 corp: 2208/326Kb lim: 4096 exec/s: 1567 rss: 580Mb L: 3868/3971 MS: 1 EraseBytes-
+#1387919	NEW    cov: 4906 ft: 12232 corp: 2209/326Kb lim: 4096 exec/s: 1566 rss: 580Mb L: 71/3971 MS: 1 ChangeBit-
+#1392871	REDUCE cov: 4906 ft: 12232 corp: 2209/326Kb lim: 4096 exec/s: 1566 rss: 580Mb L: 1213/3971 MS: 2 CopyPart-EraseBytes-
+#1395243	REDUCE cov: 4906 ft: 12232 corp: 2209/325Kb lim: 4096 exec/s: 1567 rss: 580Mb L: 2631/3971 MS: 2 ChangeASCIIInt-EraseBytes-
+#1401914	NEW    cov: 4906 ft: 12233 corp: 2210/325Kb lim: 4096 exec/s: 1566 rss: 580Mb L: 71/3971 MS: 1 ChangeBinInt-
+#1404041	REDUCE cov: 4906 ft: 12233 corp: 2210/325Kb lim: 4096 exec/s: 1567 rss: 580Mb L: 58/3971 MS: 2 ChangeASCIIInt-EraseBytes-
+#1407417	REDUCE cov: 4906 ft: 12233 corp: 2210/325Kb lim: 4096 exec/s: 1567 rss: 580Mb L: 252/3971 MS: 1 EraseBytes-
+#1410123	REDUCE cov: 4906 ft: 12233 corp: 2210/325Kb lim: 4096 exec/s: 1566 rss: 580Mb L: 30/3971 MS: 1 EraseBytes-
+#1410973	DONE   cov: 4906 ft: 12233 corp: 2210/325Kb lim: 4096 exec/s: 1566 rss: 580Mb
+###### Recommended dictionary. ######
+"\377\377\377\377\377\377\377\377" # Uses: 53849
+"offer_expi" # Uses: 35770
+"version" # Uses: 3951
+###### End of recommended dictionary. ######
+Done 1410973 runs in 901 second(s)
