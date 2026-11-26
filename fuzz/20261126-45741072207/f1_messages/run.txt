@@ -1,0 +1,40 @@
+#6344943	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12740 rss: 609Mb L: 33/3157 MS: 1 EraseBytes-
+#6407405	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12738 rss: 609Mb L: 26/3157 MS: 2 CopyPart-EraseBytes-
+#6501376	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12747 rss: 609Mb L: 83/3157 MS: 1 EraseBytes-
+#6535707	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12765 rss: 609Mb L: 37/3157 MS: 1 EraseBytes-
+#6541669	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12751 rss: 609Mb L: 129/3157 MS: 2 ChangeASCIIInt-EraseBytes-
+#6554100	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12751 rss: 609Mb L: 162/3157 MS: 1 EraseBytes-
+#6557413	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12757 rss: 609Mb L: 617/3157 MS: 3 ChangeByte-ShuffleBytes-EraseBytes-
+#6593054	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12752 rss: 609Mb L: 23/3157 MS: 1 EraseBytes-
+#6779408	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12767 rss: 609Mb L: 27/3157 MS: 4 CMP-ShuffleBytes-EraseBytes-EraseBytes- DE: "invoice"-
+#6841169	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12787 rss: 609Mb L: 44/3157 MS: 1 EraseBytes-
+#6875246	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12779 rss: 609Mb L: 2026/3157 MS: 2 CMP-EraseBytes- DE: "\377\377\377\374"-
+#6878173	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12784 rss: 609Mb L: 869/3157 MS: 2 ChangeASCIIInt-EraseBytes-
+#6943384	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12787 rss: 609Mb L: 88/3157 MS: 1 EraseBytes-
+#6945265	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12790 rss: 609Mb L: 31/3157 MS: 1 EraseBytes-
+#7024521	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12795 rss: 609Mb L: 26/3157 MS: 1 EraseBytes-
+#7029002	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12803 rss: 609Mb L: 24/3157 MS: 1 EraseBytes-
+#7064003	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12797 rss: 609Mb L: 35/3157 MS: 1 EraseBytes-
+#7100019	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12792 rss: 609Mb L: 24/3157 MS: 1 EraseBytes-
+#7198200	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12808 rss: 609Mb L: 142/3157 MS: 1 EraseBytes-
+#7216798	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12795 rss: 609Mb L: 232/3157 MS: 3 ShuffleBytes-ShuffleBytes-EraseBytes-
+#7296080	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12800 rss: 609Mb L: 69/3157 MS: 2 ShuffleBytes-EraseBytes-
+#7328287	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12811 rss: 609Mb L: 1304/3157 MS: 2 ChangeASCIIInt-EraseBytes-
+#7378075	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12809 rss: 609Mb L: 180/3157 MS: 3 InsertRepeatedBytes-CopyPart-EraseBytes-
+#7426466	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12804 rss: 609Mb L: 33/3157 MS: 1 EraseBytes-
+#7457547	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12813 rss: 609Mb L: 26/3157 MS: 1 EraseBytes-
+#7465024	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12804 rss: 609Mb L: 166/3157 MS: 2 EraseBytes-CopyPart-
+#7466210	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12806 rss: 609Mb L: 37/3157 MS: 1 EraseBytes-
+#7479916	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12808 rss: 609Mb L: 60/3157 MS: 1 EraseBytes-
+#7515807	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12803 rss: 609Mb L: 152/3157 MS: 1 EraseBytes-
+#7624378	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12814 rss: 609Mb L: 113/3157 MS: 1 EraseBytes-
+#7654739	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12822 rss: 609Mb L: 26/3157 MS: 1 EraseBytes-
+#7655370	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12823 rss: 609Mb L: 84/3157 MS: 1 EraseBytes-
+#7666161	REDUCE cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12819 rss: 609Mb L: 42/3157 MS: 1 EraseBytes-
+#7698696	DONE   cov: 5198 ft: 18413 corp: 7181/267Kb lim: 4096 exec/s: 12809 rss: 609Mb
+###### Recommended dictionary. ######
+"tastae" # Uses: 584804
+"invoice" # Uses: 28865
+"\377\377\377\374" # Uses: 24863
+###### End of recommended dictionary. ######
+Done 7698696 runs in 601 second(s)
