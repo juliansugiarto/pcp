@@ -1,0 +1,40 @@
+#92725	REDUCE cov: 3735 ft: 14392 corp: 1752/148Kb lim: 3977 exec/s: 237 rss: 522Mb L: 12/3361 MS: 2 EraseBytes-CopyPart-
+#93646	REDUCE cov: 3735 ft: 14392 corp: 1752/148Kb lim: 3977 exec/s: 237 rss: 522Mb L: 51/3361 MS: 1 EraseBytes-
+#94037	REDUCE cov: 3735 ft: 14392 corp: 1752/148Kb lim: 3977 exec/s: 237 rss: 523Mb L: 132/3361 MS: 1 EraseBytes-
+#95087	NEW    cov: 3735 ft: 14394 corp: 1753/148Kb lim: 3977 exec/s: 237 rss: 523Mb L: 44/3361 MS: 5 ChangeBit-ChangeByte-CopyPart-InsertByte-ChangeByte-
+#96369	REDUCE cov: 3735 ft: 14394 corp: 1753/148Kb lim: 3988 exec/s: 237 rss: 523Mb L: 44/3361 MS: 2 ShuffleBytes-EraseBytes-
+#98160	REDUCE cov: 3735 ft: 14394 corp: 1753/148Kb lim: 3999 exec/s: 237 rss: 523Mb L: 75/3361 MS: 1 EraseBytes-
+#99116	REDUCE cov: 3735 ft: 14394 corp: 1753/148Kb lim: 3999 exec/s: 237 rss: 523Mb L: 45/3361 MS: 1 EraseBytes-
+#101097	REDUCE cov: 3735 ft: 14394 corp: 1753/148Kb lim: 4010 exec/s: 237 rss: 523Mb L: 305/3361 MS: 1 EraseBytes-
+#105043	REDUCE cov: 3735 ft: 14394 corp: 1753/148Kb lim: 4043 exec/s: 237 rss: 523Mb L: 893/3361 MS: 1 EraseBytes-
+#107174	REDUCE cov: 3735 ft: 14394 corp: 1753/148Kb lim: 4054 exec/s: 238 rss: 523Mb L: 22/3361 MS: 1 EraseBytes-
+#108070	REDUCE cov: 3735 ft: 14394 corp: 1753/148Kb lim: 4054 exec/s: 237 rss: 523Mb L: 18/3361 MS: 1 EraseBytes-
+#108085	NEW    cov: 3735 ft: 14395 corp: 1754/151Kb lim: 4054 exec/s: 237 rss: 523Mb L: 3221/3361 MS: 5 InsertByte-ShuffleBytes-CMP-CrossOver-PersAutoDict- DE: "mandate"-"role"-
+#110714	REDUCE cov: 3735 ft: 14395 corp: 1754/151Kb lim: 4076 exec/s: 237 rss: 523Mb L: 241/3361 MS: 4 ChangeBinInt-ShuffleBytes-ChangeByte-EraseBytes-
+#111895	REDUCE cov: 3735 ft: 14395 corp: 1754/151Kb lim: 4087 exec/s: 237 rss: 523Mb L: 49/3361 MS: 1 EraseBytes-
+#112907	NEW    cov: 3735 ft: 14396 corp: 1755/151Kb lim: 4087 exec/s: 237 rss: 523Mb L: 72/3361 MS: 2 ShuffleBytes-ChangeByte-
+#112963	REDUCE cov: 3735 ft: 14396 corp: 1755/151Kb lim: 4087 exec/s: 237 rss: 523Mb L: 23/3361 MS: 1 EraseBytes-
+#117289	REDUCE cov: 3735 ft: 14396 corp: 1755/151Kb lim: 4096 exec/s: 237 rss: 523Mb L: 39/3361 MS: 1 EraseBytes-
+#119966	REDUCE cov: 3735 ft: 14396 corp: 1755/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 63/3361 MS: 2 ChangeBit-EraseBytes-
+#120408	NEW    cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 237 rss: 524Mb L: 62/3361 MS: 2 ShuffleBytes-CopyPart-
+#121394	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 38/3361 MS: 1 EraseBytes-
+#124505	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 848/3361 MS: 1 EraseBytes-
+#126907	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 30/3361 MS: 2 CrossOver-EraseBytes-
+#131072	pulse  cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 237 rss: 524Mb
+#131273	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 59/3361 MS: 1 EraseBytes-
+#135424	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 51/3361 MS: 1 EraseBytes-
+#136715	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 29/3361 MS: 1 EraseBytes-
+#137902	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 597/3361 MS: 2 ShuffleBytes-EraseBytes-
+#139074	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 524Mb L: 80/3361 MS: 2 ShuffleBytes-EraseBytes-
+#139980	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 525Mb L: 119/3361 MS: 1 EraseBytes-
+#140291	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 525Mb L: 43/3361 MS: 1 EraseBytes-
+#140587	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 525Mb L: 38/3361 MS: 1 EraseBytes-
+#141069	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 525Mb L: 31/3361 MS: 1 EraseBytes-
+#141930	REDUCE cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 525Mb L: 130/3361 MS: 1 EraseBytes-
+#143170	DONE   cov: 3735 ft: 14398 corp: 1756/151Kb lim: 4096 exec/s: 238 rss: 525Mb
+###### Recommended dictionary. ######
+"\010;\206\035\254\344\357\227\331I\016\241\307\374\371\301I\251\311\334\002-c\254\235\245\212.\364\265\202\023" # Uses: 3777
+"role" # Uses: 2623
+"mandate" # Uses: 988
+###### End of recommended dictionary. ######
+Done 143170 runs in 601 second(s)
