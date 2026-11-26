@@ -1,0 +1,40 @@
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 2689 min: 1b max: 2396b total: 661947b rss: 47Mb
+#2048	pulse  cov: 445 ft: 1399 corp: 377/16Kb exec/s: 68 rss: 86Mb
+#2690	INITED cov: 445 ft: 1454 corp: 395/28Kb exec/s: 89 rss: 134Mb
+#3352	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2047 exec/s: 111 rss: 134Mb L: 26/2037 MS: 2 ShuffleBytes-EraseBytes-
+#4096	pulse  cov: 445 ft: 1454 corp: 395/28Kb lim: 2047 exec/s: 120 rss: 137Mb
+#8192	pulse  cov: 445 ft: 1454 corp: 395/28Kb lim: 2090 exec/s: 174 rss: 143Mb
+#16384	pulse  cov: 445 ft: 1454 corp: 395/28Kb lim: 2167 exec/s: 277 rss: 156Mb
+#22413	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2233 exec/s: 315 rss: 165Mb L: 158/2037 MS: 1 EraseBytes-
+#24374	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2244 exec/s: 333 rss: 170Mb L: 40/2037 MS: 1 EraseBytes-
+#27100	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2266 exec/s: 371 rss: 176Mb L: 25/2037 MS: 1 EraseBytes-
+#27764	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2266 exec/s: 380 rss: 177Mb L: 1853/2037 MS: 4 ChangeASCIIInt-ShuffleBytes-EraseBytes-CopyPart-
+#32768	pulse  cov: 445 ft: 1454 corp: 395/28Kb lim: 2310 exec/s: 381 rss: 185Mb
+#46240	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2442 exec/s: 345 rss: 210Mb L: 50/2037 MS: 1 EraseBytes-
+#53147	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2508 exec/s: 354 rss: 222Mb L: 89/2037 MS: 2 ChangeBinInt-EraseBytes-
+#65536	pulse  cov: 445 ft: 1454 corp: 395/28Kb lim: 2629 exec/s: 364 rss: 246Mb
+#74513	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 2717 exec/s: 368 rss: 261Mb L: 56/2037 MS: 1 EraseBytes-
+#106404	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 3025 exec/s: 388 rss: 320Mb L: 1215/2037 MS: 1 EraseBytes-
+#106756	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 3025 exec/s: 386 rss: 323Mb L: 50/2037 MS: 2 ChangeByte-EraseBytes-
+#131072	pulse  cov: 445 ft: 1454 corp: 395/28Kb lim: 3267 exec/s: 425 rss: 365Mb
+#141962	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 3366 exec/s: 434 rss: 385Mb L: 505/2037 MS: 1 EraseBytes-
+#177368	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 3718 exec/s: 420 rss: 426Mb L: 1187/2037 MS: 1 EraseBytes-
+#180590	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 3740 exec/s: 421 rss: 426Mb L: 60/2037 MS: 2 ChangeASCIIInt-EraseBytes-
+#190152	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 3828 exec/s: 422 rss: 426Mb L: 1115/2037 MS: 2 CopyPart-EraseBytes-
+#217103	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4092 exec/s: 431 rss: 426Mb L: 495/2037 MS: 1 EraseBytes-
+#224750	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 435 rss: 426Mb L: 49/2037 MS: 2 EraseBytes-CopyPart-
+#230277	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 437 rss: 426Mb L: 72/2037 MS: 2 ChangeASCIIInt-EraseBytes-
+#233664	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 439 rss: 426Mb L: 320/2037 MS: 2 ChangeASCIIInt-EraseBytes-
+#262144	pulse  cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 456 rss: 426Mb
+#263442	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 456 rss: 426Mb L: 911/2037 MS: 3 EraseBytes-InsertRepeatedBytes-CopyPart-
+#277093	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 464 rss: 426Mb L: 436/2037 MS: 1 EraseBytes-
+#285126	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 466 rss: 426Mb L: 1108/2037 MS: 3 ShuffleBytes-CopyPart-EraseBytes-
+#321593	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 465 rss: 426Mb L: 1837/2037 MS: 2 ChangeBit-EraseBytes-
+#329994	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 466 rss: 426Mb L: 1092/2037 MS: 1 EraseBytes-
+#345285	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 453 rss: 426Mb L: 45/2037 MS: 1 EraseBytes-
+#348877	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 456 rss: 426Mb L: 1747/2037 MS: 2 ChangeBinInt-EraseBytes-
+#356534	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 455 rss: 426Mb L: 1073/2037 MS: 2 ChangeBit-EraseBytes-
+#382965	REDUCE cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 463 rss: 426Mb L: 624/2037 MS: 1 EraseBytes-
+#409830	DONE   cov: 445 ft: 1454 corp: 395/28Kb lim: 4096 exec/s: 454 rss: 426Mb
+Done 409830 runs in 901 second(s)
