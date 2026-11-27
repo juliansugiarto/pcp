@@ -1,0 +1,40 @@
+#89802	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4032 exec/s: 244 rss: 519Mb L: 62/3361 MS: 1 CopyPart-
+#93578	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4065 exec/s: 244 rss: 519Mb L: 185/3361 MS: 1 CrossOver-
+#93645	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4065 exec/s: 244 rss: 519Mb L: 59/3361 MS: 2 ChangeBit-EraseBytes-
+#94206	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4065 exec/s: 244 rss: 519Mb L: 56/3361 MS: 1 EraseBytes-
+#97242	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4087 exec/s: 244 rss: 519Mb L: 24/3361 MS: 1 EraseBytes-
+#97464	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4087 exec/s: 244 rss: 519Mb L: 50/3361 MS: 2 CopyPart-EraseBytes-
+#97680	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4087 exec/s: 244 rss: 519Mb L: 98/3361 MS: 1 EraseBytes-
+#102726	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 519Mb L: 28/3361 MS: 1 EraseBytes-
+#102898	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 519Mb L: 218/3361 MS: 2 ChangeBit-EraseBytes-
+#103018	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 519Mb L: 218/3361 MS: 5 ChangeByte-ChangeBinInt-ChangeBinInt-CMP-EraseBytes- DE: "role"-
+#103054	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 519Mb L: 34/3361 MS: 1 EraseBytes-
+#104095	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 520Mb L: 20/3361 MS: 1 EraseBytes-
+#107741	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 520Mb L: 183/3361 MS: 1 EraseBytes-
+#108642	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 520Mb L: 51/3361 MS: 1 EraseBytes-
+#109428	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 520Mb L: 233/3361 MS: 1 EraseBytes-
+#109765	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 245 rss: 520Mb L: 162/3361 MS: 2 ShuffleBytes-EraseBytes-
+#111041	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 245 rss: 520Mb L: 149/3361 MS: 1 EraseBytes-
+#112827	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 520Mb L: 15/3361 MS: 1 EraseBytes-
+#116723	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 521Mb L: 198/3361 MS: 1 EraseBytes-
+#118760	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 521Mb L: 48/3361 MS: 2 CMP-EraseBytes- DE: "role"-
+#119152	REDUCE cov: 3738 ft: 14408 corp: 1740/150Kb lim: 4096 exec/s: 244 rss: 521Mb L: 112/3361 MS: 2 InsertByte-EraseBytes-
+#119804	REDUCE cov: 3738 ft: 14408 corp: 1740/149Kb lim: 4096 exec/s: 244 rss: 522Mb L: 2768/3361 MS: 2 ChangeBit-EraseBytes-
+#121030	REDUCE cov: 3738 ft: 14408 corp: 1740/149Kb lim: 4096 exec/s: 244 rss: 522Mb L: 164/3361 MS: 1 EraseBytes-
+#121842	REDUCE cov: 3738 ft: 14408 corp: 1740/149Kb lim: 4096 exec/s: 244 rss: 522Mb L: 22/3361 MS: 2 CopyPart-EraseBytes-
+#125408	REDUCE cov: 3738 ft: 14408 corp: 1740/149Kb lim: 4096 exec/s: 244 rss: 522Mb L: 25/3361 MS: 1 EraseBytes-
+#125555	REDUCE cov: 3738 ft: 14408 corp: 1740/149Kb lim: 4096 exec/s: 244 rss: 522Mb L: 34/3361 MS: 2 ChangeASCIIInt-EraseBytes-
+#128956	REDUCE cov: 3738 ft: 14408 corp: 1740/149Kb lim: 4096 exec/s: 244 rss: 523Mb L: 33/3361 MS: 1 EraseBytes-
+#131072	pulse  cov: 3738 ft: 14408 corp: 1740/149Kb lim: 4096 exec/s: 244 rss: 523Mb
+#133879	NEW    cov: 3738 ft: 14409 corp: 1741/152Kb lim: 4096 exec/s: 244 rss: 523Mb L: 3314/3361 MS: 3 ChangeBit-ChangeBit-InsertRepeatedBytes-
+#136605	REDUCE cov: 3738 ft: 14409 corp: 1741/152Kb lim: 4096 exec/s: 244 rss: 523Mb L: 50/3361 MS: 1 EraseBytes-
+#140666	REDUCE cov: 3738 ft: 14409 corp: 1741/152Kb lim: 4096 exec/s: 244 rss: 523Mb L: 119/3361 MS: 1 EraseBytes-
+#143847	REDUCE cov: 3738 ft: 14409 corp: 1741/152Kb lim: 4096 exec/s: 244 rss: 523Mb L: 196/3361 MS: 1 EraseBytes-
+#144098	REDUCE cov: 3738 ft: 14409 corp: 1741/152Kb lim: 4096 exec/s: 244 rss: 523Mb L: 158/3361 MS: 1 EraseBytes-
+#146778	DONE   cov: 3738 ft: 14409 corp: 1741/152Kb lim: 4096 exec/s: 244 rss: 523Mb
+###### Recommended dictionary. ######
+"spec_hash" # Uses: 5398
+"cap_msa" # Uses: 3182
+"role" # Uses: 1373
+###### End of recommended dictionary. ######
+Done 146778 runs in 601 second(s)
