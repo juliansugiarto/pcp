@@ -1,0 +1,40 @@
+#1499963	REDUCE cov: 5641 ft: 14132 corp: 2320/362Kb lim: 4096 exec/s: 1903 rss: 619Mb L: 121/4021 MS: 1 EraseBytes-
+#1502767	REDUCE cov: 5641 ft: 14132 corp: 2320/362Kb lim: 4096 exec/s: 1902 rss: 619Mb L: 1175/4021 MS: 4 ChangeBit-ChangeBit-CMP-EraseBytes- DE: "scope"-
+#1504496	REDUCE cov: 5641 ft: 14132 corp: 2320/362Kb lim: 4096 exec/s: 1902 rss: 619Mb L: 160/4021 MS: 4 ShuffleBytes-ChangeBit-ChangeASCIIInt-EraseBytes-
+#1520387	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1902 rss: 619Mb L: 2667/4021 MS: 1 CopyPart-
+#1525963	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1900 rss: 619Mb L: 67/4021 MS: 1 EraseBytes-
+#1533274	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1899 rss: 619Mb L: 326/4021 MS: 1 EraseBytes-
+#1538916	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1899 rss: 619Mb L: 174/4021 MS: 2 ShuffleBytes-EraseBytes-
+#1558092	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1900 rss: 619Mb L: 525/4021 MS: 1 EraseBytes-
+#1559979	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1900 rss: 619Mb L: 1003/4021 MS: 2 ChangeBinInt-EraseBytes-
+#1562460	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1898 rss: 619Mb L: 15/4021 MS: 1 EraseBytes-
+#1565731	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1900 rss: 619Mb L: 111/4021 MS: 1 EraseBytes-
+#1569073	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1899 rss: 619Mb L: 92/4021 MS: 2 ShuffleBytes-EraseBytes-
+#1569718	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1900 rss: 619Mb L: 212/4021 MS: 5 ShuffleBytes-ChangeBit-PersAutoDict-InsertByte-EraseBytes- DE: "scope"-
+#1581524	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1898 rss: 619Mb L: 209/4021 MS: 1 EraseBytes-
+#1584035	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1899 rss: 619Mb L: 383/4021 MS: 1 EraseBytes-
+#1591346	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1898 rss: 619Mb L: 2244/4021 MS: 1 EraseBytes-
+#1594843	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1898 rss: 619Mb L: 197/4021 MS: 2 CrossOver-EraseBytes-
+#1598574	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1898 rss: 619Mb L: 69/4021 MS: 1 EraseBytes-
+#1622820	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1895 rss: 619Mb L: 187/4021 MS: 1 EraseBytes-
+#1629976	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1895 rss: 619Mb L: 890/4021 MS: 1 EraseBytes-
+#1631413	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1896 rss: 619Mb L: 567/4021 MS: 2 ChangeByte-EraseBytes-
+#1643954	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1893 rss: 619Mb L: 48/4021 MS: 1 EraseBytes-
+#1648488	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1894 rss: 619Mb L: 611/4021 MS: 4 ChangeBit-CopyPart-InsertByte-EraseBytes-
+#1650929	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1893 rss: 619Mb L: 98/4021 MS: 1 EraseBytes-
+#1657400	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1894 rss: 619Mb L: 43/4021 MS: 1 EraseBytes-
+#1679273	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1893 rss: 619Mb L: 88/4021 MS: 3 InsertByte-ChangeASCIIInt-EraseBytes-
+#1679389	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1891 rss: 619Mb L: 151/4021 MS: 1 EraseBytes-
+#1682077	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1892 rss: 619Mb L: 36/4021 MS: 3 EraseBytes-PersAutoDict-PersAutoDict- DE: "scope"-"\377\377\377\377\377\377\377\376"-
+#1682333	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1892 rss: 619Mb L: 162/4021 MS: 1 EraseBytes-
+#1683394	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1891 rss: 619Mb L: 103/4021 MS: 1 EraseBytes-
+#1686401	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1890 rss: 619Mb L: 26/4021 MS: 2 CrossOver-EraseBytes-
+#1688717	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1891 rss: 619Mb L: 164/4021 MS: 1 EraseBytes-
+#1699134	REDUCE cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1890 rss: 619Mb L: 1123/4021 MS: 2 ChangeByte-EraseBytes-
+#1702029	DONE   cov: 5641 ft: 14133 corp: 2321/365Kb lim: 4096 exec/s: 1889 rss: 619Mb
+###### Recommended dictionary. ######
+"\377\377\377\377\377\377\377\376" # Uses: 96846
+"\377\377\377\377" # Uses: 24474
+"scope" # Uses: 5952
+###### End of recommended dictionary. ######
+Done 1702029 runs in 901 second(s)
