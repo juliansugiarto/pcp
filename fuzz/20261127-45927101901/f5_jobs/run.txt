@@ -1,0 +1,40 @@
+#192351	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 3861 exec/s: 551 rss: 426Mb L: 734/2037 MS: 2 InsertByte-EraseBytes-
+#262144	pulse  cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 569 rss: 426Mb
+#272447	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 574 rss: 426Mb L: 62/2037 MS: 1 EraseBytes-
+#274547	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 569 rss: 426Mb L: 561/2037 MS: 5 CopyPart-ShuffleBytes-InsertByte-ChangeBit-EraseBytes-
+#276668	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 565 rss: 426Mb L: 1701/2037 MS: 1 EraseBytes-
+#297974	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 567 rss: 426Mb L: 317/2037 MS: 1 EraseBytes-
+#298655	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 562 rss: 426Mb L: 595/2037 MS: 1 EraseBytes-
+#306353	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 566 rss: 426Mb L: 814/2037 MS: 3 ChangeASCIIInt-EraseBytes-CopyPart-
+#333220	REDUCE cov: 445 ft: 1454 corp: 391/27Kb lim: 4096 exec/s: 554 rss: 426Mb L: 733/2037 MS: 2 ShuffleBytes-EraseBytes-
+#337222	REDUCE cov: 445 ft: 1457 corp: 392/27Kb lim: 4096 exec/s: 553 rss: 426Mb L: 27/2037 MS: 2 CopyPart-EraseBytes-
+#337303	REDUCE cov: 445 ft: 1457 corp: 392/27Kb lim: 4096 exec/s: 552 rss: 426Mb L: 594/2037 MS: 1 EraseBytes-
+#338214	REDUCE cov: 445 ft: 1457 corp: 392/27Kb lim: 4096 exec/s: 553 rss: 426Mb L: 2014/2014 MS: 1 EraseBytes-
+#343330	REDUCE cov: 445 ft: 1457 corp: 392/27Kb lim: 4096 exec/s: 556 rss: 426Mb L: 77/2014 MS: 1 EraseBytes-
+#347911	REDUCE cov: 445 ft: 1457 corp: 392/27Kb lim: 4096 exec/s: 556 rss: 426Mb L: 68/2014 MS: 1 EraseBytes-
+#355062	REDUCE cov: 445 ft: 1457 corp: 392/27Kb lim: 4096 exec/s: 559 rss: 426Mb L: 2008/2008 MS: 1 EraseBytes-
+#360424	NEW    cov: 445 ft: 1458 corp: 393/27Kb lim: 4096 exec/s: 554 rss: 426Mb L: 78/2008 MS: 2 InsertByte-InsertRepeatedBytes-
+#363720	REDUCE cov: 445 ft: 1458 corp: 393/27Kb lim: 4096 exec/s: 559 rss: 426Mb L: 1685/2008 MS: 1 EraseBytes-
+#367036	REDUCE cov: 445 ft: 1458 corp: 393/27Kb lim: 4096 exec/s: 562 rss: 426Mb L: 44/2008 MS: 1 EraseBytes-
+#373882	REDUCE cov: 445 ft: 1458 corp: 393/27Kb lim: 4096 exec/s: 561 rss: 426Mb L: 866/2008 MS: 1 EraseBytes-
+#374813	REDUCE cov: 445 ft: 1458 corp: 393/27Kb lim: 4096 exec/s: 562 rss: 426Mb L: 581/2008 MS: 1 EraseBytes-
+#389479	REDUCE cov: 445 ft: 1458 corp: 393/27Kb lim: 4096 exec/s: 553 rss: 426Mb L: 801/2008 MS: 1 EraseBytes-
+#392960	NEW    cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 556 rss: 426Mb L: 25/2008 MS: 1 EraseBytes-
+#395090	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 556 rss: 426Mb L: 43/2008 MS: 5 ChangeByte-CopyPart-ChangeByte-CopyPart-EraseBytes-
+#417246	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 557 rss: 428Mb L: 857/2008 MS: 1 EraseBytes-
+#418127	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 555 rss: 428Mb L: 46/2008 MS: 1 EraseBytes-
+#428833	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 554 rss: 428Mb L: 433/2008 MS: 1 EraseBytes-
+#430038	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 549 rss: 428Mb L: 461/2008 MS: 5 InsertByte-CMP-ShuffleBytes-ChangeByte-EraseBytes- DE: "=="-
+#430830	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 548 rss: 429Mb L: 38/2008 MS: 2 ChangeASCIIInt-EraseBytes-
+#441121	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 551 rss: 430Mb L: 434/2008 MS: 1 EraseBytes-
+#462538	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 546 rss: 430Mb L: 417/2008 MS: 2 PersAutoDict-EraseBytes- DE: "=="-
+#470885	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 550 rss: 430Mb L: 413/2008 MS: 2 CMP-EraseBytes- DE: ">="-
+#492141	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 556 rss: 430Mb L: 152/2008 MS: 1 EraseBytes-
+#504589	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 565 rss: 430Mb L: 49/2008 MS: 3 CopyPart-ChangeASCIIInt-EraseBytes-
+#506502	REDUCE cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 565 rss: 430Mb L: 23/2008 MS: 3 PersAutoDict-ChangeByte-EraseBytes- DE: ">="-
+#512732	DONE   cov: 447 ft: 1460 corp: 394/27Kb lim: 4096 exec/s: 567 rss: 430Mb
+###### Recommended dictionary. ######
+"==" # Uses: 5564
+">=" # Uses: 1914
+###### End of recommended dictionary. ######
+Done 512732 runs in 903 second(s)
