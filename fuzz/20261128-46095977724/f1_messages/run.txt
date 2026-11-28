@@ -1,0 +1,40 @@
+#8489017	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16612 rss: 680Mb L: 25/3516 MS: 1 EraseBytes-
+#8499828	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16601 rss: 680Mb L: 155/3516 MS: 1 EraseBytes-
+#8536450	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16607 rss: 680Mb L: 173/3516 MS: 2 CopyPart-EraseBytes-
+#8541516	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16585 rss: 680Mb L: 114/3516 MS: 1 EraseBytes-
+#8551197	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16604 rss: 680Mb L: 35/3516 MS: 1 EraseBytes-
+#8560089	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16589 rss: 680Mb L: 103/3516 MS: 2 ShuffleBytes-EraseBytes-
+#8604230	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16578 rss: 680Mb L: 102/3516 MS: 1 EraseBytes-
+#8613626	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16596 rss: 680Mb L: 112/3516 MS: 1 EraseBytes-
+#8620617	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16578 rss: 680Mb L: 130/3516 MS: 1 EraseBytes-
+#8668721	REDUCE cov: 5213 ft: 18474 corp: 7247/279Kb lim: 4096 exec/s: 16574 rss: 680Mb L: 106/3516 MS: 4 ShuffleBytes-ChangeASCIIInt-ShuffleBytes-EraseBytes-
+	NEW_FUNC[1/1]: 0x5578084a2780  (/home/runner/work/pcp/pcp/pcp/fuzz/target/x86_64-unknown-linux-gnu/release/f1_messages+0x35e780) (BuildId: 90742bf20d9e577ca10373965797c0c8cd0f9fe4)
+#8775218	NEW    cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16557 rss: 680Mb L: 34/3516 MS: 1 InsertByte-
+#8791714	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16556 rss: 680Mb L: 68/3516 MS: 1 EraseBytes-
+#8812155	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16564 rss: 680Mb L: 105/3516 MS: 1 EraseBytes-
+#9012686	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16597 rss: 680Mb L: 260/3516 MS: 1 EraseBytes-
+#9054772	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16614 rss: 680Mb L: 98/3516 MS: 1 EraseBytes-
+#9141773	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16621 rss: 680Mb L: 34/3516 MS: 1 EraseBytes-
+#9177599	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16626 rss: 680Mb L: 110/3516 MS: 1 EraseBytes-
+#9216795	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16636 rss: 680Mb L: 26/3516 MS: 1 EraseBytes-
+#9223747	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16619 rss: 680Mb L: 92/3516 MS: 2 ShuffleBytes-EraseBytes-
+#9260048	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16624 rss: 680Mb L: 106/3516 MS: 1 EraseBytes-
+#9290139	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16619 rss: 680Mb L: 25/3516 MS: 1 EraseBytes-
+#9418620	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16640 rss: 680Mb L: 572/3516 MS: 1 EraseBytes-
+#9429591	REDUCE cov: 5227 ft: 18488 corp: 7248/279Kb lim: 4096 exec/s: 16630 rss: 680Mb L: 101/3516 MS: 1 EraseBytes-
+#9458207	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16622 rss: 680Mb L: 110/3516 MS: 1 ChangeBit-
+#9472948	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16619 rss: 680Mb L: 39/3516 MS: 1 EraseBytes-
+#9501369	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16639 rss: 680Mb L: 97/3516 MS: 1 EraseBytes-
+#9596430	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16631 rss: 680Mb L: 29/3516 MS: 1 EraseBytes-
+#9708073	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16651 rss: 680Mb L: 12/3516 MS: 3 EraseBytes-ChangeASCIIInt-CMP- DE: "schema"-
+#9803214	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16672 rss: 680Mb L: 30/3516 MS: 1 EraseBytes-
+#9857435	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16679 rss: 680Mb L: 34/3516 MS: 1 EraseBytes-
+#9872596	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16676 rss: 680Mb L: 35/3516 MS: 1 EraseBytes-
+#9981747	REDUCE cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16664 rss: 680Mb L: 104/3516 MS: 1 EraseBytes-
+#10012622	DONE   cov: 5228 ft: 18489 corp: 7249/279Kb lim: 4096 exec/s: 16659 rss: 680Mb
+###### Recommended dictionary. ######
+"type" # Uses: 541917
+"\354\377\377\377" # Uses: 325147
+"schema" # Uses: 9104
+###### End of recommended dictionary. ######
+Done 10012622 runs in 601 second(s)
