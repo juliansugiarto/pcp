@@ -1,0 +1,40 @@
+#1079810	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1578 rss: 601Mb L: 86/4021 MS: 1 EraseBytes-
+#1081151	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1578 rss: 601Mb L: 25/4021 MS: 1 EraseBytes-
+#1082442	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1577 rss: 601Mb L: 14/4021 MS: 1 EraseBytes-
+#1102519	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1577 rss: 602Mb L: 16/4021 MS: 2 InsertRepeatedBytes-EraseBytes-
+#1110940	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1578 rss: 602Mb L: 1747/4021 MS: 1 EraseBytes-
+#1112822	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1576 rss: 602Mb L: 2644/4021 MS: 2 ShuffleBytes-EraseBytes-
+#1114238	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1576 rss: 602Mb L: 27/4021 MS: 1 EraseBytes-
+#1120849	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1576 rss: 603Mb L: 47/4021 MS: 1 EraseBytes-
+#1170420	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1577 rss: 603Mb L: 672/4021 MS: 1 EraseBytes-
+#1182346	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1576 rss: 603Mb L: 2279/4021 MS: 1 EraseBytes-
+#1189942	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1576 rss: 603Mb L: 455/4021 MS: 1 EraseBytes-
+#1204493	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1576 rss: 603Mb L: 61/4021 MS: 1 EraseBytes-
+#1210749	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1574 rss: 603Mb L: 49/4021 MS: 1 EraseBytes-
+#1229001	REDUCE cov: 5641 ft: 14135 corp: 2322/362Kb lim: 4096 exec/s: 1575 rss: 603Mb L: 55/4021 MS: 2 ChangeASCIIInt-EraseBytes-
+#1229130	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1573 rss: 603Mb L: 539/4021 MS: 4 ChangeASCIIInt-CMP-InsertRepeatedBytes-CrossOver- DE: "payment_has"-
+#1236256	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1572 rss: 603Mb L: 161/4021 MS: 1 EraseBytes-
+#1236572	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1573 rss: 603Mb L: 52/4021 MS: 1 EraseBytes-
+#1238838	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1572 rss: 603Mb L: 54/4021 MS: 1 EraseBytes-
+#1259354	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1572 rss: 603Mb L: 276/4021 MS: 1 EraseBytes-
+#1273580	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1572 rss: 603Mb L: 207/4021 MS: 1 EraseBytes-
+#1274766	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1571 rss: 603Mb L: 103/4021 MS: 1 EraseBytes-
+#1275246	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1572 rss: 603Mb L: 534/4021 MS: 5 CrossOver-ChangeASCIIInt-ChangeASCIIInt-ChangeByte-EraseBytes-
+#1276487	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1572 rss: 603Mb L: 58/4021 MS: 1 EraseBytes-
+#1278953	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1571 rss: 603Mb L: 37/4021 MS: 1 EraseBytes-
+#1321674	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1569 rss: 603Mb L: 48/4021 MS: 1 EraseBytes-
+#1325054	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1569 rss: 603Mb L: 1185/4021 MS: 5 ShuffleBytes-ChangeASCIIInt-EraseBytes-ChangeByte-CopyPart-
+#1325150	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1570 rss: 603Mb L: 27/4021 MS: 1 EraseBytes-
+#1357586	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1567 rss: 603Mb L: 377/4021 MS: 1 EraseBytes-
+#1359222	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1567 rss: 603Mb L: 279/4021 MS: 1 EraseBytes-
+#1364358	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1568 rss: 603Mb L: 2023/4021 MS: 1 EraseBytes-
+#1364655	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1566 rss: 603Mb L: 283/4021 MS: 2 ShuffleBytes-EraseBytes-
+#1376166	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1567 rss: 603Mb L: 14/4021 MS: 1 EraseBytes-
+#1385344	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1567 rss: 603Mb L: 37/4021 MS: 3 ShuffleBytes-ShuffleBytes-EraseBytes-
+#1397665	REDUCE cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1566 rss: 603Mb L: 66/4021 MS: 1 EraseBytes-
+#1409890	DONE   cov: 5641 ft: 14136 corp: 2323/362Kb lim: 4096 exec/s: 1564 rss: 603Mb
+###### Recommended dictionary. ######
+"\377\377" # Uses: 54401
+"payment_has" # Uses: 7468
+###### End of recommended dictionary. ######
+Done 1409890 runs in 901 second(s)
